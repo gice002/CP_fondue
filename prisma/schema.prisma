@@ -1,0 +1,365 @@
+// Prisma Schema for CP Fondue Online Repair System
+// ระบบแจ้งซ่อมออนไลน์ วิทยาลัยการคอมพิวเตอร์ มหาวิทยาลัยขอนแก่น
+// Derived from ER_diagram.png (Chen's Notation) & fullreport-03-1.pdf Business Rules
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------
+// Enums
+// ----------------------------------------------------
+
+enum RoleCode {
+  REPORTER // ผู้แจ้งเหตุ (อาจารย์ / บุคลากร / นักศึกษา)
+  ADMIN_DISPATCH // เจ้าหน้าที่คัดกรองและมอบหมายงาน
+  TECHNICIAN // ช่างซ่อมบำรุง
+  EXECUTIVE // ผู้บริหาร / ผู้ดูแลระบบ
+}
+
+enum TicketUrgency {
+  NORMAL // ปานกลาง (ซ่อมภายใน 3 วัน)
+  URGENT // เร่งด่วน (ซ่อมภายใน 24 ชม.)
+  CRITICAL // ฉุกเฉิน (เข้าตรวจทันที < 2 ชม.)
+}
+
+enum TicketStatus {
+  PENDING_DISPATCH // รอดำเนินการคัดกรอง / รอส่งมอบงาน (BR4)
+  ASSIGNED // มอบหมายงานแล้ว (รอช่างกดรับ)
+  IN_PROGRESS // รับงานแล้ว / กำลังตรวจสอบ/ซ่อม (BR5, BR6)
+  COMPLETED // ดำเนินการเสร็จสิ้น (BR8, BR9)
+  CANCELLED // ยกเลิกคำร้อง (UC-5)
+}
+
+enum EquipmentStatus {
+  NORMAL
+  DAMAGED
+  UNDER_MAINTENANCE
+  RETIRED
+}
+
+enum WarrantyStatus {
+  IN_WARRANTY
+  OUT_OF_WARRANTY
+}
+
+enum AttachmentPhase {
+  BEFORE_REPAIR // ภาพความเสียหายก่อนซ่อม (BR2)
+  AFTER_REPAIR // ภาพผลงาน/หลักฐานยืนยันหลังซ่อม (BR8)
+}
+
+enum RequisitionStatus {
+  PENDING // รออนุมัติจ่าย (UC-10)
+  APPROVED // อนุมัติแล้ว
+  REJECTED // ไม่อนุมัติ / ขอตรวจเพิ่ม
+}
+
+enum EmailSendStatus {
+  SENT
+  FAILED
+}
+
+// ----------------------------------------------------
+// Entities
+// ----------------------------------------------------
+
+// ผู้ใช้ (User)
+model User {
+  id          String    @id @default(cuid())
+  firstName   String    @map("first_name")
+  lastName    String    @map("last_name")
+  email       String    @unique @map("kku_mail") // KKU_MAIL (BR1, BR12)
+  phoneNumber String?   @map("phone_number")
+  avatarUrl   String?   @map("avatar_url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  // Relationships
+  roleId       String      @map("role_id")
+  role         Role        @relation(fields: [roleId], references: [id])
+  departmentId String?     @map("department_id")
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  reportedTickets       Ticket[]                 @relation("ReporterTickets")
+  assignedTickets       Ticket[]                 @relation("TechnicianTickets")
+  ticketStatusHistories TicketStatusHistory[]
+  partRequests          SparePartRequest[]       @relation("RequestedByTechnician")
+  approvedPartRequests  SparePartRequest[]       @relation("ApprovedByAdmin")
+  partStatusHistories   SparePartStatusHistory[]
+  evaluations           Evaluation[]
+  auditLogs             AuditLog[]
+
+  @@map("users")
+}
+
+// ตำแหน่ง / บทบาท (Role / Position)
+model Role {
+  id          String   @id @default(cuid())
+  code        RoleCode @unique
+  name        String   @map("role_name")
+  description String?
+  users       User[]
+
+  @@map("roles")
+}
+
+// แผนก / สังกัดงาน (Department)
+model Department {
+  id             String  @id @default(cuid())
+  departmentName String  @map("department_name")
+  buildingRef    String? @map("building_ref")
+  users          User[]
+
+  @@map("departments")
+}
+
+// สถานที่ / ห้องเรียน (Location)
+model Location {
+  id         String      @id @default(cuid())
+  building   String // เช่น "CP-01 อาคารวิทยวิภาส", "CP-02", "CP-03"
+  floor      String // เช่น "ชั้น 1", "ชั้น 2", "ชั้น 3", "ชั้น 4"
+  roomNumber String      @map("room_number") // เช่น "CP-304", "208", "402"
+  roomName   String      @map("room_name") // เช่น "ห้องปฏิบัติการ Lab Hi-Tech"
+  tickets    Ticket[]
+  equipments Equipment[]
+
+  @@map("locations")
+}
+
+// หมวดหมู่ปัญหา / ประเภทอุปกรณ์ (Category)
+model Category {
+  id          String      @id @default(cuid())
+  name        String      @map("category_name") // เช่น "ระบบคอมพิวเตอร์และเครือข่าย", "ระบบปรับอากาศ"
+  description String?
+  tickets     Ticket[]
+  equipments  Equipment[]
+
+  @@map("categories")
+}
+
+// ครุภัณฑ์ / ทรัพย์สิน (Equipment / Asset)
+model Equipment {
+  id             String          @id @default(cuid())
+  assetCode      String          @unique @map("asset_code") // e.g. "KKU-CP-67-0891"
+  name           String          @map("equipment_name")
+  serialNumber   String?         @map("serial_number")
+  specDetails    String?         @map("spec_details") // e.g. "Workstation Dell Precision 3660"
+  status         EquipmentStatus @default(NORMAL) @map("equipment_status")
+  warrantyStatus WarrantyStatus  @default(IN_WARRANTY) @map("warranty_status")
+
+  locationId String   @map("location_id")
+  location   Location @relation(fields: [locationId], references: [id])
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+  tickets    Ticket[]
+
+  @@map("equipments")
+}
+
+// ใบแจ้งซ่อม (Ticket / Repair Request)
+model Ticket {
+  id             String        @id @default(cuid())
+  ticketNumber   String        @unique @map("ticket_number") // e.g. "REQ-202505-0042" (BR3)
+  description    String        @map("problem_description") // BR2
+  locationDetail String?       @map("location_detail") // จุดสังเกตเฉพาะจุดภายในห้อง
+  urgency        TicketUrgency @default(NORMAL)
+  status         TicketStatus  @default(PENDING_DISPATCH) @map("current_status") // BR4, BR6, BR9
+  targetSlaDate  DateTime?     @map("target_sla_date") // วัน-เวลาเป้าหมายซ่อมเสร็จตาม SLA
+  adminNotes     String?       @map("admin_notes") // ข้อความจากเจ้าหน้าที่ถึงช่าง
+  repairNotes    String?       @map("repair_notes") // บันทึกผลการซ่อม/อะไหล่ที่เปลี่ยน (BR8)
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  cancelledAt DateTime? @map("cancelled_at") // UC-5
+  completedAt DateTime? @map("completed_at") // BR9
+
+  // Foreign keys
+  reporterId     String     @map("reporter_id")
+  reporter       User       @relation("ReporterTickets", fields: [reporterId], references: [id])
+  assignedTechId String?    @map("assigned_tech_id")
+  assignedTech   User?      @relation("TechnicianTickets", fields: [assignedTechId], references: [id])
+  locationId     String     @map("location_id")
+  location       Location   @relation(fields: [locationId], references: [id])
+  categoryId     String     @map("category_id")
+  category       Category   @relation(fields: [categoryId], references: [id])
+  equipmentId    String?    @map("equipment_id")
+  equipment      Equipment? @relation(fields: [equipmentId], references: [id])
+
+  // Relations
+  attachments       TicketAttachment[]
+  statusHistories   TicketStatusHistory[]
+  tags              TicketTagMap[]
+  sparePartRequests SparePartRequest[]
+  evaluation        Evaluation?
+  emailLogs         EmailNotificationLog[]
+
+  @@map("tickets")
+}
+
+// รูปภาพประกอบ (Ticket Attachment / Proof Images)
+model TicketAttachment {
+  id         String          @id @default(cuid())
+  fileUrl    String          @map("file_url")
+  fileType   String          @default("image/jpeg") @map("file_type")
+  phase      AttachmentPhase @default(BEFORE_REPAIR)
+  caption    String?
+  uploadedAt DateTime        @default(now()) @map("uploaded_at")
+
+  ticketId String @map("ticket_id")
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("ticket_attachments")
+}
+
+// ประวัติการเปลี่ยนสถานะใบแจ้งซ่อม (Ticket Status History)
+model TicketStatusHistory {
+  id        String        @id @default(cuid())
+  oldStatus TicketStatus? @map("old_status")
+  newStatus TicketStatus  @map("new_status")
+  notes     String?
+  changedAt DateTime      @default(now()) @map("changed_at")
+
+  ticketId    String @map("ticket_id")
+  ticket      Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  changedById String @map("changed_by_user_id")
+  changedBy   User   @relation(fields: [changedById], references: [id])
+
+  @@map("ticket_status_histories")
+}
+
+// แท็ก (Tag)
+model Tag {
+  id      String         @id @default(cuid())
+  name    String         @unique @map("tag_name")
+  tickets TicketTagMap[]
+
+  @@map("tags")
+}
+
+// ตารางเชื่อมติดแท็กให้ใบแจ้งซ่อม (Ticket - Tag M:N mapping)
+model TicketTagMap {
+  ticketId String @map("ticket_id")
+  tagId    String @map("tag_id")
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([ticketId, tagId])
+  @@map("ticket_tags")
+}
+
+// คลังอะไหล่และอุปกรณ์ (Spare Part / Inventory)
+model SparePart {
+  id            String  @id @default(cuid())
+  partCode      String  @unique @map("part_code") // e.g. "MAT-NET-008"
+  name          String  @map("part_name")
+  unit          String // เช่น ชิ้น, เส้น, ถัง, หลอด, ชุด
+  stockQuantity Int     @default(0) @map("stock_quantity")
+  unitCost      Decimal @default(0.0) @map("unit_cost") @db.Decimal(10, 2)
+  storageRoom   String? @default("สโตร์กลาง CoP-Wh01") @map("storage_room")
+
+  requestItems SparePartRequestItem[]
+
+  @@map("spare_parts")
+}
+
+// ใบเบิกอะไหล่ (Spare Part Requisition / UC-10)
+model SparePartRequest {
+  id            String            @id @default(cuid())
+  requestNumber String            @unique @map("request_number") // e.g. "REQ-INV-092"
+  status        RequisitionStatus @default(PENDING)
+  notes         String?           @map("notes")
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+  approvedAt    DateTime?         @map("approved_at")
+
+  ticketId      String  @map("ticket_id")
+  ticket        Ticket  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  requestedById String  @map("requested_by_id")
+  requestedBy   User    @relation("RequestedByTechnician", fields: [requestedById], references: [id])
+  approvedById  String? @map("approved_by_id")
+  approvedBy    User?   @relation("ApprovedByAdmin", fields: [approvedById], references: [id])
+
+  items     SparePartRequestItem[]
+  histories SparePartStatusHistory[]
+
+  @@map("spare_part_requests")
+}
+
+// รายการในใบเบิกอะไหล่ (Spare Part Requisition Item)
+model SparePartRequestItem {
+  id        String           @id @default(cuid())
+  quantity  Int              @default(1)
+  requestId String           @map("request_id")
+  request   SparePartRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  partId    String           @map("part_id")
+  part      SparePart        @relation(fields: [partId], references: [id])
+
+  @@map("spare_part_request_items")
+}
+
+// ประวัติการเปลี่ยนสถานะใบเบิกอะไหล่ (Spare Part Status History)
+model SparePartStatusHistory {
+  id         String             @id @default(cuid())
+  oldStatus  RequisitionStatus? @map("old_status")
+  newStatus  RequisitionStatus  @map("new_status")
+  approvedAt DateTime           @default(now()) @map("approved_at")
+
+  requestId    String           @map("request_id")
+  request      SparePartRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  approvedById String           @map("approved_by_id")
+  approvedBy   User             @relation(fields: [approvedById], references: [id])
+
+  @@map("spare_part_status_histories")
+}
+
+// แบบประเมินความพึงพอใจและข้อเสนอแนะ (Evaluation / UC-6 & UC-3, BR10)
+model Evaluation {
+  id          String   @id @default(cuid())
+  rating      Int      @map("score") // 1 - 5 ดาว
+  feedback    String?  @map("feedback")
+  evaluatedAt DateTime @default(now()) @map("evaluated_at")
+
+  ticketId   String @unique @map("ticket_id")
+  ticket     Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  reporterId String @map("reporter_id")
+  reporter   User   @relation(fields: [reporterId], references: [id])
+
+  @@map("evaluations")
+}
+
+// ประวัติการแก้ไขข้อมูลเชิงลึก (Audit Log / Audit Trail - BR7, BR11, EdPEx Compliance)
+model AuditLog {
+  id        String   @id @default(cuid())
+  tableName String   @map("table_name")
+  action    String   @map("command_used") // CREATE, UPDATE, DELETE, DISPATCH, APPROVE
+  recordId  String   @map("record_id")
+  oldData   String?  @map("old_data") // JSON string
+  newData   String?  @map("new_data") // JSON string
+  changedAt DateTime @default(now()) @map("changed_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// ประวัติการส่งอีเมลแจ้งเตือน (Email Notification History)
+model EmailNotificationLog {
+  id             String          @id @default(cuid())
+  recipientEmail String          @map("recipient_email")
+  subject        String
+  sendStatus     EmailSendStatus @default(SENT) @map("send_status")
+  errorMessage   String?         @map("error_message")
+  sentAt         DateTime        @default(now()) @map("sent_at")
+
+  ticketId String @map("ticket_id")
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("email_notification_logs")
+}

@@ -1,0 +1,907 @@
+<mxGraphModel dx="1536" dy="683" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-0" />
+    <mxCell id="OntoY71NuVMAXWqPd6eB-1" parent="OntoY71NuVMAXWqPd6eB-0" />
+    <mxCell id="OntoY71NuVMAXWqPd6eB-13" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;html=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;labelBackgroundColor=none;textShadow=0;labelBorderColor=none;whiteSpace=wrap;spacing=2;glass=0;shadow=0;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;" value="หมวดหมู่ปัญหา" vertex="1">
+      <mxGeometry height="60" width="120" x="936" y="915" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-14" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชื่อหมวดหมู่" vertex="1">
+      <mxGeometry height="80" width="120" x="1126" y="905" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-16" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontStyle=4" value="รหัสหมวดหมู่" vertex="1">
+      <mxGeometry height="80" width="120" x="936" y="775" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-20" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-55" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="scSmt9N7lnKdo3a8rdtj-15">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="320" y="1594" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-21" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-55" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="scSmt9N7lnKdo3a8rdtj-16">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="320" y="1500" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-53" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;curved=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="scSmt9N7lnKdo3a8rdtj-52">
+      <mxGeometry relative="1" x="-0.029" as="geometry">
+        <Array as="points">
+          <mxPoint x="370" y="1360" />
+          <mxPoint x="720" y="1360" />
+        </Array>
+        <mxPoint x="370" y="1400" as="sourcePoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-86" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="M-MQ12__Xrfqbuc0ovYq-24">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="-105" y="1290" as="sourcePoint" />
+        <mxPoint x="-35" y="1370" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-10" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;fontStyle=4;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="รหัสใบเบิกอะไหล่" vertex="1">
+      <mxGeometry height="80" width="140" x="-230" y="1250" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-44" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="M-MQ12__Xrfqbuc0ovYq-11" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="M-MQ12__Xrfqbuc0ovYq-24">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-11" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="จำนวนที่เบิก" vertex="1">
+      <mxGeometry height="80" width="120" x="56" y="1250" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-25" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-55" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="M-MQ12__Xrfqbuc0ovYq-24">
+      <mxGeometry relative="1" x="-0.0526" as="geometry">
+        <Array as="points">
+          <mxPoint x="210" y="1430" />
+          <mxPoint x="210" y="1400" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-94" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-55" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="4JrObs5fy7nsexg7ACx9-4">
+      <mxGeometry relative="1" x="-0.0556" as="geometry">
+        <Array as="points">
+          <mxPoint x="-50" y="1440" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-104" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-55" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="4JrObs5fy7nsexg7ACx9-9">
+      <mxGeometry relative="1" x="0.5345" as="geometry">
+        <Array as="points">
+          <mxPoint x="650" y="1450" />
+          <mxPoint x="650" y="1812.5" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-55" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;html=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;labelBackgroundColor=none;textShadow=0;labelBorderColor=none;whiteSpace=wrap;spacing=2;glass=0;shadow=0;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%7D;" value="&lt;font&gt;ใบแจ้งซ่อม&lt;/font&gt;" vertex="1">
+      <mxGeometry height="60" width="120" x="260" y="1400" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-6" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-56" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="OntoY71NuVMAXWqPd6eB-55">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-56" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontStyle=4;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=Google+Sans&quot;&gt;รหัสใบแจ้งซ่อม&lt;/font&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="40" y="1480" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-89" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-93" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="OntoY71NuVMAXWqPd6eB-97">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-90" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-93" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="OntoY71NuVMAXWqPd6eB-96">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-91" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-93" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-95">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-11" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-93" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="4JrObs5fy7nsexg7ACx9-4">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-232" y="1575" />
+          <mxPoint x="-232" y="1650" />
+          <mxPoint x="-110" y="1650" />
+          <mxPoint x="-110" y="1600" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-93" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;html=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;labelBackgroundColor=none;textShadow=0;labelBorderColor=none;whiteSpace=wrap;spacing=2;glass=0;shadow=0;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;" value="แบบประเมิน" vertex="1">
+      <mxGeometry height="60" width="120" x="-435" y="1545" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-4" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-94" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="OntoY71NuVMAXWqPd6eB-93">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-94" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="คะแนนการประเมิน" vertex="1">
+      <mxGeometry height="80" width="120" x="-592" y="1420" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-95" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ข้อเสนอแนะ" vertex="1">
+      <mxGeometry height="80" width="120" x="-645" y="1595" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-96" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่ทำแบบประเมิน" vertex="1">
+      <mxGeometry height="85" width="120" x="-435" y="1660" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-97" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;u&gt;รหัสแบบประเมิน&lt;/u&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="-400" y="1420" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-100" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-102" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-103">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-101" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-102" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-106">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="UhWGQyGdS5QRLuiOlrNa-6" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-2" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="UhWGQyGdS5QRLuiOlrNa-0">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="798" y="504" />
+          <mxPoint x="798" y="730" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="UhWGQyGdS5QRLuiOlrNa-7" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-2" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="UhWGQyGdS5QRLuiOlrNa-2">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="855" y="504" />
+          <mxPoint x="855" y="538" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="UhWGQyGdS5QRLuiOlrNa-8" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-2" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="-VqRiQKSPAh1lK6MMtVT-5">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="844" y="504" />
+          <mxPoint x="844" y="343" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="UhWGQyGdS5QRLuiOlrNa-9" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-2" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="UhWGQyGdS5QRLuiOlrNa-1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="828" y="504" />
+          <mxPoint x="828" y="635" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-31" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-2" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="scSmt9N7lnKdo3a8rdtj-30">
+      <mxGeometry relative="1" x="-0.02" as="geometry">
+        <Array as="points">
+          <mxPoint x="680" y="342.5" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-110" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-2" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="scSmt9N7lnKdo3a8rdtj-52">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-2" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;html=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;labelBackgroundColor=none;textShadow=0;labelBorderColor=none;whiteSpace=wrap;spacing=2;glass=0;shadow=0;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;" value="ผู้ใช้" vertex="1">
+      <mxGeometry height="60" width="120" x="660" y="474" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-57" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="scSmt9N7lnKdo3a8rdtj-55" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-55">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-55" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22libavoidRouting%22%3A%221%22%7D;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="มี" vertex="1">
+      <mxGeometry height="80" width="80" x="280" y="1714" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-120" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="sIjJTIW4XbJQ_sUcz23K-9" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-55">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="780" y="940" />
+          <mxPoint x="780" y="1410" />
+          <mxPoint x="380" y="1410" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-133" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="sIjJTIW4XbJQ_sUcz23K-9" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-13">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="sIjJTIW4XbJQ_sUcz23K-9" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22libavoidRouting%22%3A%221%22%7D;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="มี" vertex="1">
+      <mxGeometry height="80" width="80" x="740" y="905" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-112" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-3" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-2">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-3" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;u&gt;รหัสผู้ใช้&lt;/u&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="510" y="400" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-58" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-8" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="scSmt9N7lnKdo3a8rdtj-55">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="184" y="1907" />
+          <mxPoint x="320" y="1907" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-111" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-4" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-2">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-4" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชื่อจริง" vertex="1">
+      <mxGeometry height="80" width="120" x="510" y="540" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-5" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="นามสกุล" vertex="1">
+      <mxGeometry height="80" width="120" x="910" y="302.5" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-6" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เบอร์โทรศัพท์" vertex="1">
+      <mxGeometry height="80" width="120" x="885" y="210" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-51" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-21" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-40">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="436" y="190" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-48" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-21" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="scSmt9N7lnKdo3a8rdtj-30">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="286" y="342.5" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-21" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;html=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;labelBackgroundColor=none;textShadow=0;labelBorderColor=none;whiteSpace=wrap;spacing=2;glass=0;shadow=0;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22libavoidRouting%22%3A%221%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;" value="ตำแหน่ง" vertex="1">
+      <mxGeometry height="60" width="120" x="226" y="160" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-8" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ครุภัณฑ์" vertex="1">
+      <mxGeometry height="67.5" width="120" x="124" y="2050" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-9" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontStyle=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="รหัสครุภัณฑ์" vertex="1">
+      <mxGeometry height="80" width="120" x="294" y="1990" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-40" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชื่อตำแหน่ง" vertex="1">
+      <mxGeometry height="80" width="120" x="376" y="50" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-52" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22libavoidRouting%22%3A%221%22%7D;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="แจ้ง" vertex="1">
+      <mxGeometry height="80" width="80" x="680" y="655" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-52" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-22" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-21">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="146" y="190" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-22" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontStyle=4" value="รหัสตำแหน่ง" vertex="1">
+      <mxGeometry height="80" width="120" x="86" y="50" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-11" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-8" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=1;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-9" value="">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-68" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-8" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-64">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-7" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="จำนวนอะไหล่" vertex="1">
+      <mxGeometry height="80" width="120" x="-555" y="1170" as="geometry" />
+    </mxCell>
+    <mxCell id="WLZ5_fW4KExHO_HNU_4f-5" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="WLZ5_fW4KExHO_HNU_4f-0" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-8">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="WLZ5_fW4KExHO_HNU_4f-0" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="มี" vertex="1">
+      <mxGeometry height="80" width="80" x="-20" y="1868" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-46" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="scSmt9N7lnKdo3a8rdtj-45" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-43">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-47" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="scSmt9N7lnKdo3a8rdtj-45" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-2">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="776" y="300" />
+          <mxPoint x="776" y="428" />
+          <mxPoint x="720" y="428" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-45" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="มี" vertex="1">
+      <mxGeometry height="80" width="80" x="680" y="260" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-18" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-16" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-17">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-20" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-16" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-19">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-29" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-16" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-28">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-31" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="M-MQ12__Xrfqbuc0ovYq-32" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;elbow=vertical;curved=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-55">
+      <mxGeometry relative="1" x="-0.0213" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-36" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="M-MQ12__Xrfqbuc0ovYq-32" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-16">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-32" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fontSize=18;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;มี&lt;/font&gt;" vertex="1">
+      <mxGeometry height="80" width="80" x="250" y="990" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-35" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-16" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-17" value="">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="5" y="885" as="sourcePoint" />
+        <mxPoint x="-160" y="650" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-17" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontStyle=4;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="รหัสประวัติการเปลี่ยนสถานะใบแจ้งซ่อม" vertex="1">
+      <mxGeometry height="80" width="120" x="-265" y="720" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-38" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-16" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-26">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-16" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ประวัติการเปลี่ยนสถานะใบแจ้งซ่อม" vertex="1">
+      <mxGeometry height="60" width="120" x="-95" y="825" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-49" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-43" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-47">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="720" y="80" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-43" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;html=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;labelBackgroundColor=none;textShadow=0;labelBorderColor=none;whiteSpace=wrap;spacing=2;glass=0;shadow=0;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;" value="แผนก" vertex="1">
+      <mxGeometry height="60" width="120" x="660" y="150" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-45" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-44" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;libavoidRouting=1;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-2">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="858" y="440" />
+          <mxPoint x="858" y="504" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-44" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="KKU_MAIL" vertex="1">
+      <mxGeometry height="80" width="120" x="930" y="400" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-107" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-46" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;elbow=vertical;curved=1;curveGeometry=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-43">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-46" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontStyle=4" value="รหัสแผนก" vertex="1">
+      <mxGeometry height="80" width="120" x="560" y="40" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-47" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชื่อแผนก" vertex="1">
+      <mxGeometry height="80" width="120" x="770" y="40" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-19" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="สถานะ&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;ใบแจ้งซ่อม&lt;/span&gt;&lt;span style=&quot;text-decoration-line: inherit; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;เดิม&lt;/span&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="-335" y="815" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-17" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-23" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="uWKQrc71fIwvLyKCAhaV-16">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-68" y="825" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-23" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="หมายเหตุใบแจ้งซ่อม&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="-128" y="690" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-26" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ผู้ที่เปลี่ยนสถานะใบแจ้งซ่อม" vertex="1">
+      <mxGeometry height="80" width="120" x="25" y="726" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-28" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;div&gt;เวลาที่เปลี่ยนสถานะใบแจ้งซ่อม&lt;/div&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="-210" y="930" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-42" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-30" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-41">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-92" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-131" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-128">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-131" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่อัปโหลด" vertex="1">
+      <mxGeometry height="80" width="120" x="550" y="705" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-90" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-132" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-128">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-132" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="รหัสใบแจ้งซ่อม" vertex="1">
+      <mxGeometry height="80" width="120" x="250" y="705" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-133" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ที่อยู่ของไฟล์รูปภาพ" vertex="1">
+      <mxGeometry height="80" width="120" x="400" y="625" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-135" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-13" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-16">
+      <mxGeometry relative="1" x="-0.0028" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-89" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-133" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-128">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="460" y="660" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-136" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-13" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;shape=wire;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-14">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-130" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ประเภทไฟล์" vertex="1">
+      <mxGeometry height="80" width="120" x="550" y="795" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-93" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-130" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-128">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="gNHCOL32lvAkr6NkEIxm-14" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;u&gt;Tag_ID&lt;/u&gt;" vertex="1">
+      <mxGeometry height="50" width="110" x="1290" y="1240" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-136" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="gNHCOL32lvAkr6NkEIxm-16" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="Y0zULKkhRNZYBSYCrCJ9-0">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="gNHCOL32lvAkr6NkEIxm-16" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชื่อแท็ก" vertex="1">
+      <mxGeometry height="50" width="110" x="1160" y="1240" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-100" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="20" width="20" x="260" y="1120" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-101" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="60" x="160" y="995" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-121" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="20" x="790" y="1025" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-30" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22connector%22%2C%22curved%22%3A%221%22%2C%22rounded%22%3A%220%22%2C%22curveGeometry%22%3A%221%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Google%20Sans%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22startArrow%22%3A%22none%22%2C%22startFill%22%3A%220%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22fontSource%22%3A%22https%253A%252F%252Ffonts.googleapis.com%252Fcss%253Ffamily%253DGoogle%252BSans%22%7D;" value="ประวัติการแก้ไขข้อมูลเชิงลึก" vertex="1">
+      <mxGeometry height="60" width="120" x="90" y="453" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-43" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-31" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-30">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="gNHCOL32lvAkr6NkEIxm-22" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="M-MQ12__Xrfqbuc0ovYq-50" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-30">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-50" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เก็บ" vertex="1">
+      <mxGeometry height="80" width="80" x="334" y="464" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-52" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="60" x="450" y="468" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-137" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="gNHCOL32lvAkr6NkEIxm-14" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="Y0zULKkhRNZYBSYCrCJ9-0">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-76" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="20" width="20" x="-150" y="1620" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-77" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="20" width="20" x="-40" y="1510" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-138" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="gNHCOL32lvAkr6NkEIxm-2" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="740" y="1510" />
+          <mxPoint x="740" y="1440" />
+        </Array>
+        <mxPoint x="380" y="1440" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-1" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="คลังเก็บอะไหล่" vertex="1">
+      <mxGeometry height="60" width="120" x="-667" y="1266" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-13" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="4JrObs5fy7nsexg7ACx9-9" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;libavoidRouting=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-49">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="760" y="1893" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="4JrObs5fy7nsexg7ACx9-9" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22libavoidRouting%22%3A%221%22%7D;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="มี" vertex="1">
+      <mxGeometry height="80" width="80" x="720" y="1772.5" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-139" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="gNHCOL32lvAkr6NkEIxm-2" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="Y0zULKkhRNZYBSYCrCJ9-0">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1280" y="1520" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="gNHCOL32lvAkr6NkEIxm-2" parent="OntoY71NuVMAXWqPd6eB-1" style="shape=associativeEntity;whiteSpace=wrap;html=1;align=center;strokeColor=default;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;span id=&quot;docs-internal-guid-2905d5e2-7fff-9000-e2cf-86a864c68b8d&quot;&gt;&lt;span style=&quot;background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;&quot;&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;ติดแท็กให้ใบแจ้งซ่อม&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;" vertex="1">
+      <mxGeometry height="60" width="168" x="1005" y="1480" as="geometry" />
+    </mxCell>
+    <mxCell id="UhWGQyGdS5QRLuiOlrNa-1" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่แก้ไขข้อมูลผู้ใช้" vertex="1">
+      <mxGeometry height="80" width="130" x="875" y="595" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-56" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0); background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline; white-space: pre-wrap;&quot; id=&quot;docs-internal-guid-9ddab37f-7fff-dd08-bff9-e376dc60e61b&quot;&gt;ข้อความแจ้งเตือนกรณีส่งไม่สำเร็จ&lt;/span&gt;&lt;/font&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="910" y="1960" as="geometry" />
+    </mxCell>
+    <mxCell id="UhWGQyGdS5QRLuiOlrNa-2" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่ลบข้อมูลผู้ใช้" vertex="1">
+      <mxGeometry height="80" width="120" x="930" y="498" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-69" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="scSmt9N7lnKdo3a8rdtj-1" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-8">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="134" y="2160" />
+          <mxPoint x="184" y="2160" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-1" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontStyle=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="สถานะครุภัณฑ์" vertex="1">
+      <mxGeometry height="80" width="120" x="74" y="2170" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-4" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="scSmt9N7lnKdo3a8rdtj-3" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-8">
+      <mxGeometry relative="1" x="0.1158" as="geometry">
+        <Array as="points">
+          <mxPoint x="4" y="2083.8" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-3" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontStyle=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชื่อครุภัณฑ์" vertex="1">
+      <mxGeometry height="80" width="120" x="-56" y="2040" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-64" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontStyle=4;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ลำดับครุภัณฑ์ในระบบ" vertex="1">
+      <mxGeometry height="80" width="140" x="254" y="2150" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-8" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="scSmt9N7lnKdo3a8rdtj-12" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="OntoY71NuVMAXWqPd6eB-55">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-12" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontStyle=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="รายละเอียดปัญหา" vertex="1">
+      <mxGeometry height="80" width="120" x="105" y="1674" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-7" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="scSmt9N7lnKdo3a8rdtj-14" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="OntoY71NuVMAXWqPd6eB-55">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-14" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontStyle=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="สถานะปัจจุบัน" vertex="1">
+      <mxGeometry height="80" width="120" x="65" y="1580" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-15" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontStyle=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่สร้างใบแจ้งซ่อม" vertex="1">
+      <mxGeometry height="80" width="130" x="470" y="1554" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-16" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontStyle=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่อัปเดตใบแจ้งซ่อม" vertex="1">
+      <mxGeometry height="80" width="140" x="460" y="1460" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-140" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="scSmt9N7lnKdo3a8rdtj-68" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-55">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="460" y="1320" />
+          <mxPoint x="350" y="1320" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-10" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="scSmt9N7lnKdo3a8rdtj-17" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="OntoY71NuVMAXWqPd6eB-55">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-17" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontStyle=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่ยกเลิกใบแจ้งซ่อม" vertex="1">
+      <mxGeometry height="80" width="140" x="460" y="1665" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-30" parent="OntoY71NuVMAXWqPd6eB-1" style="shape=associativeEntity;whiteSpace=wrap;html=1;align=center;strokeColor=default;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=Google+Sans&quot;&gt;ตำแหน่งผู้ใช้&lt;/font&gt;" vertex="1">
+      <mxGeometry height="60" width="140" x="420" y="312.5" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-33" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="20" x="300" y="245" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-34" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="20" x="380" y="305" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-35" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="20" x="580" y="305" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-36" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="20" x="650" y="390" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-8" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="M-MQ12__Xrfqbuc0ovYq-1" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="M-MQ12__Xrfqbuc0ovYq-7">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-3" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-46" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="uWKQrc71fIwvLyKCAhaV-30">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-46" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่แก้ไขตาราง" vertex="1">
+      <mxGeometry height="80" width="120" x="95" y="577" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-51" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-49" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-50">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-57" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-49" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;curved=1;curveGeometry=1;" target="uWKQrc71fIwvLyKCAhaV-56">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-49" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;span id=&quot;docs-internal-guid-e4724c97-7fff-6c11-9e90-03a0da92a593&quot;&gt;&lt;span style=&quot;background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;&quot;&gt;ประวัติการส่งอีเมลแจ้งเตือน&lt;/span&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+      <mxGeometry height="60" width="120" x="875" y="1863" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-50" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="สถานะการส่งอีเมล" vertex="1">
+      <mxGeometry height="80" width="120" x="1030" y="1794" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-52" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;span id=&quot;docs-internal-guid-e4724c97-7fff-6c11-9e90-03a0da92a593&quot; style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;&quot;&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;&lt;u&gt;รหัสประวัติการส่งอีเมลแจ้งเตือน&lt;/u&gt;&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="940" y="1714" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-53" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-49" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.433;entryY=0.986;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="uWKQrc71fIwvLyKCAhaV-52">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="UhWGQyGdS5QRLuiOlrNa-0" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่สร้างผู้ใช้" vertex="1">
+      <mxGeometry height="80" width="120" x="816" y="690" as="geometry" />
+    </mxCell>
+    <mxCell id="-VqRiQKSPAh1lK6MMtVT-8" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="-VqRiQKSPAh1lK6MMtVT-2" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="-VqRiQKSPAh1lK6MMtVT-6">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="830" y="504" />
+          <mxPoint x="830" y="250" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-31" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชื่อตารางที่มีถูกแก้ไข" vertex="1">
+      <mxGeometry height="80" width="120" x="56" y="290" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-4" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-35" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="uWKQrc71fIwvLyKCAhaV-30">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-35" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="คำสั่งที่ใช้" vertex="1">
+      <mxGeometry height="80" width="120" x="-210" y="355" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-0" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-38" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="uWKQrc71fIwvLyKCAhaV-30">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-38" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontStyle=4" value="รหัสของประวัติการแก้ไขข้อมูลเชิงลึก" vertex="1">
+      <mxGeometry height="80" width="120" x="-200" y="560" as="geometry" />
+    </mxCell>
+    <mxCell id="NZAvPvlaftjRr4szm54b-1" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-40" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="uWKQrc71fIwvLyKCAhaV-30">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-40" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ข้อมูลเก่า" vertex="1">
+      <mxGeometry height="80" width="120" x="-90" y="305" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-41" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ข้อมูลใหม่ของตาราง" vertex="1">
+      <mxGeometry height="80" width="120" x="-60" y="570" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-149" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="uWKQrc71fIwvLyKCAhaV-44" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="uWKQrc71fIwvLyKCAhaV-30">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="uWKQrc71fIwvLyKCAhaV-44" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;ผู้ที่แก้ไขตาราง&lt;/font&gt;&lt;/span&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="-250" y="443" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-37" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="20" x="690" y="220" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-38" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="20" x="730" y="352.5" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-39" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="20" x="-90" y="1878" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-40" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="20" x="124" y="2010" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-81" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="M-MQ12__Xrfqbuc0ovYq-3" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="M-MQ12__Xrfqbuc0ovYq-1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-3" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;u&gt;รหัสอะไหล่&lt;/u&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="-667" y="1070" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-82" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="M-MQ12__Xrfqbuc0ovYq-4" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="M-MQ12__Xrfqbuc0ovYq-1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-4" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชื่ออะไหล่" vertex="1">
+      <mxGeometry height="80" width="120" x="-795" y="1170" as="geometry" />
+    </mxCell>
+    <mxCell id="WLZ5_fW4KExHO_HNU_4f-4" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-102" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="WLZ5_fW4KExHO_HNU_4f-0">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-102" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;html=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;labelBackgroundColor=none;textShadow=0;labelBorderColor=none;whiteSpace=wrap;spacing=2;glass=0;shadow=0;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;" value="สถานที่" vertex="1">
+      <mxGeometry height="60" width="120" x="-230" y="1878" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-103" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontStyle=4" value="รหัสสถานที่" vertex="1">
+      <mxGeometry height="80" width="120" x="-400" y="1868" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-0" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-104" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="OntoY71NuVMAXWqPd6eB-102">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-104" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชั้น" vertex="1">
+      <mxGeometry height="80" width="120" x="-315" y="2010" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-106" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เลขห้อง" vertex="1">
+      <mxGeometry height="80" width="120" x="-315" y="1740" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-117" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-119" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-121">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-119" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;html=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;labelBackgroundColor=none;textShadow=0;labelBorderColor=none;whiteSpace=wrap;spacing=2;glass=0;shadow=0;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;" value="สถานะงาน" vertex="1">
+      <mxGeometry height="60" width="120" x="970" y="1130" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-123" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-120" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-119">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-120" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;u&gt;รหัสสถานะ&lt;/u&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="970" y="1230" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-121" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ชื่อสถานะ" vertex="1">
+      <mxGeometry height="80" width="120" x="1150" y="1120" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-122" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-122" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-119" value="">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-122" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="รายละเอียดสถานะ" vertex="1">
+      <mxGeometry height="80" width="120" x="970" y="1020" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-125" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-128" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;curved=1;curveGeometry=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="OntoY71NuVMAXWqPd6eB-129">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-119" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="OntoY71NuVMAXWqPd6eB-128" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="scSmt9N7lnKdo3a8rdtj-68">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-128" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;html=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;labelBackgroundColor=none;textShadow=0;labelBorderColor=none;whiteSpace=wrap;spacing=2;glass=0;shadow=0;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;" value="รูปภาพประกอบ" vertex="1">
+      <mxGeometry height="60" width="120" x="400" y="875" as="geometry" />
+    </mxCell>
+    <mxCell id="OntoY71NuVMAXWqPd6eB-129" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;u&gt;รหัสรูปภาพ&lt;/u&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="240" y="801" as="geometry" />
+    </mxCell>
+    <mxCell id="sIjJTIW4XbJQ_sUcz23K-11" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="20" x="863" y="915" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-67" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="M-MQ12__Xrfqbuc0ovYq-24" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="M-MQ12__Xrfqbuc0ovYq-1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-607" y="1400" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-24" parent="OntoY71NuVMAXWqPd6eB-1" style="shape=associativeEntity;whiteSpace=wrap;html=1;align=center;strokeColor=default;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ใบเบิกอะไหล่" vertex="1">
+      <mxGeometry height="60" width="140" x="-90" y="1370" as="geometry" />
+    </mxCell>
+    <mxCell id="Y0zULKkhRNZYBSYCrCJ9-0" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="แท็ก" vertex="1">
+      <mxGeometry height="60" width="120" x="1220" y="1345" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-125" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="sZ-Hi4zEksBxvdnM_2c_-1" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-119">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-126" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="sZ-Hi4zEksBxvdnM_2c_-1" style="edgeStyle=orthogonalEdgeStyle;shape=wire;rounded=0;libavoidRouting=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="OntoY71NuVMAXWqPd6eB-55">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="sZ-Hi4zEksBxvdnM_2c_-1" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22libavoidRouting%22%3A%221%22%7D;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="มี" vertex="1">
+      <mxGeometry height="80" width="80" x="890" y="1390" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-61" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="20" x="690" y="585" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-62" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="20" x="690" y="775" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-63" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="20" x="280" y="1794" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-64" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="20" x="280" y="1684" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-68" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22libavoidRouting%22%3A%221%22%7D;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เก็บ" vertex="1">
+      <mxGeometry height="80" width="80" x="420" y="1050" as="geometry" />
+    </mxCell>
+    <mxCell id="4JrObs5fy7nsexg7ACx9-4" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22libavoidRouting%22%3A%221%22%7D;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="มี" vertex="1">
+      <mxGeometry height="80" width="80" x="-90" y="1560" as="geometry" />
+    </mxCell>
+    <mxCell id="scSmt9N7lnKdo3a8rdtj-155" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="M-MQ12__Xrfqbuc0ovYq-50" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="-VqRiQKSPAh1lK6MMtVT-2">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-55" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="60" x="286" y="474" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-57" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="30" x="890" y="1335" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-58" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="M" vertex="1">
+      <mxGeometry height="30" width="60" x="810" y="1390" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-59" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="60" x="890" y="1480" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-60" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="M" vertex="1">
+      <mxGeometry height="30" width="60" x="1210" y="1485" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-61" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="60" x="660" y="1775" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-62" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="60" x="800" y="1858" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-63" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="60" x="-495" y="1350" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-64" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="M" vertex="1">
+      <mxGeometry height="30" width="60" x="140" y="1350" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-65" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="30" x="420" y="995" as="geometry" />
+    </mxCell>
+    <mxCell id="M-MQ12__Xrfqbuc0ovYq-66" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="30" width="60" x="400" y="1145" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-2" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-1" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="OntoY71NuVMAXWqPd6eB-102">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-170" y="1780" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-1" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=12;fontColor=default;fillColor=default;gradientColor=none;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontStyle=0" value="ชื่อห้อง" vertex="1">
+      <mxGeometry height="80" width="120" x="-130" y="1740" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-47" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-13" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="M-MQ12__Xrfqbuc0ovYq-24">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="10" y="1190" />
+          <mxPoint x="10" y="1300" />
+          <mxPoint x="-20" y="1300" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-13" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่สร้างใบเบิกอะไหล่" vertex="1">
+      <mxGeometry height="80" width="120" x="60" y="1150" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-46" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-12" style="edgeStyle=orthogonalEdgeStyle;shape=wire;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="M-MQ12__Xrfqbuc0ovYq-24">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-145" y="1240" />
+          <mxPoint x="-20" y="1240" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-12" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;newEdgeStyle=%7B%22edgeStyle%22%3A%22orthogonalEdgeStyle%22%2C%22shape%22%3A%22wire%22%2C%22rounded%22%3A%220%22%2C%22orthogonalLoop%22%3A%221%22%2C%22jettySize%22%3A%22auto%22%2C%22html%22%3A%221%22%2C%22dashed%22%3A%221%22%2C%22strokeColor%22%3A%22default%22%2C%22align%22%3A%22center%22%2C%22verticalAlign%22%3A%22middle%22%2C%22fontFamily%22%3A%22Helvetica%22%2C%22fontSize%22%3A%2211%22%2C%22fontColor%22%3A%22default%22%2C%22labelBackgroundColor%22%3A%22default%22%2C%22endArrow%22%3A%22none%22%2C%22endFill%22%3A%220%22%2C%22curved%22%3A%221%22%2C%22curveGeometry%22%3A%221%22%7D;fontStyle=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่แก้ไขใบเบิกอะไหล่" vertex="1">
+      <mxGeometry height="80" width="140" x="-215" y="1150" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-19" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-27" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="VYD_CX4RBO5DpYJWWrFs-26">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-20" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-27" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="VYD_CX4RBO5DpYJWWrFs-28">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-21" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-27" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="VYD_CX4RBO5DpYJWWrFs-32">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-515" y="940" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-22" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-27" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="VYD_CX4RBO5DpYJWWrFs-26" value="">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="-475" y="875" as="sourcePoint" />
+        <mxPoint x="-640" y="640" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-23" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-27" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" target="VYD_CX4RBO5DpYJWWrFs-31">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-24" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-29" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="VYD_CX4RBO5DpYJWWrFs-27">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-26" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontStyle=4;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="รหัสประวัติการเบิกอะไหล่" vertex="1">
+      <mxGeometry height="80" width="120" x="-745" y="710" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-29" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="สถานะ&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;ใบเบิก&lt;/span&gt;&lt;span style=&quot;text-decoration-line: inherit; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;อะไหล่ใหม่&lt;/span&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="-730" y="935" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-45" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-30" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="M-MQ12__Xrfqbuc0ovYq-24">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-50" y="1095" />
+          <mxPoint x="-50" y="1252.5" />
+          <mxPoint x="-20" y="1252.5" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-30" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="หมายเหตุใบเบิกอะไหล่" vertex="1">
+      <mxGeometry height="80" width="120" x="-195" y="1055" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-31" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ผู้อนุมัติการเบิก" vertex="1">
+      <mxGeometry height="80" width="120" x="-580" y="695" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-32" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="เวลาที่อนุมัติ" vertex="1">
+      <mxGeometry height="80" width="120" x="-592" y="940" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-37" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="N" vertex="1">
+      <mxGeometry height="30" width="20" x="-405" y="965" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-38" parent="OntoY71NuVMAXWqPd6eB-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSize=12;fontColor=default;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="1" vertex="1">
+      <mxGeometry height="20" width="20" x="-400" y="1160" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-28" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="สถานะ&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;ใบเบิกอะไหล่&lt;/span&gt;&lt;span style=&quot;text-decoration-line: inherit; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;เดิม&lt;/span&gt;" vertex="1">
+      <mxGeometry height="80" width="120" x="-815" y="805" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-36" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-34" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;libavoidRouting=1;" target="M-MQ12__Xrfqbuc0ovYq-24">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-360" y="1385" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-34" parent="OntoY71NuVMAXWqPd6eB-1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fontSize=18;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;font size=&quot;1&quot;&gt;เก็บ&lt;/font&gt;" vertex="1">
+      <mxGeometry height="80" width="80" x="-400" y="1040" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-35" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-27" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;libavoidRouting=1;" target="VYD_CX4RBO5DpYJWWrFs-34">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-360" y="845" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-27" parent="OntoY71NuVMAXWqPd6eB-1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ประวัติการเปลี่ยนสถานะใบเบิกอะไหล่" vertex="1">
+      <mxGeometry height="60" width="120" x="-575" y="815" as="geometry" />
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-49" edge="1" parent="OntoY71NuVMAXWqPd6eB-1" source="VYD_CX4RBO5DpYJWWrFs-48" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=1;rounded=0;curveGeometry=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=11;fontColor=default;labelBackgroundColor=default;startArrow=none;startFill=0;endArrow=none;endFill=0;" target="M-MQ12__Xrfqbuc0ovYq-24">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="-10" y="1095" />
+          <mxPoint x="-10" y="1252.5" />
+          <mxPoint x="-20" y="1252.5" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="VYD_CX4RBO5DpYJWWrFs-48" parent="OntoY71NuVMAXWqPd6eB-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="ผู้ที่ขอเบิกอะไหล่" vertex="1">
+      <mxGeometry height="80" width="120" x="50" y="1055" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>

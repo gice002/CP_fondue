@@ -1,126 +1,409 @@
 import { prisma } from '@/lib/prisma';
-import { MOCK_SPARE_PARTS, MOCK_REQUISITIONS, MOCK_USERS } from '@/data/mockData';
 import { SparePart, SparePartRequest, RequisitionStatus } from '@/types';
-
-let sparePartsState: SparePart[] = [...MOCK_SPARE_PARTS];
-let requisitionsState: SparePartRequest[] = [...MOCK_REQUISITIONS];
-
-const isMockMode = () => process.env.USE_MOCK_DATA !== 'false';
 
 export class SparePartService {
   /**
-   * Get list of spare parts currently in stock
+   * Get list of spare parts currently in stock from PostgreSQL
    */
   static async getSpareParts(): Promise<SparePart[]> {
-    if (!isMockMode()) {
-      try {
-        const parts = await prisma.sparePart.findMany();
-        return parts.map((p: any) => ({
-          id: p.id,
-          partCode: p.partCode,
-          name: p.name,
-          unit: p.unit,
-          stockQuantity: p.stockQuantity,
-          unitCost: Number(p.unitCost),
-          storageRoom: p.storageRoom ?? 'สโตร์กลาง CoP-Wh01',
-        }));
-      } catch (err) {
-        console.warn('Prisma query failed, using mock parts:', err);
-      }
-    }
-    return sparePartsState;
+    const parts = await prisma.sparePartInventory.findMany({
+      orderBy: { partCode: 'asc' },
+    });
+
+    return parts.map((p) => ({
+      id: p.id,
+      partCode: p.partCode || p.id,
+      name: p.partName,
+      unit: p.unit || 'ชิ้น',
+      stockQuantity: p.stockQuantity,
+      unitCost: p.unitCost || 0,
+      storageRoom: p.storageRoom || 'สโตร์กลาง CoP KKU',
+    }));
   }
 
   /**
-   * Get all material requisitions (UC-10)
+   * Get all material requisitions from PostgreSQL (UC-10)
    */
   static async getRequisitions(filter?: { status?: RequisitionStatus }): Promise<SparePartRequest[]> {
-    if (filter?.status) {
-      return requisitionsState.filter((r) => r.status === filter.status);
-    }
-    return requisitionsState;
+    const requisitions = await prisma.sparePartRequisition.findMany({
+      where: filter?.status ? { status: filter.status } : undefined,
+      include: {
+        part: true,
+        requestedByUser: true,
+        approvedByUser: true,
+        ticket: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return requisitions.map((r) => ({
+      id: r.id,
+      requestNumber: r.requisitionNumber || `REQ-INV-${r.id.slice(-4).toUpperCase()}`,
+      ticketId: r.ticketId,
+      ticketNumber: r.ticket?.ticketNumber || r.ticketId,
+      requestedBy: {
+        id: r.requestedByUser.id,
+        firstName: r.requestedByUser.firstName,
+        lastName: r.requestedByUser.lastName,
+        email: r.requestedByUser.email,
+        phoneNumber: r.requestedByUser.phoneNumber ?? undefined,
+        roleCode: (r.requestedByUser.role as any) || 'TECHNICIAN',
+      },
+      approvedBy: r.approvedByUser
+        ? {
+            id: r.approvedByUser.id,
+            firstName: r.approvedByUser.firstName,
+            lastName: r.approvedByUser.lastName,
+            email: r.approvedByUser.email,
+            phoneNumber: r.approvedByUser.phoneNumber ?? undefined,
+            roleCode: (r.approvedByUser.role as any) || 'ADMIN_DISPATCH',
+          }
+        : undefined,
+      status: r.status as RequisitionStatus,
+      notes: r.requisitionNotes ?? undefined,
+      items: [
+        {
+          id: `item_${r.id}`,
+          partId: r.partId,
+          partCode: r.part.partCode || r.part.id,
+          partName: r.part.partName,
+          unit: r.part.unit || 'ชิ้น',
+          quantity: r.quantityRequested,
+        },
+      ],
+      createdAt: r.createdAt.toISOString(),
+      approvedAt: r.approvedAt ? r.approvedAt.toISOString() : undefined,
+    }));
   }
 
   /**
-   * Submit material requisition by technician (UC-10)
+   * Submit material requisition by technician in PostgreSQL (UC-10)
    */
   static async createRequisition(dto: {
     ticketId: string;
-    ticketNumber: string;
-    technicianId: string;
+    ticketNumber?: string;
+    technicianId?: string;
     items: { partId: string; quantity: number }[];
     notes?: string;
   }): Promise<SparePartRequest> {
-    const tech =
-      Object.values(MOCK_USERS).find((u) => u.id === dto.technicianId) ||
-      MOCK_USERS.tech_anucha;
+    if (!dto.items || dto.items.length === 0) {
+      throw new Error('กรุณาระบุรายการอะไหล่ที่ต้องการเบิก');
+    }
 
-    const seq = Math.floor(100 + Math.random() * 900);
-    const requestNumber = `REQ-INV-${seq}`;
+    const firstItem = dto.items[0];
+    if (firstItem.quantity <= 0) {
+      throw new Error('จำนวนที่ขอเบิกต้องมากกว่า 0');
+    }
 
-    const populatedItems = dto.items.map((it, idx) => {
-      const part = sparePartsState.find((p) => p.id === it.partId) || sparePartsState[0];
-      return {
-        id: `item_${Date.now()}_${idx}`,
-        partId: part.id,
-        partCode: part.partCode,
-        partName: part.name,
-        unit: part.unit,
-        quantity: it.quantity,
-      };
+    // Resolve ticket
+    const ticket = await prisma.ticket.findFirst({
+      where: {
+        OR: [{ id: dto.ticketId }, { ticketNumber: dto.ticketId }],
+      },
+    });
+    if (!ticket) throw new Error(`ไม่พบใบแจ้งซ่อมรหัส: ${dto.ticketId}`);
+
+    // Resolve part
+    const part = await prisma.sparePartInventory.findFirst({
+      where: {
+        OR: [{ id: firstItem.partId }, { partCode: firstItem.partId }],
+      },
+    });
+    if (!part) throw new Error(`ไม่พบอะไหล่รหัส: ${firstItem.partId}`);
+
+    // Resolve technician
+    let technicianId = dto.technicianId;
+    if (!technicianId) {
+      technicianId = ticket.assignedTechnicianId || 'usr_tech_01';
+    }
+
+    // Generate unique requisition number
+    const count = await prisma.sparePartRequisition.count();
+    const requisitionNumber = `REQ-INV-${String(count + 1).padStart(3, '0')}`;
+
+    // Atomic transaction
+    const newReq = await prisma.$transaction(async (tx) => {
+      const created = await tx.sparePartRequisition.create({
+        data: {
+          requisitionNumber,
+          ticketId: ticket.id,
+          partId: part.id,
+          requestedByUserId: technicianId!,
+          quantityRequested: firstItem.quantity,
+          status: 'PENDING',
+          requisitionNotes: dto.notes || null,
+        },
+        include: {
+          part: true,
+          requestedByUser: true,
+          ticket: true,
+        },
+      });
+
+      await tx.sparePartStatusHistory.create({
+        data: {
+          requisitionId: created.id,
+          oldStatus: null,
+          newStatus: 'PENDING',
+          approvedByUserId: technicianId!,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          tableName: 'spare_part_requisitions',
+          commandUsed: 'INSERT_REQUISITION',
+          newData: JSON.stringify({
+            requisitionNumber,
+            partCode: part.partCode,
+            quantity: firstItem.quantity,
+          }),
+          userId: technicianId!,
+        },
+      });
+
+      return created;
     });
 
-    const newReq: SparePartRequest = {
-      id: `req_${Date.now()}`,
-      requestNumber,
-      ticketId: dto.ticketId,
-      ticketNumber: dto.ticketNumber,
-      requestedBy: tech,
+    return {
+      id: newReq.id,
+      requestNumber: newReq.requisitionNumber!,
+      ticketId: newReq.ticketId,
+      ticketNumber: ticket.ticketNumber || ticket.id,
+      requestedBy: {
+        id: newReq.requestedByUser.id,
+        firstName: newReq.requestedByUser.firstName,
+        lastName: newReq.requestedByUser.lastName,
+        email: newReq.requestedByUser.email,
+        roleCode: (newReq.requestedByUser.role as any) || 'TECHNICIAN',
+      },
       status: 'PENDING',
-      notes: dto.notes,
-      items: populatedItems,
-      createdAt: new Date().toISOString(),
+      notes: newReq.requisitionNotes ?? undefined,
+      items: [
+        {
+          id: `item_${newReq.id}`,
+          partId: part.id,
+          partCode: part.partCode || part.id,
+          partName: part.partName,
+          unit: part.unit || 'ชิ้น',
+          quantity: newReq.quantityRequested,
+        },
+      ],
+      createdAt: newReq.createdAt.toISOString(),
     };
-
-    requisitionsState.unshift(newReq);
-    return newReq;
   }
 
   /**
-   * Admin approves spare parts requisition (UC-10)
+   * Admin approves spare parts requisition with atomic inventory decrement (UC-10)
    */
-  static async approveRequisition(requisitionId: string, adminId?: string): Promise<SparePartRequest | null> {
-    const req = requisitionsState.find(
-      (r) => r.id === requisitionId || r.requestNumber === requisitionId
-    );
-    if (!req) return null;
+  static async approveRequisition(
+    requisitionId: string,
+    adminId: string = 'usr_admin_01'
+  ): Promise<SparePartRequest | null> {
+    const existing = await prisma.sparePartRequisition.findFirst({
+      where: {
+        OR: [{ id: requisitionId }, { requisitionNumber: requisitionId }],
+      },
+      include: { part: true, requestedByUser: true, ticket: true },
+    });
+    if (!existing) return null;
 
-    req.status = 'APPROVED';
-    req.approvedAt = new Date().toISOString();
-    req.approvedBy = MOCK_USERS.admin;
+    if (existing.status !== 'PENDING') {
+      throw new Error(`คำขอนี้ได้รับการดำเนินการแล้ว (สถานะปัจจุบัน: ${existing.status})`);
+    }
 
-    // Deduct stock quantity
-    req.items.forEach((item) => {
-      const part = sparePartsState.find((p) => p.id === item.partId);
-      if (part) {
-        part.stockQuantity = Math.max(0, part.stockQuantity - item.quantity);
-      }
+    if (existing.part.stockQuantity < existing.quantityRequested) {
+      throw new Error(
+        `ยอดสต็อกคงเหลือ (${existing.part.stockQuantity} ${existing.part.unit}) ไม่เพียงพอต่อการเบิก (${existing.quantityRequested} ${existing.part.unit})`
+      );
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      // 1. Decrement inventory atomically
+      await tx.sparePartInventory.update({
+        where: { id: existing.partId },
+        data: {
+          stockQuantity: {
+            decrement: existing.quantityRequested,
+          },
+        },
+      });
+
+      // 2. Update requisition status
+      const req = await tx.sparePartRequisition.update({
+        where: { id: existing.id },
+        data: {
+          status: 'APPROVED',
+          approvedAt: new Date(),
+          approvedByUserId: adminId,
+        },
+        include: {
+          part: true,
+          requestedByUser: true,
+          approvedByUser: true,
+          ticket: true,
+        },
+      });
+
+      // 3. Status History
+      await tx.sparePartStatusHistory.create({
+        data: {
+          requisitionId: existing.id,
+          oldStatus: existing.status,
+          newStatus: 'APPROVED',
+          approvedByUserId: adminId,
+        },
+      });
+
+      // 4. Audit Log
+      await tx.auditLog.create({
+        data: {
+          tableName: 'spare_part_inventories',
+          commandUsed: 'APPROVE_REQUISITION_DECREMENT',
+          oldData: JSON.stringify({ stock: existing.part.stockQuantity }),
+          newData: JSON.stringify({
+            stock: existing.part.stockQuantity - existing.quantityRequested,
+            deducted: existing.quantityRequested,
+          }),
+          userId: adminId,
+        },
+      });
+
+      return req;
     });
 
-    return req;
+    return {
+      id: updated.id,
+      requestNumber: updated.requisitionNumber || updated.id,
+      ticketId: updated.ticketId,
+      ticketNumber: updated.ticket?.ticketNumber || updated.ticketId,
+      requestedBy: {
+        id: updated.requestedByUser.id,
+        firstName: updated.requestedByUser.firstName,
+        lastName: updated.requestedByUser.lastName,
+        email: updated.requestedByUser.email,
+        roleCode: (updated.requestedByUser.role as any) || 'TECHNICIAN',
+      },
+      approvedBy: updated.approvedByUser
+        ? {
+            id: updated.approvedByUser.id,
+            firstName: updated.approvedByUser.firstName,
+            lastName: updated.approvedByUser.lastName,
+            email: updated.approvedByUser.email,
+            roleCode: (updated.approvedByUser.role as any) || 'ADMIN_DISPATCH',
+          }
+        : undefined,
+      status: 'APPROVED',
+      notes: updated.requisitionNotes ?? undefined,
+      items: [
+        {
+          id: `item_${updated.id}`,
+          partId: updated.part.id,
+          partCode: updated.part.partCode || updated.part.id,
+          partName: updated.part.partName,
+          unit: updated.part.unit || 'ชิ้น',
+          quantity: updated.quantityRequested,
+        },
+      ],
+      createdAt: updated.createdAt.toISOString(),
+      approvedAt: updated.approvedAt ? updated.approvedAt.toISOString() : undefined,
+    };
   }
 
   /**
-   * Admin rejects or asks for more inspection
+   * Admin rejects spare parts requisition (UC-10)
    */
-  static async rejectRequisition(requisitionId: string, notes?: string): Promise<SparePartRequest | null> {
-    const req = requisitionsState.find(
-      (r) => r.id === requisitionId || r.requestNumber === requisitionId
-    );
-    if (!req) return null;
+  static async rejectRequisition(
+    requisitionId: string,
+    notes?: string,
+    adminId: string = 'usr_admin_01'
+  ): Promise<SparePartRequest | null> {
+    const existing = await prisma.sparePartRequisition.findFirst({
+      where: {
+        OR: [{ id: requisitionId }, { requisitionNumber: requisitionId }],
+      },
+      include: { part: true, requestedByUser: true, ticket: true },
+    });
+    if (!existing) return null;
 
-    req.status = 'REJECTED';
-    req.notes = notes ? `${req.notes || ''} [ขอตรวจเพิ่ม: ${notes}]` : req.notes;
-    return req;
+    if (existing.status !== 'PENDING') {
+      throw new Error(`คำขอนี้ได้รับการดำเนินการแล้ว (สถานะปัจจุบัน: ${existing.status})`);
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const req = await tx.sparePartRequisition.update({
+        where: { id: existing.id },
+        data: {
+          status: 'REJECTED',
+          requisitionNotes: notes || existing.requisitionNotes,
+          approvedByUserId: adminId,
+          approvedAt: new Date(),
+        },
+        include: {
+          part: true,
+          requestedByUser: true,
+          approvedByUser: true,
+          ticket: true,
+        },
+      });
+
+      await tx.sparePartStatusHistory.create({
+        data: {
+          requisitionId: existing.id,
+          oldStatus: existing.status,
+          newStatus: 'REJECTED',
+          approvedByUserId: adminId,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          tableName: 'spare_part_requisitions',
+          commandUsed: 'REJECT_REQUISITION',
+          oldData: JSON.stringify({ status: existing.status }),
+          newData: JSON.stringify({ status: 'REJECTED', reason: notes }),
+          userId: adminId,
+        },
+      });
+
+      return req;
+    });
+
+    return {
+      id: updated.id,
+      requestNumber: updated.requisitionNumber || updated.id,
+      ticketId: updated.ticketId,
+      ticketNumber: updated.ticket?.ticketNumber || updated.ticketId,
+      requestedBy: {
+        id: updated.requestedByUser.id,
+        firstName: updated.requestedByUser.firstName,
+        lastName: updated.requestedByUser.lastName,
+        email: updated.requestedByUser.email,
+        roleCode: (updated.requestedByUser.role as any) || 'TECHNICIAN',
+      },
+      approvedBy: updated.approvedByUser
+        ? {
+            id: updated.approvedByUser.id,
+            firstName: updated.approvedByUser.firstName,
+            lastName: updated.approvedByUser.lastName,
+            email: updated.approvedByUser.email,
+            roleCode: (updated.approvedByUser.role as any) || 'ADMIN_DISPATCH',
+          }
+        : undefined,
+      status: 'REJECTED',
+      notes: updated.requisitionNotes ?? undefined,
+      items: [
+        {
+          id: `item_${updated.id}`,
+          partId: updated.part.id,
+          partCode: updated.part.partCode || updated.part.id,
+          partName: updated.part.partName,
+          unit: updated.part.unit || 'ชิ้น',
+          quantity: updated.quantityRequested,
+        },
+      ],
+      createdAt: updated.createdAt.toISOString(),
+      approvedAt: updated.approvedAt ? updated.approvedAt.toISOString() : undefined,
+    };
   }
 }

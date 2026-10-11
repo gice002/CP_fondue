@@ -1,22 +1,69 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, Send, CheckCircle2, MessageSquare, Video } from 'lucide-react';
+import { Star, Send, CheckCircle2 } from 'lucide-react';
+import { Ticket } from '@/types';
 
-export const EvaluationCard: React.FC = () => {
+interface EvaluationCardProps {
+  ticket?: Ticket;
+  onEvaluated?: () => void;
+}
+
+export const EvaluationCard: React.FC<EvaluationCardProps> = ({
+  ticket,
+  onEvaluated,
+}) => {
   const [rating, setRating] = useState<number>(5);
   const [hoverRating, setHoverRating] = useState<number>(0);
-  const [feedback, setFeedback] = useState(
-    'ช่างเข้ามาตรวจเร็วมากตามเวลากำหนด ตรวจเช็คสายสัญญาณ HDMI สำรองให้ด้วย ประทับใจการบริการครับ'
-  );
+  const [feedback, setFeedback] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // If no ticket or ticket is not completed, don't show evaluation card
+  if (!ticket || ticket.status !== 'COMPLETED') {
+    return null;
+  }
+
+  // If already evaluated
+  if (ticket.evaluation || isSubmitted) {
+    const existingScore = ticket.evaluation?.rating || rating;
+    const existingFeedback = ticket.evaluation?.feedback || feedback;
+
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 mb-6">
+        <div className="flex items-center space-x-2 text-emerald-700 mb-2">
+          <CheckCircle2 className="w-5 h-5" />
+          <h3 className="font-extrabold text-sm text-slate-900">
+            ประเมินความพึงพอใจเรียบร้อยแล้ว ({ticket.ticketNumber})
+          </h3>
+        </div>
+        <div className="flex items-center space-x-1 my-2">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <Star
+              key={s}
+              className={`w-5 h-5 ${
+                s <= existingScore ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
+              }`}
+            />
+          ))}
+          <span className="text-xs font-bold text-slate-700 ml-2">
+            ({existingScore}/5 ดาว)
+          </span>
+        </div>
+        {existingFeedback && (
+          <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 mt-2">
+            &quot;{existingFeedback}&quot;
+          </p>
+        )}
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/tickets/tkt_0031/evaluation', {
+      const res = await fetch(`/api/tickets/${ticket.id}/evaluation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rating, feedback }),
@@ -24,9 +71,13 @@ export const EvaluationCard: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setIsSubmitted(true);
+        if (onEvaluated) onEvaluated();
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาดในการส่งแบบประเมิน');
       }
     } catch (err) {
       console.error(err);
+      alert('ไม่สามารถส่งแบบประเมินได้');
     } finally {
       setIsSubmitting(false);
     }
@@ -55,113 +106,76 @@ export const EvaluationCard: React.FC = () => {
       <div className="flex items-center justify-between mb-3">
         <div>
           <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">
-            UC-6: ประเมินความพึงพอใจ &amp; UC-3: ข้อเสนอแนะ (BR10)
+            UC-6: ประเมินความพึงพอใจ (BR10)
           </span>
           <h3 className="text-base font-extrabold text-slate-900">
-            ประเมินงานซ่อมที่เพิ่งเสร็จสิ้น
+            ประเมินงานซ่อม {ticket.ticketNumber}
           </h3>
         </div>
         <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-          ซ่อมเสร็จเรียบร้อยแล้ว
+          ซ่อมเสร็จสิ้นแล้ว
         </span>
       </div>
 
-      {isSubmitted ? (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
-          <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-1" />
-          <h4 className="font-extrabold text-sm text-emerald-900">
-            ขอบคุณสำหรับการประเมินและข้อเสนอแนะ!
-          </h4>
-          <p className="text-xs text-emerald-700 mt-0.5">
-            ระบบได้บันทึกคะแนน {rating} ดาว และความคิดเห็นเพื่อนำไปปรับปรุงการให้บริการต่อไปแล้ว
-          </p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Target Ticket Details */}
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start space-x-3 text-xs">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
-              <Video className="w-4 h-4" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <span className="font-mono font-bold text-blue-700">REQ-202505-0031</span>
-                <span className="text-[11px] text-slate-400">เสร็จเมื่อวาน 16:20</span>
-              </div>
-              <p className="font-bold text-slate-800 mt-0.5">
-                โปรเจกเตอร์ห้อง 302 หลอดภาพติดขัด ดับระหว่างบรรยาย
-              </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                ช่างผู้ดำเนินงาน: ชัยวัฒน์ สุริยะ (เปลี่ยนชุดหลอดภาพ EPSON สำเร็จ)
-              </p>
-            </div>
-          </div>
-
-          {/* Star Rating Selection */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-800">
-                ให้คะแนนความรวดเร็วและความพึงพอใจในการบริการ (1-5 ดาว) <span className="text-red-500">*</span>
-              </label>
-              <span className="text-xs font-bold text-blue-700 font-mono">
-                {getRatingLabel(hoverRating || rating)}
-              </span>
-            </div>
-
-            <div className="flex items-center space-x-2 py-1">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Star Rating */}
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            ระดับความพึงพอใจในการให้บริการของช่าง
+          </label>
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               {[1, 2, 3, 4, 5].map((star) => {
-                const isFilled = star <= (hoverRating || rating);
+                const isFilled = (hoverRating || rating) >= star;
                 return (
                   <button
                     key={star}
                     type="button"
+                    onClick={() => setRating(star)}
                     onMouseEnter={() => setHoverRating(star)}
                     onMouseLeave={() => setHoverRating(0)}
-                    onClick={() => setRating(star)}
-                    className="p-1 text-amber-400 hover:scale-125 transition-transform"
+                    className="p-1 hover:scale-110 transition-transform focus:outline-hidden"
                   >
                     <Star
-                      className={`w-6 h-6 ${
-                        isFilled ? 'fill-amber-400 text-amber-400' : 'text-slate-300'
+                      className={`w-7 h-7 transition-colors ${
+                        isFilled
+                          ? 'fill-amber-400 text-amber-400 drop-shadow-xs'
+                          : 'text-slate-300 stroke-1'
                       }`}
                     />
                   </button>
                 );
               })}
             </div>
-          </div>
-
-          {/* Feedback Textarea */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-800 flex items-center space-x-1">
-              <MessageSquare className="w-3.5 h-3.5 text-blue-600" />
-              <span>ความคิดเห็นและข้อเสนอแนะเพื่อพัฒนาบริการ (UC-3)</span>
-            </label>
-            <textarea
-              rows={2}
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder="เขียนคำติชม หรือเสนอแนะเพิ่มเติม..."
-              className="w-full text-xs bg-white border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none resize-none leading-relaxed"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-[11px] text-slate-400">
-              เมื่อส่งประเมิน สถานะจะถูกบันทึกเป็น &quot;ประเมินแล้ว&quot; ถาวร
+            <span className="text-xs font-bold text-slate-700 ml-2">
+              {getRatingLabel(hoverRating || rating)}
             </span>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold text-xs shadow-md shadow-emerald-700/20 transition disabled:opacity-50"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>{isSubmitting ? 'กำลังส่ง...' : 'ส่งแบบประเมินและข้อเสนอแนะ (BR10)'}</span>
-            </button>
           </div>
-        </form>
-      )}
+        </div>
+
+        {/* Feedback Input */}
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            ข้อเสนอแนะเพิ่มเติมเพื่อการปรับปรุงการบริการ (UC-3)
+          </label>
+          <textarea
+            rows={2}
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            placeholder="ความคิดเห็นเพิ่มเติม เช่น ความรวดเร็ว อัธยาศัยของช่าง หรือคุณภาพงานซ่อม..."
+            className="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden transition"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
+        >
+          <Send className="w-4 h-4" />
+          <span>{isSubmitting ? 'กำลังส่งแบบประเมิน...' : 'ส่งแบบประเมินความพึงพอใจ'}</span>
+        </button>
+      </form>
     </div>
   );
 };

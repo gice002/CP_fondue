@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MapPin,
   Wifi,
@@ -12,43 +12,47 @@ import {
   Clock,
 } from 'lucide-react';
 import { SparePart } from '@/types';
-import { MOCK_SPARE_PARTS } from '@/data/mockData';
 
 interface CheckInRequisitionCardProps {
   ticketId?: string;
+  onSubmitted?: () => void;
 }
 
 export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
   ticketId = 'tkt_0042',
+  onSubmitted,
 }) => {
   const [isCheckedIn, setIsCheckedIn] = useState(true);
-  const [selectedPartId, setSelectedPartId] = useState('prt_01');
-  const [quantity, setQuantity] = useState(10);
+  const [availableParts, setAvailableParts] = useState<SparePart[]>([]);
+  const [selectedPartId, setSelectedPartId] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [notes, setNotes] = useState('สำหรับเปลี่ยนซ่อมอุปกรณ์ตามคำร้อง');
 
-  const [requestedItems, setRequestedItems] = useState([
-    {
-      id: 'it_1',
-      partId: 'prt_01',
-      name: 'หัวคอนเน็กเตอร์ RJ-45 Cat6 Shielded',
-      code: 'MAT-NET-008',
-      quantity: 10,
-      unit: 'ชิ้น',
-    },
-    {
-      id: 'it_2',
-      partId: 'prt_07',
-      name: 'หัวทดสอบสัญญาณสาย LAN (อุปกรณ์ยืมเฉพาะกิจ)',
-      code: 'TOOL-NT-02',
-      quantity: 1,
-      unit: 'ชุด',
-    },
-  ]);
+  const [requestedItems, setRequestedItems] = useState<
+    { id: string; partId: string; name: string; code: string; quantity: number; unit: string }[]
+  >([]);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    async function loadParts() {
+      try {
+        const res = await fetch('/api/spare-parts');
+        const data = await res.json();
+        if (data.success && data.data.length > 0) {
+          setAvailableParts(data.data);
+          setSelectedPartId(data.data[0].id);
+        }
+      } catch (e) {
+        console.error('Failed to load parts:', e);
+      }
+    }
+    loadParts();
+  }, []);
+
   const handleAddItem = () => {
-    const part = MOCK_SPARE_PARTS.find((p) => p.id === selectedPartId);
+    const part = availableParts.find((p) => p.id === selectedPartId);
     if (!part) return;
 
     setRequestedItems([
@@ -81,22 +85,24 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ticketId,
-          ticketNumber: 'REQ-202505-0042',
-          technicianId: 'usr_tech_01',
           items: requestedItems.map((it) => ({
             partId: it.partId,
             quantity: it.quantity,
           })),
-          notes: 'สำหรับเปลี่ยนซ่อมสายสัญญาณและเต้ารับแล็บ 405',
+          notes,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
         setIsSubmitted(true);
+        if (onSubmitted) onSubmitted();
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาดในการส่งคำขอเบิก');
       }
     } catch (err) {
       console.error(err);
+      alert('ไม่สามารถส่งคำขอเบิกอุปกรณ์ได้');
     } finally {
       setIsSubmitting(false);
     }
@@ -108,7 +114,7 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
       <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
         <div>
           <h3 className="text-base font-extrabold text-slate-900">
-            บันทึกเข้าหน้างาน &amp; ส่งคำขอเบิกอุปกรณ์
+            บันทึกเข้าหน้างาน &amp; ส่งคำขอเบิกอุปกรณ์ (UC-10)
           </h3>
         </div>
         <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-50 text-cyan-800 border border-cyan-200">
@@ -119,141 +125,142 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
       {/* Part 1: Check-in On-site */}
       <div className="mb-5 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-800">
-            <Clock className="w-4 h-4 text-blue-600" />
-            <span>บันทึกเวลาเข้าตรวจสถานที่จริง (Check-in On-site)</span>
+          <div className="flex items-center space-x-2">
+            <Wifi className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs font-extrabold text-slate-900">
+              ระบบตรวจสอบตำแหน่งหน้างาน (On-site Wi-Fi Check-in)
+            </span>
           </div>
-          <span className="text-[11px] font-bold text-emerald-600 flex items-center space-x-1">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>บันทึกแล้ว 14:32 น.</span>
-          </span>
+          {isCheckedIn ? (
+            <span className="flex items-center space-x-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              <CheckCircle2 className="w-3 h-3" />
+              <span>ยืนยันพิกัดแล้ว</span>
+            </span>
+          ) : (
+            <span className="text-[11px] text-slate-400">ยังไม่เช็คอิน</span>
+          )}
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div>
-            <span className="text-[10px] text-slate-400 block">วันที่และเวลาเข้าตรวจสภาพหน้างาน</span>
-            <div className="font-mono font-bold text-slate-800 bg-white p-2 rounded-lg border border-slate-200 mt-1">
-              15 พฤษภาคม 2568 - 14:32:18 น.
-            </div>
-          </div>
-
-          <div>
-            <span className="text-[10px] text-slate-400 block">พิกัด / การยืนยันตำแหน่ง</span>
-            <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-slate-200 mt-1 font-mono text-[11px]">
-              <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
-                <Wifi className="w-3.5 h-3.5 text-emerald-600" />
-                <span>CP KKU Wi-Fi Beacon: AP-405-N</span>
-              </span>
-              <span className="text-emerald-700 font-bold">ยืนยันอัตโนมัติ</span>
-            </div>
-          </div>
-        </div>
+        <p className="text-[11px] text-slate-500">
+          เชื่อมต่อ Wi-Fi CoP-Secure @ อาคาร CP-01 ตรวจพบพิกัดตรงกับสถานที่แจ้งซ่อม
+        </p>
       </div>
 
-      {/* Part 2: Material Requisition */}
+      {/* Part 2: Material Requisition Form */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
-            <Package className="w-4 h-4 text-blue-600" />
-            <span>สร้างใบเบิกอุปกรณ์ซ่อมบำรุง (Material Requisition)</span>
-          </div>
-          <span className="text-[11px] text-slate-500 font-mono">
-            คลัง: สโตร์กลาง CoP-Wh01
-          </span>
+        <div className="flex items-center space-x-2 mb-3">
+          <Package className="w-4 h-4 text-blue-600" />
+          <h4 className="text-xs font-extrabold text-slate-900">
+            รายการเบิกอะไหล่/เครื่องมือซ่อม (UC-10)
+          </h4>
         </div>
 
-        {/* Add Part inputs */}
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 mb-3">
-          <div className="sm:col-span-7">
-            <select
-              value={selectedPartId}
-              onChange={(e) => setSelectedPartId(e.target.value)}
-              className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              {MOCK_SPARE_PARTS.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} ({p.unit}) - คงเหลือ {p.stockQuantity}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="sm:col-span-2">
-            <input
-              type="number"
-              min={1}
-              value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-              className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-mono font-bold text-center outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="sm:col-span-3">
-            <button
-              type="button"
-              onClick={handleAddItem}
-              className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center justify-center space-x-1 transition"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>เพิ่มรายการ</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Items List */}
-        <div className="space-y-2 mb-4">
-          {requestedItems.map((item) => (
-            <div
-              key={item.id}
-              className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between text-xs"
-            >
-              <div className="flex items-center space-x-2">
-                <span className="font-bold text-slate-800">{item.name}</span>
-                <span className="text-[10px] text-slate-400 font-mono">รหัส: {item.code}</span>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                <span className="font-mono font-extrabold text-blue-700 bg-white px-2 py-0.5 rounded border border-slate-200">
-                  {item.quantity} {item.unit}
-                </span>
+        {/* Input Add Row */}
+        <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-200/70 mb-3 space-y-2">
+          <div className="grid grid-cols-12 gap-2">
+            <div className="col-span-8">
+              <label className="text-[10px] font-bold text-slate-500 block mb-1">
+                เลือกอะไหล่ในคลัง
+              </label>
+              <select
+                value={selectedPartId}
+                onChange={(e) => setSelectedPartId(e.target.value)}
+                className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-hidden font-medium"
+              >
+                {availableParts.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.partCode} - {p.name} (คงเหลือ: {p.stockQuantity} {p.unit})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-span-4">
+              <label className="text-[10px] font-bold text-slate-500 block mb-1">
+                จำนวน
+              </label>
+              <div className="flex items-center space-x-1">
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 font-bold text-center focus:ring-2 focus:ring-blue-500 outline-hidden"
+                />
                 <button
                   type="button"
-                  onClick={() => handleRemoveItem(item.id)}
-                  className="p-1 text-red-500 hover:bg-red-50 rounded transition"
+                  onClick={handleAddItem}
+                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shrink-0"
+                  title="เพิ่มรายการ"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                 </button>
               </div>
             </div>
-          ))}
+          </div>
         </div>
 
-        {/* Requisition Status & Submit */}
-        {isSubmitted ? (
-          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold text-center flex items-center justify-center space-x-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>
-              ส่งคำขอเบิกอุปกรณ์เรียบร้อยแล้ว (รหัสคำขอ: REQ-INV-092 รอเจ้าหน้าที่อนุมัติ)
-            </span>
+        {/* List of Added Items */}
+        {requestedItems.length > 0 ? (
+          <div className="border border-slate-200 rounded-xl overflow-hidden mb-4 divide-y divide-slate-100">
+            {requestedItems.map((item) => (
+              <div
+                key={item.id}
+                className="p-2.5 bg-white flex items-center justify-between text-xs hover:bg-slate-50 transition"
+              >
+                <div>
+                  <div className="font-extrabold text-slate-900">{item.name}</div>
+                  <div className="text-[10px] font-mono text-slate-500">{item.code}</div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="font-mono font-bold text-slate-800">
+                    {item.quantity} {item.unit}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem(item.id)}
+                    className="text-red-500 hover:text-red-700 p-1 transition"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-            <span className="text-[11px] text-slate-500">
-              สถานะคำขอเบิก: พร้อมส่งให้หัวหน้างาน/เจ้าหน้าที่พัสดุอนุมัติ
-            </span>
+          <p className="text-xs text-slate-400 italic text-center py-3 border border-dashed border-slate-200 rounded-xl mb-3">
+            ยังไม่มีรายการขอเบิกอะไหล่
+          </p>
+        )}
 
-            <button
-              type="button"
-              onClick={handleSubmitRequisition}
-              disabled={isSubmitting}
-              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 active:scale-98 text-white font-bold text-xs shadow-md shadow-cyan-700/20 flex items-center justify-center space-x-1.5 transition disabled:opacity-50"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>
-                {isSubmitting ? 'กำลังส่งคำขอ...' : 'ส่งคำขอเบิกอุปกรณ์ (Submit Request)'}
-              </span>
-            </button>
+        {/* Notes */}
+        <div className="mb-4">
+          <label className="text-[10px] font-bold text-slate-500 block mb-1">
+            หมายเหตุการขอเบิก
+          </label>
+          <input
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-hidden"
+          />
+        </div>
+
+        {/* Submit Requisition Button */}
+        {isSubmitted ? (
+          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center text-xs font-bold text-emerald-800 flex items-center justify-center space-x-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>ส่งคำขอเบิกไปยังเจ้าหน้าที่เรียบร้อยแล้ว (รอการอนุมัติ)</span>
           </div>
+        ) : (
+          <button
+            type="button"
+            disabled={isSubmitting || requestedItems.length === 0}
+            onClick={handleSubmitRequisition}
+            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
+          >
+            <Send className="w-4 h-4" />
+            <span>{isSubmitting ? 'กำลังส่งคำขอ...' : 'ส่งคำขอเบิกอะไหล่ (UC-10)'}</span>
+          </button>
         )}
       </div>
     </div>

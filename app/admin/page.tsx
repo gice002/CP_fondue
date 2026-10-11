@@ -11,28 +11,34 @@ import { AssignTechnicianDrawer } from '@/components/admin/AssignTechnicianDrawe
 import { PartApprovalCard } from '@/components/admin/PartApprovalCard';
 import { WalkInModal } from '@/components/admin/WalkInModal';
 import { Ticket } from '@/types';
-import { MOCK_TICKETS, MOCK_USERS } from '@/data/mockData';
 
 export default function AdminPage() {
-  const [tickets, setTickets] = useState<Ticket[]>(MOCK_TICKETS);
-  const [selectedTicket, setSelectedTicket] = useState<Ticket>(
-    MOCK_TICKETS[0] || ({} as Ticket)
-  );
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isWalkInOpen, setIsWalkInOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchTickets = async () => {
     try {
+      setIsLoading(true);
       const res = await fetch('/api/tickets');
       const data = await res.json();
       if (data.success && data.data.length > 0) {
         setTickets(data.data);
         // keep current selection if valid
-        const found = data.data.find((t: Ticket) => t.id === selectedTicket.id);
+        const found = selectedTicket
+          ? data.data.find((t: Ticket) => t.id === selectedTicket.id)
+          : null;
         if (found) setSelectedTicket(found);
         else setSelectedTicket(data.data[0]);
+      } else {
+        setTickets([]);
+        setSelectedTicket(null);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Failed to fetch admin tickets:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -40,12 +46,15 @@ export default function AdminPage() {
     fetchTickets();
   }, []);
 
+  const pendingCount = tickets.filter((t) => t.status === 'PENDING_DISPATCH').length;
+  const activeCount = tickets.filter((t) => t.status === 'IN_PROGRESS' || t.status === 'ASSIGNED').length;
+
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
       <Navbar
         currentRole="ADMIN_DISPATCH"
-        userName={`${MOCK_USERS.admin.firstName} ${MOCK_USERS.admin.lastName}`}
-        userEmail={MOCK_USERS.admin.email}
+        userName="จิราพร สว่างเนตร"
+        userEmail="jiraporn.s@kkumail.com"
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -54,9 +63,9 @@ export default function AdminPage() {
 
         {/* 4 Stat Cards */}
         <AdminStatCards
-          pendingCount={tickets.filter((t) => t.status === 'PENDING_DISPATCH').length}
-          activeCount={tickets.filter((t) => t.status === 'IN_PROGRESS' || t.status === 'ASSIGNED').length + 5}
-          requisitionCount={3}
+          pendingCount={pendingCount}
+          activeCount={activeCount}
+          requisitionCount={1}
           slaRate={98.2}
         />
 
@@ -66,18 +75,18 @@ export default function AdminPage() {
           <div className="lg:col-span-7 space-y-6">
             <TicketDispatchTable
               tickets={tickets}
-              selectedTicketId={selectedTicket.id}
+              selectedTicketId={selectedTicket?.id || ''}
               onSelectTicket={(t) => setSelectedTicket(t)}
             />
 
-            {selectedTicket?.id && (
+            {selectedTicket && (
               <TicketVerificationCard ticket={selectedTicket} />
             )}
           </div>
 
           {/* Right Column: Dispatch Drawer & Material Requisition Approval */}
           <div className="lg:col-span-5 space-y-6">
-            {selectedTicket?.id && (
+            {selectedTicket && (
               <AssignTechnicianDrawer
                 ticket={selectedTicket}
                 onAssigned={() => fetchTickets()}

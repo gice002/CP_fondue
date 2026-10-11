@@ -56,26 +56,28 @@ A full-stack, database-ready Next.js prototype designed and built according to:
 
 ---
 
-## 🗄️ Database Mapping: Chen's Notation to Prisma Schema
+## 🗄️ Database Mapping: `diagram.txt` (mxGraphModel) to Prisma Relational Schema
 
-| Thai Entity in `ER_diagram.png` | English Table Name | Key Attributes & Relationships |
+| Entity in `diagram.txt` | English Model & Table | Exact Attributes & Constraints from `diagram.txt` |
 |---|---|---|
-| **ผู้ใช้** | `User` (`users`) | `id`, `firstName`, `lastName`, `email` (KKU Mail), `phoneNumber`, `roleId`, `departmentId` |
-| **ตำแหน่ง / ตำแหน่งผู้ใช้** | `Role` (`roles`) | `REPORTER`, `ADMIN_DISPATCH`, `TECHNICIAN`, `EXECUTIVE` |
-| **แผนก** | `Department` (`departments`) | `departmentName`, `buildingRef` |
-| **สถานที่** | `Location` (`locations`) | `building`, `floor`, `roomNumber`, `roomName` |
-| **ครุภัณฑ์** | `Equipment` (`equipments`) | `assetCode`, `name`, `serialNumber`, `specDetails`, `warrantyStatus`, `locationId`, `categoryId` |
-| **หมวดหมู่ปัญหา** | `Category` (`categories`) | `name` (คอมพิวเตอร์และเครือข่าย, ปรับอากาศ, ไฟฟ้า, etc.) |
-| **ใบแจ้งซ่อม** | `Ticket` (`tickets`) | `ticketNumber` (`REQ-YYYYMM-XXXX`), `description`, `urgency`, `status`, `targetSlaDate`, `adminNotes`, `repairNotes` |
-| **รูปภาพประกอบ** | `TicketAttachment` | `fileUrl`, `fileType`, `phase` (`BEFORE_REPAIR`, `AFTER_REPAIR`), `caption` |
-| **ประวัติการเปลี่ยนสถานะใบแจ้งซ่อม** | `TicketStatusHistory` | `oldStatus`, `newStatus`, `notes`, `changedById`, `changedAt` |
-| **แท็ก / ติดแท็กให้ใบแจ้งซ่อม** | `Tag` / `TicketTagMap` | Many-to-many relationship (`ticket_tags`) |
-| **คลังอะไหล่** | `SparePart` (`spare_parts`) | `partCode`, `name`, `unit`, `stockQuantity`, `unitCost`, `storageRoom` |
-| **ใบเบิกอะไหล่** | `SparePartRequest` | `requestNumber` (`REQ-INV-XXX`), `ticketId`, `requestedById`, `approvedById`, `status` |
-| **รายการในใบเบิกอะไหล่** | `SparePartRequestItem` | `requestId`, `partId`, `quantity` |
-| **แบบประเมิน** | `Evaluation` (`evaluations`) | `score` (1-5 stars), `feedback`, `evaluatedAt` |
-| **ประวัติการแก้ไขข้อมูลเชิงลึก** | `AuditLog` (`audit_logs`) | `tableName`, `command_used`, `recordId`, `old_data`, `new_data`, `user_id` |
-| **ประวัติการส่งอีเมลแจ้งเตือน** | `EmailNotificationLog` | `recipient_email`, `subject`, `send_status`, `error_message` |
+| **ผู้ใช้** | [`User`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L20-L55) (`users`) | `[PK] รหัสผู้ใช้`, `ชื่อจริง`, `นามสกุล`, `KKU_MAIL` (unique), `เบอร์โทรศัพท์`, `เวลาที่สร้างผู้ใช้`, `เวลาที่แก้ไขข้อมูลผู้ใช้`, `เวลาที่ลบข้อมูลผู้ใช้` |
+| **ตำแหน่ง** | [`Position`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L60-L70) (`positions`) | `[PK] รหัสตำแหน่ง`, `ชื่อตำแหน่ง` |
+| **แผนก** | [`Department`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L75-L85) (`departments`) | `[PK] รหัสแผนก`, `ชื่อแผนก` |
+| **สถานที่** | [`Location`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L90-L103) (`locations`) | `[PK] รหัสสถานที่`, `ชื่อห้อง`, `เลขห้อง`, `ชั้น` |
+| **ครุภัณฑ์** | [`Equipment`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L108-L125) (`equipments`) | `[PK] ลำดับครุภัณฑ์ในระบบ` (underlined PK), `รหัสครุภัณฑ์`, `ชื่อครุภัณฑ์`, `สถานะครุภัณฑ์`, `locationId` |
+| **หมวดหมู่ปัญหา** | [`ProblemCategory`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L130-L140) (`problem_categories`) | `[PK] รหัสหมวดหมู่`, `ชื่อหมวดหมู่` |
+| **สถานะงาน** | [`WorkStatus`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L145-L156) (`work_statuses`) | `[PK] รหัสสถานะ`, `ชื่อสถานะ`, `รายละเอียดสถานะ` |
+| **ใบแจ้งซ่อม** | [`Ticket`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L161-L200) (`tickets`) | `[PK] รหัสใบแจ้งซ่อม`, `รายละเอียดปัญหา`, `สถานะปัจจุบัน`, `เวลาที่สร้างใบแจ้งซ่อม`, `เวลาที่อัปเดตใบแจ้งซ่อม`, `เวลาที่ยกเลิกใบแจ้งซ่อม`, `reporterUserId`, `categoryId`, `equipmentId`, `statusId` |
+| **รูปภาพประกอบ** | [`TicketAttachment`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L205-L218) (`ticket_attachments`) | `[PK] รหัสรูปภาพ`, `รหัสใบแจ้งซ่อม` (FK), `ที่อยู่ของไฟล์รูปภาพ`, `เวลาที่อัปโหลด`, `ประเภทไฟล์` |
+| **ประวัติการเปลี่ยนสถานะใบแจ้งซ่อม** | [`TicketStatusHistory`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L223-L240) (`ticket_status_histories`) | `[PK] รหัสประวัติการเปลี่ยนสถานะใบแจ้งซ่อม`, `รหัสใบแจ้งซ่อม` (FK), `สถานะใบแจ้งซ่อมเดิม`, `ผู้ที่เปลี่ยนสถานะใบแจ้งซ่อม` (FK), `เวลาที่เปลี่ยนสถานะใบแจ้งซ่อม`, `หมายเหตุใบแจ้งซ่อม` |
+| **แบบประเมิน** | [`Evaluation`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L245-L259) (`evaluations`) | `[PK] รหัสแบบประเมิน`, `รหัสใบแจ้งซ่อม` (FK), `คะแนนการประเมิน`, `ข้อเสนอแนะ`, `เวลาที่ทำแบบประเมิน` |
+| **ประวัติการส่งอีเมลแจ้งเตือน** | [`EmailNotificationLog`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L264-L277) (`email_notification_logs`) | `[PK] รหัสประวัติการส่งอีเมลแจ้งเตือน`, `รหัสใบแจ้งซ่อม` (FK), `สถานะการส่งอีเมล`, `ข้อความแจ้งเตือนกรณีส่งไม่สำเร็จ` |
+| **แท็ก** | [`Tag`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L282-L292) (`tags`) | `[PK] Tag_ID`, `ชื่อแท็ก` |
+| **ติดแท็กให้ใบแจ้งซ่อม** | [`TicketTagMap`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L297-L306) (`ticket_tag_maps`) | Associative M:N table between `Ticket` and `Tag` (`ticket_id`, `tag_id`) |
+| **คลังเก็บอะไหล่** | [`SparePartInventory`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L311-L322) (`spare_part_inventories`) | `[PK] รหัสอะไหล่`, `ชื่ออะไหล่`, `จำนวนอะไหล่` |
+| **ใบเบิกอะไหล่** | [`SparePartRequisition`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L327-L347) (`spare_part_requisitions`) | `[PK] รหัสใบเบิกอะไหล่`, `รหัสใบแจ้งซ่อม` (FK), `รหัสอะไหล่` (FK), `ผู้ที่ขอเบิกอะไหล่` (FK), `จำนวนที่เบิก`, `หมายเหตุใบเบิกอะไหล่`, `เวลาที่สร้างใบเบิกอะไหล่`, `เวลาที่แก้ไขใบเบิกอะไหล่` |
+| **ประวัติการเปลี่ยนสถานะใบเบิกอะไหล่** | [`SparePartStatusHistory`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L352-L368) (`spare_part_status_histories`) | `[PK] รหัสประวัติการเบิกอะไหล่`, `รหัสใบเบิกอะไหล่` (FK), `สถานะใบเบิกอะไหล่เดิม`, `สถานะใบเบิกอะไหล่ใหม่`, `ผู้อนุมัติการเบิก` (FK), `เวลาที่อนุมัติ` |
+| **ประวัติการแก้ไขข้อมูลเชิงลึก** | [`AuditLog`](file:///home/notsiri/university/projects/database/prisma/schema.prisma#L373-L390) (`audit_logs`) | `[PK] รหัสของประวัติการแก้ไขข้อมูลเชิงลึก`, `ชื่อตารางที่มีถูกแก้ไข`, `คำสั่งที่ใช้`, `ข้อมูลเก่า`, `ข้อมูลใหม่ของตาราง`, `ผู้ที่แก้ไขตาราง` (FK), `เวลาที่แก้ไขตาราง` |
 
 ---
 

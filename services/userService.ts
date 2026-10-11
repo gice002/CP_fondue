@@ -1,51 +1,74 @@
-import { MOCK_USERS } from '@/data/mockData';
-import { User } from '@/types';
+import { prisma } from '@/lib/prisma';
+import { User, RoleCode } from '@/types';
 
 export class UserService {
   /**
-   * Get all available technicians for dispatching (UC-9)
+   * Get all technicians and their live task workloads from PostgreSQL (UC-9)
    */
-  static async getTechnicians(): Promise<(User & { activeTasks: number; isAvailable: boolean })[]> {
-    const techs = Object.values(MOCK_USERS).filter((u) => u.roleCode === 'TECHNICIAN');
-    
-    // Add realistic live workload status
-    return techs.map((t) => {
-      let activeTasks = 0;
-      let isAvailable = true;
+  static async getTechnicians(): Promise<(User & { activeTasks: number; isAvailable: boolean; specialty?: string })[]> {
+    const techUsers = await prisma.user.findMany({
+      where: { role: 'TECHNICIAN' },
+      include: {
+        department: true,
+        assignedTickets: {
+          where: {
+            currentStatus: { in: ['ASSIGNED', 'IN_PROGRESS'] },
+          },
+        },
+      },
+      orderBy: { firstName: 'asc' },
+    });
 
-      if (t.id === 'usr_tech_01') { // Anucha
-        activeTasks = 0;
-        isAvailable = true;
-      } else if (t.id === 'usr_tech_03') { // Thanakrit
-        activeTasks = 2;
-        isAvailable = false;
-      } else if (t.id === 'usr_tech_02') { // Somsak
-        activeTasks = 1;
-        isAvailable = false;
-      }
-
+    return techUsers.map((u) => {
+      const activeTasks = u.assignedTickets.length;
       return {
-        ...t,
+        id: u.id,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        email: u.email,
+        phoneNumber: u.phoneNumber ?? undefined,
+        roleCode: 'TECHNICIAN',
+        departmentName: u.department?.departmentName || 'ฝ่ายปฏิบัติการ',
         activeTasks,
-        isAvailable,
+        isAvailable: activeTasks === 0,
+        specialty: u.id === 'usr_tech_01'
+          ? 'ผู้เชี่ยวชาญ Switch/Router & LAN'
+          : u.id === 'usr_tech_02'
+          ? 'ผู้เชี่ยวชาญระบบปรับอากาศและสุขาภิบาล'
+          : 'ผู้เชี่ยวชาญฮาร์ดแวร์และเซิร์ฟเวอร์',
       };
     });
   }
 
   /**
-   * Get default mock profile for a given portal
+   * Get user profile from PostgreSQL for a given portal role
    */
-  static async getUserProfile(role: 'REPORTER' | 'ADMIN_DISPATCH' | 'TECHNICIAN' | 'EXECUTIVE'): Promise<User> {
-    switch (role) {
-      case 'ADMIN_DISPATCH':
-        return MOCK_USERS.admin;
-      case 'TECHNICIAN':
-        return MOCK_USERS.tech_anucha;
-      case 'EXECUTIVE':
-        return MOCK_USERS.executive;
-      case 'REPORTER':
-      default:
-        return MOCK_USERS.reporter;
+  static async getUserProfile(role: RoleCode): Promise<User> {
+    const dbUser = await prisma.user.findFirst({
+      where: { role },
+      include: { department: true },
+    });
+
+    if (dbUser) {
+      return {
+        id: dbUser.id,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
+        email: dbUser.email,
+        phoneNumber: dbUser.phoneNumber ?? undefined,
+        roleCode: role,
+        departmentName: dbUser.department?.departmentName || 'วิทยาลัยการคอมพิวเตอร์',
+      };
     }
+
+    // Fallback if not found
+    return {
+      id: `usr_${role.toLowerCase()}`,
+      firstName: 'ผู้ใช้งาน',
+      lastName: 'ระบบ',
+      email: `${role.toLowerCase()}@kkumail.com`,
+      roleCode: role,
+      departmentName: 'วิทยาลัยการคอมพิวเตอร์',
+    };
   }
 }

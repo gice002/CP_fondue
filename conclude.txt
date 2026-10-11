@@ -1,0 +1,270 @@
+========================================================================================
+รายงานผลการตรวจสอบสถาปัตยกรรมและการเชื่อมต่อฐานข้อมูลระบบแจ้งซ่อมออนไลน์ (CP Fondue)
+จัดทำโดย: Senior Software Engineer & Database Architect
+วันที่ตรวจสอบ: 12 ตุลาคม 2569
+สถานะระบบ: ตรวจสอบและรันทดสอบบนสภาพแวดล้อมจริง (Source Code & Live Database Inspection)
+========================================================================================
+
+----------------------------------------------------------------------------------------
+บทสรุปผู้บริหาร (Executive Summary)
+----------------------------------------------------------------------------------------
+จากการตรวจสอบอย่างละเอียดทั้งในระดับ Source Code, ER Diagram (diagram.txt), เอกสารข้อกำหนด (fullreport-03-1.pdf), 
+Prisma Schema และการทดสอบเชื่อมต่อกับฐานข้อมูล PostgreSQL (Supabase) บนคลาวด์จริง พบข้อสรุปที่สำคัญอย่างยิ่งคือ:
+
+"ระบบแจ้งซ่อมออนไลน์ชุดนี้ยังไม่ได้เชื่อมต่อและทำงานร่วมกับฐานข้อมูลจริงในการดำเนินงานหลัก (Write Operations ทั้งหมด) 
+แม้จะมีการต่อสาย Connection ไปยัง Supabase สำเร็จ แต่โค้ด Backend/Service Layer เกือบทั้งหมดเป็นการจำลองข้อมูล (In-Memory Mock State) 
+และในส่วนที่พยายามอ่านฐานข้อมูล (Read Operation) โค้ดจะเกิด Runtime Crash ทันทีเนื่องจาก Field/Relation Mapping ไม่ตรงกับ Database Schema 
+ก่อนจะหลุดเข้าไปใน catch-block และตกกลับไปดึงข้อมูล Mock มาแสดงผลบนหน้าจอ ทำให้หน้าเว็บภายนอกดูเหมือนทำงานได้ปกติแต่เบื้องหลังไม่มีการบันทึกข้อมูลลงฐานข้อมูลจริงแต่อย่างใด"
+
+========================================================================================
+1. ภาพรวมสถาปัตยกรรมระบบ (System Architecture & Database Connection)
+========================================================================================
+
+1.1 เทคโนโลยีที่ใช้
+- Frontend: Next.js 16.4.0 (App Router), React 19.3.0, Tailwind CSS v4, Lucide React Icons
+- Backend / API Layer: Next.js Route Handlers (`app/api/...`)
+- ORM Layer: Prisma ORM v6.19.3 (`@prisma/client`)
+- Database: PostgreSQL (Supabase Cloud - Region: ap-northeast-2)
+- Architecture Style: Monolithic Next.js Fullstack (Serverless API + React Client Components)
+
+1.2 สภาพการเชื่อมต่อฐานข้อมูล (Database Connection Analysis)
+- Connection Pool & Driver: 
+  - Transaction-mode Pooler (PgBouncer): พอร์ต 6543 (`DATABASE_URL`) สำหรับ Query ปกติ
+  - Session-mode Direct Pooler: พอร์ต 5432 (`DIRECT_URL`) สำหรับ Schema Migration (`prisma db push`)
+- การทดสอบการเชื่อมต่อจริง:
+  - ดำเนินการรัน `npx prisma db push` สำเร็จ โครงสร้าง 18 ตารางถูกสร้างขึ้นจริงบน Supabase Cloud
+  - ทดสอบรันคำสั่ง Prisma ผ่าน Node.js สามารถเชื่อมต่อ ตรวจนับแถว และส่ง Query ไปยังตารางจริงได้
+- ข้อเท็จจริงที่ตรวจพบ:
+  1. ตัวแปรสภาพแวดล้อม `USE_MOCK_DATA="false"` มีผลเฉพาะจุดที่มีเงื่อนไขเช็ค แต่ในโค้ดส่วนเขียนข้อมูล (Create/Update/Delete) ไม่มีคำสั่ง Prisma บันทึกลงฐานข้อมูลเลย
+  2. โค้ด Service Layer ทั้งระบบยังอิงอยู่กับตัวแปร Array ในหน่วยความจำ ได้แก่ `ticketsState`, `sparePartsState`, `requisitionsState`, `auditLogsState` ซึ่งข้อมูลจะหายไปทันทีเมื่อเซิร์ฟเวอร์ Restart
+
+========================================================================================
+2. แผนผังการไหลของข้อมูล (Data Flow Diagram: Actual vs Expected)
+========================================================================================
+
+2.1 วงจรการทำงานที่เกิดขึ้นจริงในระบบปัจจุบัน (Current Actual Flow - Disconnected)
+[User หน้าเว็บ]
+       │  (ส่งฟอร์มแจ้งซ่อม / ปรับสถานะ / เบิกอะไหล่)
+       ▼
+[Frontend Component] (เช่น TicketForm, AssignTechnicianDrawer)
+       │  HTTP POST / PATCH (JSON Body)
+       ▼
+[Next.js Route Handler] (เช่น /api/tickets, /api/tickets/[id])
+       │  เรียกฟังก์ชัน Service
+       ▼
+[Service Layer] (ticketService.ts, sparePartService.ts)
+       │
+       ├─► [ส่วนเขียน]: บันทึกใส่ตัวแปร Array ในแรม (ticketsState.unshift / push) 
+       │                *** ไม่มีการเรียก Prisma.create() หรือ update() เลย ***
+       │
+       └─► [ส่วนอ่าน]: พยายามเรียก prisma.ticket.findMany()
+                        │
+                        ├─► Schema Mismatch (หา t.location.id หรือ t.assignedTech ไม่เจอ)
+                        ▼
+                 [TypeError / Exception เกิดขึ้น]
+                        │
+                        ▼ (ตกเข้า catch block)
+                 [console.warn('Prisma query failed, falling back to mock state')]
+                        │
+                        ▼
+                 [คืนค่า Array Mock เดิมกลับไปให้ Frontend]
+                        │
+                        ▼
+[หน้าเว็บแสดงผลสำเร็จ]: ผู้ใช้เห็นรายการเพิ่มขึ้น แต่ในฐานข้อมูล PostgreSQL บน Supabase มี 0 แถวเท่าเดิม!
+
+2.2 วงจรที่ถูกต้องตามหลักสถาปัตยกรรม (Expected Architecture Flow)
+[Frontend Component] ──► [API Route (Auth + Validation)] ──► [Service / Repository] 
+        ▲                                                              │
+        │                                                     [Prisma Client Transaction]
+        │                                                              │
+        │◄───────── HTTP 200/201 (Database Record) ◄───────────────────┴──► [PostgreSQL Database]
+
+========================================================================================
+3. ตารางความสัมพันธ์ระหว่าง API, ตารางฐานข้อมูล และฟังก์ชัน (API-Table-CRUD Matrix)
+========================================================================================
+
+| ฟังก์ชันงาน | HTTP Method & Endpoint | ไฟล์โค้ดที่รับผิดชอบ | ตารางในฐานข้อมูลที่เกี่ยวข้อง | ผลการทำงานจริง (Actual Execution) | การแตะต้อง DB จริง |
+|---|---|---|---|---|---|
+| ผู้ใช้แจ้งซ่อมใหม่ (UC-1, BR2, BR3) | POST /api/tickets | `app/api/tickets/route.ts` & `services/ticketService.ts:createTicket` | `tickets`, `ticket_attachments`, `ticket_status_histories` | สร้าง Object แล้ว `ticketsState.unshift()` ในแรม | ❌ ไม่ลง DB |
+| ดึงรายการแจ้งซ่อม (UC-4) | GET /api/tickets | `app/api/tickets/route.ts` & `services/ticketService.ts:getTickets` | `tickets` | เรียก `prisma.findMany()` แล้ว Mapping พัง ตกเข้า catch ดึง Array Mock | ❌ ล้มเหลว (Fallback) |
+| ตรวจสอบใบแจ้งซ่อมรายใบ | GET /api/tickets/[id] | `app/api/tickets/[id]/route.ts` & `services/ticketService.ts:getTicketById` | `tickets` | วนลูปค้นหาจาก Array Mock ในแรม | ❌ ไม่แตะ DB |
+| เจ้าหน้าที่มอบหมายงาน (BR4, UC-9) | PATCH /api/tickets/[id] (`action: ASSIGN`) | `app/api/tickets/[id]/route.ts` & `services/ticketService.ts:assignTicket` | `tickets`, `ticket_status_histories` | อัปเดต Object ใน `ticketsState` Array ในแรม | ❌ ไม่ลง DB |
+| ช่างกดรับงาน (BR5, BR6) | PATCH /api/tickets/[id] (`action: ACCEPT`) | `app/api/tickets/[id]/route.ts` & `services/ticketService.ts:acceptTicket` | `tickets`, `ticket_status_histories` | แก้ไข property `status` ในตัวแปร Array ในแรม | ❌ ไม่ลง DB |
+| ช่างปิดงานซ่อม + แนบรูป (BR8, BR9) | PATCH /api/tickets/[id] (`action: CLOSE`) | `app/api/tickets/[id]/route.ts` & `services/ticketService.ts:closeTicket` | `tickets`, `ticket_attachments`, `ticket_status_histories` | push ข้อมูลเข้า Array ในแรม | ❌ ไม่ลง DB |
+| ผู้แจ้งยกเลิกคำร้อง (UC-5) | PATCH /api/tickets/[id] (`action: CANCEL`) | `app/api/tickets/[id]/route.ts` & `services/ticketService.ts:cancelTicket` | `tickets`, `ticket_status_histories` | แก้ไขค่าใน `ticketsState` ในแรม | ❌ ไม่ลง DB |
+| ประเมินความพึงพอใจ (UC-6, BR10) | POST /api/tickets/[id]/evaluation | `app/api/tickets/[id]/evaluation/route.ts` & `services/ticketService.ts:submitEvaluation` | `evaluations` | บันทึก Property ใน `ticketsState` | ❌ ไม่ลง DB |
+| ช่างขอเบิกอะไหล่ (UC-10) | POST /api/spare-parts/requisitions | `app/api/spare-parts/requisitions/route.ts` & `services/sparePartService.ts:createRequisition` | `spare_part_requisitions` | บันทึกใส่ `requisitionsState` ในแรม | ❌ ไม่ลง DB |
+| จนท. อนุมัติเบิกอะไหล่ (UC-10) | PATCH /api/spare-parts/requisitions (`action: APPROVE`) | `app/api/spare-parts/requisitions/route.ts` & `services/sparePartService.ts:approveRequisition` | `spare_part_status_histories`, `spare_part_inventories` | แก้ไขสถานะใน `requisitionsState` (ไม่มีการตัดสต็อก) | ❌ ไม่ลง DB |
+| ดึงสต็อกอะไหล่ | GET /api/spare-parts | `app/api/spare-parts/route.ts` & `services/sparePartService.ts:getSpareParts` | `spare_part_inventories` | มีคำสั่ง `prisma.sparePartInventory.findMany()` แต่ถ้าตารางว่างก็ดึงสต็อก Mock | ⚠️ อ่านได้ แต่ถ้า Error ตกไป Mock |
+| ดึงรายชื่อช่างและภาระงาน | GET /api/technicians | `app/api/technicians/route.ts` & `services/userService.ts:getTechnicians` | `users` | กรองจาก `MOCK_USERS` โดยตรง ไม่มีคำสั่งเรียก Prisma | ❌ ฮาร์ดโค้ด 100% |
+| ดึง Log การตรวจสอบ (EdPEx) | GET /api/audit-logs | `app/api/audit-logs/route.ts` & `services/auditService.ts:getAuditLogs` | `audit_logs` | ดึงจาก `MOCK_AUDIT_LOGS` ในแรม | ❌ ฮาร์ดโค้ด 100% |
+| ดึงสถิติ Dashboard ผู้บริหาร | GET /api/analytics | `app/api/analytics/route.ts` & `services/statsService.ts:getExecutiveStats` | `tickets`, `evaluations` | คืนค่า `MOCK_EXECUTIVE_STATS` | ❌ ฮาร์ดโค้ด 100% |
+
+========================================================================================
+4. รายการปัญหาที่พบ พร้อมตำแหน่งไฟล์และหลักฐานยืนยัน (Detailed Defect Findings)
+========================================================================================
+
+----------------------------------------------------------------------------------------
+[ISSUE-01] ระดับความรุนแรง: CRITICAL
+หัวข้อ: ฟังก์ชันการบันทึกข้อมูล (Write / Mutation) ทั้งหมดไม่เคยบันทึกลงฐานข้อมูลจริง
+----------------------------------------------------------------------------------------
+- ตำแหน่งไฟล์ที่พบ:
+  1. `services/ticketService.ts` บรรทัดที่ 150-210 (`createTicket`), 216-246 (`assignTicket`), 251-269 (`acceptTicket`), 274-310 (`closeTicket`), 315-334 (`cancelTicket`), 339-361 (`submitEvaluation`)
+  2. `services/sparePartService.ts` บรรทัดที่ 47-87 (`createRequisition`), 92-110 (`approveRequisition`)
+  3. `services/auditService.ts` บรรทัดที่ 28-36 (`logAction`)
+- รายละเอียด:
+  ในฟังก์ชันที่มีการเปลี่ยนแปลงข้อมูล (C-U-D) โค้ดทั้งหมดใช้คำสั่ง Array Mutation ใน JavaScript เช่น `ticketsState.unshift(newTicket)`, `requisitionsState.unshift(...)`, `ticket.status = ...` โดยไม่มีการเรียกใช้งาน Prisma Client เลยแม้แต่บรรทัดเดียว
+- หลักฐานยืนยัน (Evidence):
+  ทำการทดสอบเพิ่ม Ticket ใหม่ผ่านหน้าเว็บหรือยิง POST ไปที่ `/api/tickets` จากนั้นตรวจสอบจำนวนแถวในฐานข้อมูล Supabase โดยตรงด้วยคำสั่ง `SELECT COUNT(*) FROM tickets;` ผลลัพธ์ที่ได้คือ `0` แถว ข้อมูลที่เพิ่มขึ้นจะคงอยู่เฉพาะในแรมของ Process และเมื่อ Node.js Restart ข้อมูลจะสูญหายทันที
+
+----------------------------------------------------------------------------------------
+[ISSUE-02] ระดับความรุนแรง: CRITICAL
+หัวข้อ: ฟังก์ชันการอ่านข้อมูล (Read Operation) พังขณะ Mapping ข้อมูลจาก DB จริง และ Fallback ซ่อน Error
+----------------------------------------------------------------------------------------
+- ตำแหน่งไฟล์ที่พบ:
+  `services/ticketService.ts` บรรทัดที่ 20-111
+- รายละเอียด:
+  ในฟังก์ชัน `getTickets()` มีการเรียก `prisma.ticket.findMany(...)` แต่เมื่อได้ผลลัพธ์จาก DB กลับมา โค้ดพยายามเข้าถึง Properties ที่ไม่มีอยู่จริงใน Schema:
+  - บรรทัดที่ 62: พยายามเข้าถึง `t.location.id` แต่ในตาราง `tickets` ไม่มี Relation `location` (มีเฉพาะ `equipment.location` และ `equipment` สามารถเป็น NULL ได้)
+  - บรรทัดที่ 41: พยายามเข้าถึง `t.ticketNumber` แต่ใน Schema คอลัมน์คือ `id`
+  - บรรทัดที่ 51: พยายามเข้าถึง `t.assignedTech` แต่ในตาราง `tickets` ไม่มีคอลัมน์หรือความสัมพันธ์มอบหมายช่าง
+- หลักฐานยืนยัน (Evidence - จากการรันคำสั่งทดสอบจริงบน Node.js):
+  จำลองการสร้างข้อมูลลงในตาราง `tickets` จริง 1 แถวแล้วรันโค้ด Mapping บรรทัดที่ 62 พบ Runtime Exception ทันที:
+  `TypeError: Cannot read properties of undefined (reading 'id')`
+  ส่งผลให้โค้ดหลุดไปเข้า `catch (err)` ที่บรรทัด 108:
+  `console.warn('Prisma query failed, falling back to mock state:', err)`
+  แล้วคืนค่า Array จำลองเดิมกลับไป ทำให้ระบบไม่สามารถแสดงข้อมูลจริงจาก DB ได้เลย
+
+----------------------------------------------------------------------------------------
+[ISSUE-03] ระดับความรุนแรง: HIGH
+หัวข้อ: ความไม่สอดคล้องระหว่าง ER Diagram (diagram.txt) กับ Requirement และ Business Rules
+----------------------------------------------------------------------------------------
+- ตำแหน่งไฟล์ที่พบ:
+  `diagram.txt` และ `prisma/schema.prisma`
+- รายละเอียดข้อผิดพลาดเชิงโครงสร้าง:
+  1. ขาด Foreign Key สำหรับช่างผู้รับผิดชอบงานบนตาราง `tickets`:
+     - ใน Business Rules (BR4, BR5, BR6) และเอกสารหน้า 4 กำหนดให้มีการ "มอบหมายงานให้ทีมช่าง" และแสดง "ชื่อช่างผู้รับผิดชอบ"
+     - แต่ใน ER Diagram (`diagram.txt`) ตาราง `ใบแจ้งซ่อม (Ticket)` มีความสัมพันธ์กับผู้ใช้เพียงแค่ `ผู้แจ้ง (reporterUserId)` และ `ผู้เปลี่ยนสถานะ (changedByUserId)` ในประวัติเท่านั้น ไม่มี FK ชี้ไปยังช่างที่ถูก Assign
+  2. ขาด Foreign Key สถานที่ (`location_id`) บนตาราง `tickets`:
+     - ใน ER Diagram ตาราง `tickets` เชื่อมไปยัง `equipments` เท่านั้น และ `equipments` ถึงจะเชื่อมไปยัง `locations`
+     - แต่ในการใช้งานจริงตาม BR2 ผู้ใช้อาจแจ้งซ่อมความเสียหายของสถานที่ เช่น แอร์รั่ว หลอดไฟดับ ผนังชำรุด ซึ่งไม่มีรหัสครุภัณฑ์ หาก `equipment_id` เป็น NULL จะไม่สามารถระบุสถานที่ของใบแจ้งซ่อมได้
+  3. ขาดคอลัมน์สำคัญที่หน้าเว็บและ BR ใช้งาน:
+     - `ticket_number` (เช่น REQ-202505-0038 ตาม BR3)
+     - `urgency` (ระดับความเร่งด่วน เช่น Critical, Urgent, Normal)
+     - `admin_notes` และ `repair_notes`
+     - `target_sla_date` และ `completed_at`
+
+----------------------------------------------------------------------------------------
+[ISSUE-04] ระดับความรุนแรง: HIGH
+หัวข้อ: Frontend Components ฮาร์ดโค้ด ID และจำลอง Action โดยไม่เรียก API
+----------------------------------------------------------------------------------------
+- ตำแหน่งไฟล์ที่พบ:
+  1. `components/reporter/ActiveTicketTracker.tsx` บรรทัดที่ 18-25: ฟังก์ชันกดยกเลิกคำร้อง (UC-5) ทำเพียงแค่ `setIsCancelled(true)` ใน React State ไม่มีการยิง API ไปยกเลิกจริง
+  2. `components/reporter/EvaluationCard.tsx` บรรทัดที่ 19: ฮาร์ดโค้ด Endpoint `/api/tickets/tkt_0031/evaluation` ไว้เฉพาะเจาะจง
+  3. `components/technician/CloseJobCard.tsx` บรรทัดที่ 25: ฮาร์ดโค้ด Endpoint `/api/tickets/tkt_0078` ไว้เฉพาะเจาะจง
+  4. `app/technician/page.tsx` บรรทัดที่ 21: ดึงเฉพาะข้อมูล `/api/tickets/tkt_0042`
+  5. `components/admin/PartApprovalCard.tsx` บรรทัดที่ 28: ฮาร์ดโค้ด ID ขอเบิก `req_inv_092`
+- รายละเอียด:
+  หน้าจอเหล่านี้ถูกเขียนขึ้นเพื่อการเป็น UI Demo/Prototype โดยผูกข้อมูลคงที่ไว้ หากเปิดใช้งานกับผู้ใช้จริง ข้อมูลของงานอื่นจะไม่ถูกอัปเดต และการกดปุ่มบนหน้าจอจะไม่ส่งผลใด ๆ ต่อระบบ
+
+----------------------------------------------------------------------------------------
+[ISSUE-05] ระดับความรุนแรง: HIGH
+หัวข้อ: ความปลอดภัย (Security) - ไร้ระบบยืนยันตัวตน (No Auth) และไม่มีการตรวจสอบสิทธิ์ (Broken Access Control)
+----------------------------------------------------------------------------------------
+- ตำแหน่งไฟล์ที่พบ:
+  `app/api/tickets/[id]/route.ts`, `app/api/tickets/route.ts`, `app/api/spare-parts/requisitions/route.ts`
+- รายละเอียด:
+  1. ไม่มีระบบ Authentication: ไม่มี Session, Token, JWT หรือการตรวจสอบคุกกี้ ทุก Endpoint อนุญาตให้ใครก็ได้ที่มี URL เข้าถึงได้ทันที
+  2. Insecure Direct Object References (IDOR): บุคคลภายนอกสามารถส่งคำขอ `PATCH /api/tickets/{any_id}` พร้อมระบุ `action: "CANCEL"` หรือ `"CLOSE"` เพื่อสั่งปิดหรือยกเลิกคำร้องของคนอื่นได้โดยไม่มีการตรวจสอบว่าเป็นผู้แจ้งหรือช่างเจ้าของงานหรือไม่
+  3. สิทธิ์ตามบทบาท (RBAC) เป็นเพียง UI Display: สิทธิ์ผู้ใช้ (`REPORTER`, `ADMIN_DISPATCH`, `TECHNICIAN`, `EXECUTIVE`) ถูกกำหนดผ่าน Dropdown หรือ URL Switcher บน Navbar หน้าบ้านเท่านั้น ไม่มี Middleware หรือ API-level Guard ป้องกัน
+
+----------------------------------------------------------------------------------------
+[ISSUE-06] ระดับความรุนแรง: MEDIUM
+หัวข้อ: การจัดการไฟล์รูปภาพ (File Upload) เป็นการใช้ URL จำลอง (Mock External URLs)
+----------------------------------------------------------------------------------------
+- ตำแหน่งไฟล์ที่พบ:
+  `components/reporter/TicketForm.tsx` บรรทัดที่ 41-44, `components/technician/CloseJobCard.tsx` บรรทัดที่ 31-33
+- รายละเอียด:
+  ใน Requirement (BR2, BR8) บังคับให้ผู้แจ้งและช่างแนบรูปถ่ายความเสียหายและรูปหลังซ่อม แต่ในโค้ดไม่มีระบบ File Upload จริง (ไม่มี Endpoint รับ `multipart/form-data`, ไม่มีการเชื่อมต่อกับ S3, Supabase Storage หรือระบบจัดเก็บไฟล์ในเซิร์ฟเวอร์) แต่ใช้วิธีส่ง URL ภาพตัวอย่างจาก Unsplash ไปบันทึกแทน
+
+----------------------------------------------------------------------------------------
+[ISSUE-07] ระดับความรุนแรง: MEDIUM
+หัวข้อ: การอนุมัติเบิกอะไหล่ไม่มีการตัดยอดสต็อกในคลัง (Missing Stock Deduction Transaction)
+----------------------------------------------------------------------------------------
+- ตำแหน่งไฟล์ที่พบ:
+  `services/sparePartService.ts` บรรทัดที่ 92-110 (`approveRequisition`)
+- รายละเอียด:
+  เมื่อผู้ดูแลระบบกดอนุมัติการเบิกอะไหล่ (`action: 'APPROVE'`) ฟังก์ชันทำเพียงแค่เปลี่ยนสถานะของคำขอเป็น `APPROVED` แต่ไม่มีโค้ดสำหรับหักลบจำนวนคงเหลือใน `spare_part_inventories.stock_quantity` และไม่มีการใช้ Database Transaction (`prisma.$transaction`) เพื่อรับประกันความสอดคล้องของข้อมูล หากเกิดข้อผิดพลาด
+
+========================================================================================
+5. ตรวจสอบ Workflow ตาม Requirement (BR1 - BR12)
+========================================================================================
+
+| Business Rule | ข้อกำหนดในเอกสาร | การทำงานจริงในระบบปัจจุบัน | สถานะการทำงาน |
+|---|---|---|---|
+| BR1 & BR12 | ผู้ใช้งานทุกคนต้องล็อกอินด้วย KKU Mail ก่อนเข้าใช้งาน | หน้าบ้านจำลองชื่อและอีเมล (@kkumail.com) แต่ไม่มีการ Sign-in จริง ใครก็เข้าถึงได้ทุกหน้า | ❌ จำลอง (Mocked) |
+| BR2 | ผู้แจ้งเหตุต้องกรอกสถานที่ รายละเอียด และแนบรูป | ฟอร์มหน้าบ้านมีการตรวจสอบ Validation แต่รูปภาพเป็น URL จำลอง | ⚠️ สำเร็จบางส่วน |
+| BR3 | ระบบสร้างรหัสคำร้องอัตโนมัติ และส่งต่อให้เจ้าหน้าที่ | สุ่มรหัส `REQ-YYYYMM-XXXX` ในแรม ไม่มีการบันทึกลงตาราง `tickets` ใน DB | ❌ ทำงานเฉพาะในแรม |
+| BR4 | เจ้าหน้าที่ตรวจสอบคำร้องและมอบหมายงานให้ช่าง | กดย้ายสถานะในแรมได้ แต่ตารางใน DB ไม่รองรับฟิลด์ช่างผู้รับผิดชอบ | ❌ ทำงานเฉพาะในแรม |
+| BR5 & BR6 | ช่างกดรับงาน สถานะเปลี่ยนเป็น "รับงานแล้ว" แสดงชื่อช่าง | ทำงานได้เฉพาะใน Array Mock ของเบราว์เซอร์ผู้ใช้งาน | ❌ ทำงานเฉพาะในแรม |
+| BR7 & BR11 | ข้อมูลสถานะอัปเดตเรียลไทม์ และเก็บประวัติการแก้ไข | ข้อมูลไม่ได้ Sync ผ่าน WebSocket หรือ DB polling อิงตามค่าที่ Reload ในแรม | ❌ ไม่มีการบันทึกจริง |
+| BR8 | หลังซ่อมเสร็จ ช่างต้องแนบรูปผลงานก่อนปิดงาน | มีปุ่มแนบรูป แต่เป็น URL ฟิกซ์ไว้ และเขียนลงเฉพาะแรม | ❌ ทำงานเฉพาะในแรม |
+| BR9 | ปิดงานและเปลี่ยนสถานะเป็น "ดำเนินการเสร็จสิ้น" | ทำงานเฉพาะใน Array `ticketsState` | ❌ ทำงานเฉพาะในแรม |
+| BR10 | ส่งแจ้งเตือนและแบบประเมินความพึงพอใจ | มีหน้าฟอร์มประเมิน แต่กดส่งแล้วบันทึกเฉพาะ Object ในแรม | ❌ ทำงานเฉพาะในแรม |
+
+========================================================================================
+6. ตารางแผนการทดสอบและผลการทดสอบจริง (Comprehensive Test Cases)
+========================================================================================
+
+| Test Case ID | ฟังก์ชันที่ทดสอบ | ขั้นตอนทดสอบ | ข้อมูลทดสอบ | ผลลัพธ์ที่คาดหวัง | วิธีตรวจสอบใน DB | ผลการทดสอบจริง | ระดับความรุนแรง |
+|---|---|---|---|---|---|---|---|
+| TC-01 | Create Ticket (แจ้งซ่อมใหม่) | ยิง POST /api/tickets | locationId: "loc_03", description: "ไฟช็อต", urgency: "URGENT" | ข้อมูลถูกบันทึกลงตาราง `tickets` ใน DB | `SELECT * FROM tickets WHERE problem_description LIKE '%ไฟช็อต%';` | FAILED (ไม่มีแถวใน DB ข้อมูลอยู่แค่ในแรม) | CRITICAL |
+| TC-02 | Read Tickets (ดึงรายการ) | ยิง GET /api/tickets ขณะที่ DB มีข้อมูลจริง | ข้อมูล 1 แถวในตาราง `tickets` | ระบบต้อง Map ข้อมูลจาก DB และส่งกลับมาถูกต้อง | ตรวจสอบผ่าน API Response และ Server Console Log | FAILED (เกิด TypeError: Cannot read properties of undefined แล้วตกไปคืนค่า Mock) | CRITICAL |
+| TC-03 | Assign Technician (มอบหมายช่าง) | ยิง PATCH /api/tickets/tkt_01 พร้อม `action: ASSIGN` | technicianId: "usr_tech_01" | คอลัมน์ช่างในตาราง `tickets` ต้องเปลี่ยนเป็น "usr_tech_01" | `SELECT * FROM tickets WHERE id = 'tkt_01';` | FAILED (ตารางใน DB ไม่มีคอลัมน์เก็บช่าง โค้ดแก้แค่ในแรม) | HIGH |
+| TC-04 | Accept Job (ช่างรับงาน) | ยิง PATCH /api/tickets/tkt_01 พร้อม `action: ACCEPT` | action: "ACCEPT" | current_status ในตาราง `tickets` เปลี่ยนเป็น "IN_PROGRESS" | `SELECT current_status FROM tickets WHERE id = 'tkt_01';` | FAILED (ไม่แตะต้อง DB) | HIGH |
+| TC-05 | Close Job (ปิดงาน) | ยิง PATCH /api/tickets/tkt_01 พร้อม `action: CLOSE` | action: "CLOSE", repairNotes: "ซ่อมเสร็จแล้ว" | สถานะเป็น COMPLETED และมีประวัติบันทึกลง `ticket_status_histories` | `SELECT * FROM ticket_status_histories WHERE ticket_id = 'tkt_01';` | FAILED (ไม่แตะต้อง DB) | HIGH |
+| TC-06 | Submit Evaluation (ประเมิน) | ยิง POST /api/tickets/tkt_01/evaluation | rating: 5, feedback: "ดีมาก" | ข้อมูลบันทึกลงตาราง `evaluations` | `SELECT * FROM evaluations WHERE ticket_id = 'tkt_01';` | FAILED (ไม่แตะต้อง DB) | HIGH |
+| TC-07 | Requisition Spare Part (เบิกอะไหล่) | ยิง POST /api/spare-parts/requisitions | partId: "prt_01", quantity: 5 | มีแถวเพิ่มขึ้นใน `spare_part_requisitions` | `SELECT * FROM spare_part_requisitions;` | FAILED (ไม่แตะต้อง DB) | HIGH |
+| TC-08 | Approve Requisition (อนุมัติเบิก) | ยิง PATCH /api/spare-parts/requisitions พร้อม `action: APPROVE` | id: "req_01", action: "APPROVE" | สต็อกใน `spare_part_inventories` ลดลง 5 ชิ้น | `SELECT stock_quantity FROM spare_part_inventories WHERE part_id = 'prt_01';` | FAILED (สต็อกไม่ลด และไม่แตะต้อง DB) | HIGH |
+| TC-09 | Unauthorized Access (สิทธิ์เข้าถึง) | ยิง PATCH /api/tickets/[id] โดยไม่ส่ง Credentials ใด ๆ | action: "CANCEL" | ระบบต้องปฏิเสธคำขอด้วย HTTP 401 Unauthorized | ตรวจสอบ HTTP Status Code | FAILED (ได้ HTTP 200/400 ไม่มี Auth Guard) | HIGH |
+| TC-10 | Empty Field Validation | ยิง POST /api/tickets โดยไม่ใส่ description | description: "" | ระบบตอบกลับ HTTP 400 พร้อมแจ้งเตือน | ดู HTTP Status Code | PASSED (Backend มี if-check คืน 400) | LOW |
+
+========================================================================================
+7. ข้อเสนอแนะในการแก้ไขและปรับปรุง (Prioritized Remediation Roadmap)
+========================================================================================
+
+ลำดับที่ 1 (ความสำคัญเร่งด่วนที่สุด - Urgent Database & ORM Alignment):
+1.1 อัปเดต `prisma/schema.prisma` ให้สอดรับกับการใช้งานจริง:
+   - เพิ่ม Relation ไปยังสถานที่โดยตรง: `locationId String?` และ `location Location?` บนตาราง `Ticket`
+   - เพิ่ม Relation ไปยังช่างที่รับมอบหมาย: `assignedTechnicianId String?` และ `assignedTechnician User?` บนตาราง `Ticket`
+   - เพิ่มฟิลด์ที่จำเป็นต่อระบบ: `ticketNumber String @unique`, `urgency String @default("NORMAL")`, `repairNotes String?`, `adminNotes String?`, `completedAt DateTime?`
+1.2 รัน `npx prisma db push` เพื่อปรับโครงสร้างบน Supabase ให้ตรงกัน
+
+ลำดับที่ 2 (เชื่อมต่อ Service Layer เข้ากับ Prisma อย่างสมบูรณ์):
+2.1 แก้ไข `services/ticketService.ts`:
+   - ใน `createTicket`: ใช้ `prisma.ticket.create(...)` ภายใน `$transaction` เพื่อบันทึกทั้งใบแจ้งซ่อม รูปภาพ (`ticket_attachments`) และประวัติสถานะแรก (`ticket_status_histories`)
+   - ใน `assignTicket`, `acceptTicket`, `closeTicket`, `cancelTicket`: ใช้ `prisma.ticket.update(...)` ร่วมกับ `prisma.ticketStatusHistory.create(...)`
+   - ใน `getTickets`: ปรับการอ่านและการ Map ข้อมูลให้ตรงกับ Schema จริง ปลดการ Fallback ไปหา Mock เพื่อให้เห็นปัญหาที่แท้จริง
+2.2 แก้ไข `services/sparePartService.ts`:
+   - ใน `createRequisition`: ใช้ `prisma.sparePartRequisition.create(...)`
+   - ใน `approveRequisition`: ใช้ `prisma.$transaction` เพื่อปรับสถานะใบเบิก และสั่งหักลบจำนวนอะไหล่ใน `prisma.sparePartInventory.update({ data: { stockQuantity: { decrement: qty } } })`
+
+ลำดับที่ 3 (แก้ไข Frontend Components ไม่ให้ฮาร์ดโค้ด):
+3.1 แก้ไข `ActiveTicketTracker.tsx`, `CloseJobCard.tsx`, `EvaluationCard.tsx` ให้รับ `ticketId` จาก Dynamic Context หรือ Props แทนการระบุรหัสคงที่
+3.2 เชื่อมปุ่มยกเลิกคำร้องของ `ActiveTicketTracker.tsx` เข้ากับ API `PATCH /api/tickets/${id}` จริง
+
+ลำดับที่ 4 (ระบบความปลอดภัยและการจัดการไฟล์):
+4.1 ติดตั้งระบบ Authentication (เช่น NextAuth.js / Supabase Auth หรือ Session Guard) เพื่อบังคับให้ล็อกอินด้วยอีเมล KKU ตาม BR1
+4.2 กำหนด Role-based Access Control (RBAC) เพื่อป้องกันไม่ให้นักศึกษาทั่วไปสามารถกดยกเลิก ปิดงาน หรืออนุมัติการเบิกอะไหล่ได้
+4.3 สร้าง API Route สำหรับรับและอัปโหลดไฟล์รูปภาพจริงไปยัง Supabase Storage Bucket แทนการใส่ URL ภายนอก
+
+========================================================================================
+8. รายการที่ยังตรวจสอบไม่ได้และข้อมูลที่ต้องขอเพิ่มเติม
+========================================================================================
+1. API Credentials / Secret Key สำหรับบริการภายนอก:
+   - ระบบแจ้งเตือนทางอีเมล (SMTP / Resend API) ตามตาราง `email_notification_logs`
+   - Supabase Storage Bucket Access Key สำหรับจัดเก็บรูปถ่ายความเสียหาย
+2. สิทธิ์ในการปรับปรุง Schema:
+   - จำเป็นต้องได้รับการยืนยันว่า อนุญาตให้ขยาย Schema ใน `prisma/schema.prisma` เพื่อเพิ่มคอลัมน์ `assigned_technician_id`, `location_id`, `ticket_number` ได้หรือไม่ หรือต้องรักษารูปแบบตาม `diagram.txt` ไว้แบบห้ามแตะต้อง (Strict Diagram Constraint)
+3. ระบบ KKU Single Sign-On (SSO):
+   - ขอข้อมูล OAuth Client ID / Endpoint ของระบบ KKU Authentication กลาง (หากมี) เพื่อนำมาเชื่อมต่อการยืนยันตัวตนตาม BR1 และ BR12

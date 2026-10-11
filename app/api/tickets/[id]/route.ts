@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TicketService } from '@/services/ticketService';
+import { getAuthSession, assertAuthorized } from '@/lib/auth';
 
 export async function GET(
   req: NextRequest,
@@ -7,14 +8,18 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const ticket = await TicketService.getTicketById(id);
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Missing ticket ID' }, { status: 400 });
+    }
 
+    const ticket = await TicketService.getTicketById(id);
     if (!ticket) {
-      return NextResponse.json({ success: false, error: 'Ticket not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'ไม่พบใบแจ้งซ่อม' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, data: ticket });
   } catch (error: any) {
+    console.error('GET /api/tickets/[id] error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
@@ -25,6 +30,7 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    const session = await getAuthSession(req);
     const body = await req.json();
     const action = body.action;
 
@@ -32,36 +38,47 @@ export async function PATCH(
 
     if (action === 'ASSIGN') {
       // Admin assigns technician (BR4, UC-9)
+      if (!body.technicianId) {
+        return NextResponse.json({ success: false, error: 'กรุณาระบุช่างผู้รับผิดชอบ' }, { status: 400 });
+      }
+
       updatedTicket = await TicketService.assignTicket(
         id,
         body.technicianId,
         body.urgency,
         body.targetSlaDate,
-        body.adminNotes
+        body.adminNotes,
+        session.userId
       );
     } else if (action === 'ACCEPT') {
       // Technician accepts job (BR5, BR6)
-      updatedTicket = await TicketService.acceptTicket(id, body.technicianId);
+      updatedTicket = await TicketService.acceptTicket(id, body.technicianId || session.userId);
     } else if (action === 'CLOSE') {
       // Technician completes job and submits proof (BR8, BR9)
+      if (!body.repairNotes || !body.repairNotes.trim()) {
+        return NextResponse.json({ success: false, error: 'กรุณากรอกบันทึกสรุปผลการซ่อม (BR8)' }, { status: 400 });
+      }
+
       updatedTicket = await TicketService.closeTicket(
         id,
-        body.repairNotes,
-        body.afterProofUrls || []
+        body.repairNotes.trim(),
+        body.afterProofUrls || [],
+        session.userId
       );
     } else if (action === 'CANCEL') {
       // Reporter cancels ticket (UC-5)
-      updatedTicket = await TicketService.cancelTicket(id, body.reason);
+      updatedTicket = await TicketService.cancelTicket(id, body.reason, session.userId);
     } else {
       return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
     }
 
     if (!updatedTicket) {
-      return NextResponse.json({ success: false, error: 'Ticket not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'ไม่พบใบแจ้งซ่อม' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, data: updatedTicket });
   } catch (error: any) {
+    console.error('PATCH /api/tickets/[id] error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

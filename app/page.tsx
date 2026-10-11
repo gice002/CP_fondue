@@ -79,83 +79,86 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-950 rounded-3xl p-8 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        {/* Modern Minimal Hero */}
+        <div className="relative bg-slate-950 text-white rounded-3xl p-8 sm:p-12 mb-10 overflow-hidden border border-slate-800/80 shadow-lg">
           <div className="relative z-10 max-w-3xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold mb-4 text-blue-200">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>ระบบแจ้งซ่อมออนไลน์ วิทยาลัยการคอมพิวเตอร์ มหาวิทยาลัยขอนแก่น</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs font-medium text-slate-300 mb-5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>วิทยาลัยการคอมพิวเตอร์ มหาวิทยาลัยขอนแก่น</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-              CP Fondue Online Repair System
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
+              CP Fondue
+              <span className="block text-xl sm:text-2xl font-normal text-slate-400 mt-1 tracking-normal">
+                Online Maintenance & Dispatch System
+              </span>
             </h1>
 
-            <p className="mt-3 text-sm sm:text-base text-blue-100/90 leading-relaxed font-light">
-              ต้นแบบระบบเว็บแอปพลิเคชันเต็มรูปแบบ (Full-Stack Prototype) พัฒนาตามการวิเคราะห์ระบบ
-              Business Rules (BR1 - BR12), แผนภาพ Use Case / Sequence และ Conceptual ER Schema
-              จากวิทยาลัยการคอมพิวเตอร์ มข.
+            <p className="mt-4 text-xs sm:text-sm text-slate-300 leading-relaxed font-normal max-w-2xl">
+              ระบบแจ้งซ่อมและบริหารจัดการงานบำรุงรักษาอัจฉริยะ วิทยาลัยการคอมพิวเตอร์ มหาวิทยาลัยขอนแก่น
+              เชื่อมต่อฐานข้อมูล PostgreSQL ผ่าน Prisma ORM เต็มรูปแบบ ครอบคลุมวงจรคำร้อง การมอบหมายงาน
+              การเบิกจ่ายอะไหล่ และการประเมินความพึงพอใจ
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/reporter"
-                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-xs sm:text-sm text-white shadow-lg shadow-blue-600/30 active:scale-95 transition flex items-center space-x-2"
+                className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 font-semibold text-xs sm:text-sm text-slate-950 shadow-sm active:scale-95 transition-all flex items-center gap-2"
               >
-                <span>เข้าสู่พอร์ทัลผู้แจ้งเหตุ</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>ยื่นคำร้องแจ้งซ่อม</span>
+                <ArrowRight className="w-4 h-4 text-slate-900" />
               </Link>
               <Link
                 href="/admin"
-                className="px-5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 font-bold text-xs sm:text-sm text-white active:scale-95 transition"
+                className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 font-semibold text-xs sm:text-sm text-slate-200 active:scale-95 transition-all"
               >
-                เปิดโต๊ะคัดกรองงาน (Dispatch Desk)
+                โต๊ะคัดกรองงาน (Dispatch)
               </Link>
             </div>
           </div>
 
-          {/* Background Decorative Graphic */}
-          <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-10 pointer-events-none flex items-center justify-center">
-            <Wrench className="w-96 h-96 transform rotate-12" />
+          {/* Decorative Subtle Background Accents */}
+          <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-5 pointer-events-none flex items-center justify-center">
+            <Wrench className="w-80 h-80 transform rotate-12 text-white" />
           </div>
         </div>
 
-        {/* 4 Portals Grid matching Prototypes */}
+        {/* 4 Portals Grid */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                พอร์ทัลทั้ง 4 บทบาทผู้ใช้งาน (4 Role Portals)
+              <h2 className="text-lg sm:text-xl font-bold text-slate-950 tracking-tight">
+                พอร์ทัลตามบทบาทผู้ใช้งาน
               </h2>
-              <p className="text-xs text-slate-500">
-                สอดคล้องตามหน้าจอต้นแบบและข้อกำหนดทางธุรกิจในเอกสารรายงาน
+              <p className="text-xs text-slate-500 mt-0.5">
+                เลือกบทบาทเพื่อเข้าสู่ระบบงานที่ต้องการ
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {portals.map((p, idx) => {
               const Icon = p.icon;
               return (
                 <div
                   key={idx}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden group"
+                  className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all duration-200 flex flex-col justify-between overflow-hidden group"
                 >
                   <div className="p-6">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="flex items-center space-x-3">
-                        <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shadow-xs group-hover:scale-105 transition">
-                          <Icon className="w-5 h-5" />
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center font-semibold group-hover:bg-slate-900 group-hover:text-white transition duration-200">
+                          <Icon className="w-4 h-4" />
                         </div>
                         <div>
-                          <h3 className="font-extrabold text-slate-900 text-sm">
+                          <h3 className="font-bold text-slate-900 text-sm">
                             {p.title}
                           </h3>
-                          <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                          <span className="text-[11px] font-medium text-slate-600 bg-slate-100/80 px-2 py-0.5 rounded-md">
                             {p.badge}
                           </span>
                         </div>
@@ -179,12 +182,12 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="p-4 bg-slate-50 border-t border-slate-100">
+                  <div className="p-4 bg-slate-50/70 border-t border-slate-100">
                     <Link
                       href={p.href}
-                      className="w-full py-2.5 px-4 rounded-xl bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 text-slate-800 font-bold text-xs flex items-center justify-center space-x-1.5 transition shadow-xs"
+                      className="w-full py-2.5 px-4 rounded-xl bg-white border border-slate-200 hover:border-slate-400 hover:text-slate-900 text-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5 transition duration-150 shadow-2xs"
                     >
-                      <span>เข้าสู่ระบบหน้างาน</span>
+                      <span>เข้าสู่ระบบ</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
@@ -195,53 +198,53 @@ export default function HomePage() {
         </div>
 
         {/* Technical Architecture & Database Readiness */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-10">
-          <div className="flex items-center space-x-2.5 mb-4 pb-3 border-b border-slate-100">
-            <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-              <Database className="w-5 h-5" />
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 mb-10">
+          <div className="flex items-center space-x-3 mb-5 pb-4 border-b border-slate-100">
+            <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center font-semibold">
+              <Database className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-slate-900">
-                สถาปัตยกรรมและฐานข้อมูล (Database Readiness &amp; Architecture)
+              <h3 className="text-sm font-bold text-slate-900">
+                สถาปัตยกรรมระบบและฐานข้อมูล (Architecture &amp; Data Pipeline)
               </h3>
               <p className="text-xs text-slate-500">
-                ถอดรหัสจาก Chen&apos;s Notation ใน ER_diagram.png สู่ Prisma Relational Schema พร้อม Service Layer
+                เชื่อมโยง Next.js App Router และ Prisma ORM เข้ากับ PostgreSQL บน Supabase แบบครบวงจร
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <div className="flex items-center space-x-2 font-bold text-slate-900 mb-1.5">
-                <FileCode2 className="w-4 h-4 text-blue-600" />
-                <span>Prisma Schema Models</span>
+            <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/70">
+              <div className="flex items-center space-x-2 font-semibold text-slate-900 mb-1.5">
+                <FileCode2 className="w-4 h-4 text-slate-600" />
+                <span>Prisma Relational Models</span>
               </div>
               <p className="text-slate-600 leading-relaxed text-[11px]">
-                ครอบคลุม 14 ตารางหลัก: User, Role, Department, Location, Equipment, Ticket,
-                TicketAttachment, TicketStatusHistory, Tag, SparePart, SparePartRequest,
-                Evaluation, AuditLog และ EmailLog
+                ครอบคลุม 18 ตาราง: User, Role, Department, Location, Equipment, Ticket,
+                TicketAttachment, TicketStatusHistory, SparePartInventory, Requisition,
+                Evaluation, และ AuditLog
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <div className="flex items-center space-x-2 font-bold text-slate-900 mb-1.5">
-                <Layers className="w-4 h-4 text-emerald-600" />
-                <span>Decoupled Service Layer</span>
+            <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/70">
+              <div className="flex items-center space-x-2 font-semibold text-slate-900 mb-1.5">
+                <Layers className="w-4 h-4 text-slate-600" />
+                <span>Transactional Service Layer</span>
               </div>
               <p className="text-slate-600 leading-relaxed text-[11px]">
-                สร้างโครงสร้าง `/services` (TicketService, SparePartService, UserService,
-                AuditService) ที่รองรับทั้ง Mock State และเรียก ORM Prisma โดยตรงเมื่อตั้งค่า DATABASE_URL
+                รวมฟังก์ชันธุรกรรมแบบ ACID ใน `/services`: มอบหมายงาน, ตัดสต็อกอะไหล่แบบอะตอมิก,
+                บันทึกผลการปิดงานพร้อมรูปหลักฐาน และบันทึก Audit Logs
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <div className="flex items-center space-x-2 font-bold text-slate-900 mb-1.5">
-                <Server className="w-4 h-4 text-cyan-600" />
-                <span>API Route Handlers</span>
+            <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/70">
+              <div className="flex items-center space-x-2 font-semibold text-slate-900 mb-1.5">
+                <Server className="w-4 h-4 text-slate-600" />
+                <span>Verified REST Route Handlers</span>
               </div>
               <p className="text-slate-600 leading-relaxed text-[11px]">
-                RESTful Endpoints ใน `/app/api`: `/api/tickets`, `/api/tickets/[id]`,
-                `/api/spare-parts/requisitions`, `/api/technicians`, `/api/analytics`, `/api/audit-logs`
+                Endpoints ครบวงจร `/api/tickets`, `/api/tickets/[id]`, `/api/spare-parts/requisitions`,
+                `/api/technicians`, `/api/upload`, และ `/api/analytics`
               </p>
             </div>
           </div>

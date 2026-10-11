@@ -22,24 +22,32 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [assignedSuccess, setAssignedSuccess] = useState(false);
 
-  const technicians = [
-    {
-      id: 'usr_tech_01',
-      name: 'นายอนุชา ช่างเครือข่าย',
-      specialty: 'ผู้เชี่ยวชาญ Switch/Router & LAN',
-      workload: 'ว่าง (0 งาน)',
-      duty: 'On-duty CP-02',
-      isAvailable: true,
-    },
-    {
-      id: 'usr_tech_03',
-      name: 'นายธนกฤต วิศวไอที',
-      specialty: 'ฝ่ายซ่อมบำรุงระบบไอที',
-      workload: 'มี 2 งานค้าง',
-      duty: 'On-duty CP-01',
-      isAvailable: false,
-    },
-  ];
+  const [technicians, setTechnicians] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    async function loadTechs() {
+      try {
+        const res = await fetch('/api/technicians');
+        const data = await res.json();
+        if (data.success && data.data.length > 0) {
+          setTechnicians(
+            data.data.map((t: any) => ({
+              id: t.id,
+              name: `${t.firstName} ${t.lastName}`,
+              specialty: t.specialty || t.departmentName || 'ช่างซ่อมบำรุง',
+              workload: t.activeTasks === 0 ? 'ว่าง (0 งาน)' : `มี ${t.activeTasks} งานค้าง`,
+              duty: 'On-duty CP KKU',
+              isAvailable: t.isAvailable,
+            }))
+          );
+          setSelectedTechId(data.data[0].id);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    loadTechs();
+  }, []);
 
   const handleAssign = async (e: React.FormEvent) => {
     e.preventDefault();

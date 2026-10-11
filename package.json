@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "node --experimental-strip-types prisma/seed.ts",
+    "test": "tsx test/integration.test.ts"
+  },
+  "prisma": {
+    "seed": "node --experimental-strip-types prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -24,6 +29,7 @@
     "eslint-config-next": "16.4.0",
     "prisma": "^6.19.3",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

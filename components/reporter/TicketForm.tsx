@@ -47,16 +47,47 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [generatedTicketNo, setGeneratedTicketNo] = useState('');
 
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleAssetCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setAssetId(val);
     setIsAssetVerified(val.includes('KKU-CP') || val.length > 5);
   };
 
-  const handleAddSampleImage = () => {
-    if (images.length >= 3) return;
-    const sample = 'https://images.unsplash.com/photo-1588508065123-287b28e013da?w=600';
-    setImages([...images, sample]);
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (images.length >= 3) {
+      alert('แนบรูปได้สูงสุด 3 รูป (BR2)');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.data?.fileUrl) {
+        setImages([...images, data.data.fileUrl]);
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์');
+      }
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('ไม่สามารถอัปโหลดไฟล์ได้');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const handleRemoveImage = (idx: number) => {
@@ -336,15 +367,27 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
             ))}
 
             {images.length < 3 && (
-              <button
-                type="button"
-                onClick={handleAddSampleImage}
-                className="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl aspect-video flex flex-col items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 transition cursor-pointer"
-              >
-                <Upload className="w-4 h-4 mb-1" />
-                <span className="text-[11px] font-bold">เพิ่มภาพที่ {images.length + 1}</span>
-                <span className="text-[9px] text-slate-400">JPG, PNG &lt; 8MB</span>
-              </button>
+              <>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  disabled={isUploading}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl aspect-video flex flex-col items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 transition cursor-pointer disabled:opacity-50"
+                >
+                  <Upload className="w-4 h-4 mb-1" />
+                  <span className="text-[11px] font-bold">
+                    {isUploading ? 'กำลังอัปโหลด...' : `เพิ่มภาพที่ ${images.length + 1}`}
+                  </span>
+                  <span className="text-[9px] text-slate-400">JPG, PNG &lt; 5MB</span>
+                </button>
+              </>
             )}
           </div>
         </div>

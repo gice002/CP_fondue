@@ -10,27 +10,36 @@ import { ActiveTicketTracker } from '@/components/reporter/ActiveTicketTracker';
 import { EvaluationCard } from '@/components/reporter/EvaluationCard';
 import { TicketHistoryTable } from '@/components/reporter/TicketHistoryTable';
 import { Ticket } from '@/types';
-import { MOCK_TICKETS } from '@/data/mockData';
 
 export default function ReporterPage() {
-  const [tickets, setTickets] = useState<Ticket[]>(MOCK_TICKETS);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [formKey, setFormKey] = useState(0);
 
   const refreshTickets = async () => {
     try {
+      setIsLoading(true);
       const res = await fetch('/api/tickets');
       const data = await res.json();
       if (data.success) {
         setTickets(data.data);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Failed to fetch tickets:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     refreshTickets();
   }, []);
+
+  const activeTicket = tickets.find(
+    (t) => t.status === 'IN_PROGRESS' || t.status === 'ASSIGNED' || t.status === 'PENDING_DISPATCH'
+  );
+
+  const completedTicketForEval = tickets.find((t) => t.status === 'COMPLETED');
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
@@ -42,10 +51,10 @@ export default function ReporterPage() {
 
         {/* 4 Stat Cards */}
         <ReporterStatCards
-          totalCount={tickets.length + 8}
+          totalCount={tickets.length}
           inProgressCount={tickets.filter((t) => t.status === 'IN_PROGRESS').length}
           pendingCount={tickets.filter((t) => t.status === 'PENDING_DISPATCH').length}
-          completedCount={tickets.filter((t) => t.status === 'COMPLETED').length + 6}
+          completedCount={tickets.filter((t) => t.status === 'COMPLETED').length}
         />
 
         {/* 2-Column Responsive Grid matching Prototype Page 89 */}
@@ -58,10 +67,16 @@ export default function ReporterPage() {
           {/* Right Column: Tracking, Evaluation, and Past History */}
           <div className="lg:col-span-7 space-y-6">
             {/* UC-2: Active In-Progress Ticket Tracker */}
-            <ActiveTicketTracker />
+            <ActiveTicketTracker
+              ticket={activeTicket}
+              onCancelled={refreshTickets}
+            />
 
             {/* UC-6 & UC-3: Satisfaction Rating and Feedback */}
-            <EvaluationCard />
+            <EvaluationCard
+              ticket={completedTicketForEval}
+              onEvaluated={refreshTickets}
+            />
 
             {/* UC-4: Ticket History & Past Requests */}
             <TicketHistoryTable tickets={tickets} />

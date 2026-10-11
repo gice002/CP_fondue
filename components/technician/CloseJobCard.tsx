@@ -1,49 +1,119 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   CheckCircle2,
   Upload,
-  RotateCcw,
-  ShieldCheck,
   Check,
   Image as ImageIcon,
+  X,
 } from 'lucide-react';
+import { Ticket } from '@/types';
 
-export const CloseJobCard: React.FC = () => {
+interface CloseJobCardProps {
+  ticket?: Ticket;
+  onClosed?: () => void;
+}
+
+export const CloseJobCard: React.FC<CloseJobCardProps> = ({
+  ticket,
+  onClosed,
+}) => {
   const [repairNotes, setRepairNotes] = useState(
-    'ทำความสะอาดท่อน้ำทิ้งแอร์ที่อุดตันด้วยตะกรัน ล้างแผ่นกรองอากาศ 2 แผง และเปลี่ยนเทปพันท่อน้ำยาแอร์ใหม่ ทดสอบเปิด 18 องศาเซลเซียส เป็นเวลา 30 นาที อุณหภูมิกลับมาเย็นฉ่ำ ไม่มีน้ำรั่วซึม'
+    'ตรวจสอบและซ่อมแซมเรียบร้อยแล้ว ทดสอบการทำงานไม่มีข้อผิดพลาด'
   );
+  const [proofUrls, setProofUrls] = useState<string[]>([
+    'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600',
+  ]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isClosed, setIsClosed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // If no ticket, or ticket not in progress, don't show close card
+  if (!ticket || ticket.status !== 'IN_PROGRESS') {
+    return null;
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.data?.fileUrl) {
+        setProofUrls([...proofUrls, data.data.fileUrl]);
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์รูปภาพ');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('ไม่สามารถอัปโหลดไฟล์ได้');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleCloseJob = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!repairNotes.trim()) {
+      alert('กรุณากรอกบันทึกสรุปผลการซ่อม (BR8)');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/tickets/tkt_0078', {
+      const res = await fetch(`/api/tickets/${ticket.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'CLOSE',
-          repairNotes,
-          afterProofUrls: [
-            'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600',
-          ],
+          repairNotes: repairNotes.trim(),
+          afterProofUrls: proofUrls,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
         setIsClosed(true);
+        if (onClosed) onClosed();
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาดในการปิดงานซ่อม');
       }
     } catch (err) {
       console.error(err);
+      alert('ไม่สามารถปิดงานซ่อมได้');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isClosed) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 text-center">
+        <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-3">
+          <CheckCircle2 className="w-6 h-6" />
+        </div>
+        <h3 className="font-extrabold text-base text-slate-900">
+          ปิดงานซ่อม {ticket.ticketNumber} เรียบร้อยแล้ว (BR8, BR9)
+        </h3>
+        <p className="text-xs text-slate-500 mt-1">
+          ระบบบันทึกสถานะเป็น &quot;ดำเนินการเสร็จสิ้น&quot; และส่งแจ้งเตือนประเมินความพึงพอใจแล้ว
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 mb-6">
@@ -56,129 +126,83 @@ export const CloseJobCard: React.FC = () => {
           </h3>
         </div>
         <span className="font-mono text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
-          WO-202505-0078
+          {ticket.ticketNumber}
         </span>
       </div>
 
-      {isClosed ? (
-        <div className="p-6 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
-          <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
-          <h4 className="font-extrabold text-sm text-emerald-900">
-            บันทึกผลงานและปิดงานซ่อมสำเร็จแล้ว! (BR9)
-          </h4>
-          <p className="text-xs text-emerald-700 leading-relaxed">
-            สถานะคำร้องถูกปรับเป็น &quot;ดำเนินการเสร็จสิ้น&quot; ระบบได้ส่งแบบประเมินความพึงพอใจ
-            5 ดาว ไปยังผู้แจ้งเหตุเรียบร้อยแล้ว (BR10)
-          </p>
+      <form onSubmit={handleCloseJob} className="space-y-4">
+        {/* Repair Notes Input (BR8) */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-bold text-slate-800">
+              บันทึกผลการซ่อมและวิธีแก้ไข (Repair Notes)
+            </label>
+            <span className="text-[10px] text-red-500 font-bold">* บังคับ (BR8)</span>
+          </div>
+          <textarea
+            rows={3}
+            value={repairNotes}
+            onChange={(e) => setRepairNotes(e.target.value)}
+            placeholder="ระบุสาเหตุของปัญหา รายการที่ซ่อมแซม ผลการทดสอบการใช้งาน..."
+            className="w-full text-xs bg-slate-50/50 border border-slate-200 rounded-xl p-3 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-hidden transition resize-none leading-relaxed"
+          />
+        </div>
+
+        {/* Upload Proof Photos (BR8) */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-bold text-slate-800">
+              แนบรูปถ่ายหลักฐานยืนยันหลังซ่อมเสร็จ (After Proof)
+            </label>
+            <span className="text-[10px] text-slate-500">
+              แนบแล้ว {proofUrls.length} ภาพ
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-2">
+            {proofUrls.map((url, i) => (
+              <div key={i} className="relative rounded-xl overflow-hidden border border-slate-200 aspect-video group bg-slate-100">
+                <img src={url} alt={`proof ${i + 1}`} className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setProofUrls(proofUrls.filter((_, idx) => idx !== i))}
+                  className="absolute top-1 right-1 p-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full transition"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+          />
+
           <button
-            onClick={() => setIsClosed(false)}
-            className="mt-2 text-xs font-bold text-blue-600 hover:underline"
+            type="button"
+            disabled={isUploading}
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full py-2 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl text-xs font-bold text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/40 flex items-center justify-center space-x-1.5 transition cursor-pointer disabled:opacity-50"
           >
-            แก้ไขข้อมูลปิดงาน
+            <Upload className="w-4 h-4" />
+            <span>{isUploading ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปภาพยืนยันหลังซ่อม'}</span>
           </button>
         </div>
-      ) : (
-        <form onSubmit={handleCloseJob} className="space-y-4">
-          {/* Job Overview */}
-          <div className="flex items-start justify-between">
-            <div>
-              <h4 className="text-xs font-bold text-slate-900">
-                แก้ระบบเครื่องปรับอากาศน้ำหยด &amp; ทำความสะอาดแผ่นกรอง
-              </h4>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                ห้องบรรยาย 201 (ชั้น 2) • ผู้แจ้ง: ผศ.ดร.กานดา
-              </p>
-            </div>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-              ซ่อมเสร็จ 100%
-            </span>
-          </div>
 
-          {/* Repair Details Textarea */}
-          <div>
-            <label className="text-xs font-bold text-slate-800 block mb-1">
-              บันทึกรายละเอียดวิธีแก้ปัญหา / อะไหล่ที่เปลี่ยน:
-            </label>
-            <textarea
-              rows={3}
-              value={repairNotes}
-              onChange={(e) => setRepairNotes(e.target.value)}
-              className="w-full text-xs bg-white border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none resize-none leading-relaxed"
-            />
-          </div>
-
-          {/* Proof Photos Before vs After (BR8) */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold text-slate-800 flex items-center space-x-1">
-                <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
-                <span>แนบรูปภาพเปรียบเทียบผลงานซ่อม (BR8 - บังคับอย่างน้อย 2 ภาพ)</span>
-              </label>
-              <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.2 rounded border border-emerald-200">
-                ครบถ้วน (2/2)
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {/* Before */}
-              <div className="relative rounded-xl overflow-hidden aspect-video border border-slate-200 bg-slate-100 group">
-                <img
-                  src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600"
-                  alt="before repair"
-                  className="w-full h-full object-cover group-hover:scale-105 transition"
-                />
-                <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-[10px] p-1.5 flex items-center justify-between">
-                  <span className="flex items-center space-x-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                    <span>ภาพก่อนซ่อม (Before)</span>
-                  </span>
-                  <RotateCcw className="w-3 h-3 text-slate-300" />
-                </div>
-              </div>
-
-              {/* After */}
-              <div className="relative rounded-xl overflow-hidden aspect-video border border-slate-200 bg-slate-100 group">
-                <img
-                  src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600"
-                  alt="after repair"
-                  className="w-full h-full object-cover group-hover:scale-105 transition"
-                />
-                <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-[10px] p-1.5 flex items-center justify-between">
-                  <span className="flex items-center space-x-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    <span>ภาพหลังซ่อม (After)</span>
-                  </span>
-                  <RotateCcw className="w-3 h-3 text-slate-300" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* BR9 & BR10 Compliance Note */}
-          <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 text-emerald-900 text-xs flex items-start space-x-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold">ข้อกำหนด BR9 &amp; BR10:</span>
-              <p className="text-[11px] text-emerald-800">
-                เมื่อคลิกปิดงาน ระบบจะอัปเดตสถานะคำร้องเป็น &quot;ดำเนินการเสร็จสิ้น&quot;
-                พร้อมส่งลิงก์แบบประเมินความพึงพอใจ 5 ดาว ไปยัง LINE และอีเมลของผู้แจ้งเหตุทันที
-              </p>
-            </div>
-          </div>
-
-          {/* Complete Job Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-98 text-white font-bold text-xs shadow-md shadow-emerald-700/20 flex items-center justify-center space-x-2 transition disabled:opacity-50"
-          >
-            <Check className="w-4 h-4" />
-            <span>
-              {isSubmitting ? 'กำลังปิดงาน...' : 'บันทึกผลและปิดงานซ่อม (Complete & Close Job)'}
-            </span>
-          </button>
-        </form>
-      )}
+        {/* Action Button */}
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
+        >
+          <Check className="w-4 h-4" />
+          <span>{isSubmitting ? 'กำลังบันทึกและปิดงาน...' : 'ยืนยันและปิดงานซ่อม (BR9)'}</span>
+        </button>
+      </form>
     </div>
   );
 };

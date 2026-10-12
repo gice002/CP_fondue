@@ -20,7 +20,7 @@ export const AdminStatCards: React.FC<AdminStatCardsProps> = ({
       <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold text-slate-500 mb-0.5">
-            คำร้องใหม่รอดำเนินการ (BR4)
+            คำร้องใหม่รอดำเนินการ
           </p>
           <div className="flex items-baseline space-x-2">
             <h3 className="text-2xl font-black text-slate-900 tracking-tight">
@@ -62,7 +62,7 @@ export const AdminStatCards: React.FC<AdminStatCardsProps> = ({
       <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold text-slate-500 mb-0.5">
-            รอเบิกพัสดุ/อุปกรณ์ (UC-10)
+            รอเบิกพัสดุ/อุปกรณ์
           </p>
           <div className="flex items-baseline space-x-2">
             <h3 className="text-2xl font-black text-slate-900 tracking-tight">

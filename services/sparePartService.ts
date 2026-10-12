@@ -78,6 +78,7 @@ export class SparePartService {
 
   /**
    * Submit material requisition by technician in PostgreSQL (UC-10)
+   * Strictly enforces 1 part type per requisition with no silent drops.
    */
   static async createRequisition(dto: {
     ticketId: string;
@@ -90,8 +91,12 @@ export class SparePartService {
       throw new Error('กรุณาระบุรายการอะไหล่ที่ต้องการเบิก');
     }
 
-    const firstItem = dto.items[0];
-    if (firstItem.quantity <= 0) {
+    if (dto.items.length > 1) {
+      throw new Error('ระบบรองรับการสร้างใบเบิก 1 ชนิดอะไหล่ต่อ 1 ใบคำขอ (กรุณาสร้างคำขอแยกสำหรับอะไหล่แต่ละชนิดเพื่อความโปร่งใสในการตรวจสอบ)');
+    }
+
+    const item = dto.items[0];
+    if (item.quantity <= 0) {
       throw new Error('จำนวนที่ขอเบิกต้องมากกว่า 0');
     }
 
@@ -106,10 +111,10 @@ export class SparePartService {
     // Resolve part
     const part = await prisma.sparePartInventory.findFirst({
       where: {
-        OR: [{ id: firstItem.partId }, { partCode: firstItem.partId }],
+        OR: [{ id: item.partId }, { partCode: item.partId }],
       },
     });
-    if (!part) throw new Error(`ไม่พบอะไหล่รหัส: ${firstItem.partId}`);
+    if (!part) throw new Error(`ไม่พบอะไหล่รหัส: ${item.partId}`);
 
     // Resolve technician
     let technicianId = dto.technicianId;
@@ -117,19 +122,18 @@ export class SparePartService {
       technicianId = ticket.assignedTechnicianId || 'usr_tech_01';
     }
 
-    // Generate unique requisition number
-    const count = await prisma.sparePartRequisition.count();
-    const requisitionNumber = `REQ-INV-${String(count + 1).padStart(3, '0')}`;
-
-    // Atomic transaction
+    // Atomic transaction: generate unique requisition number + insert
     const newReq = await prisma.$transaction(async (tx) => {
+      const count = await tx.sparePartRequisition.count();
+      const requisitionNumber = `REQ-INV-${String(count + 1).padStart(3, '0')}`;
+
       const created = await tx.sparePartRequisition.create({
         data: {
           requisitionNumber,
           ticketId: ticket.id,
           partId: part.id,
           requestedByUserId: technicianId!,
-          quantityRequested: firstItem.quantity,
+          quantityRequested: item.quantity,
           status: 'PENDING',
           requisitionNotes: dto.notes || null,
         },
@@ -156,7 +160,7 @@ export class SparePartService {
           newData: JSON.stringify({
             requisitionNumber,
             partCode: part.partCode,
-            quantity: firstItem.quantity,
+            quantity: item.quantity,
           }),
           userId: technicianId!,
         },
@@ -194,7 +198,8 @@ export class SparePartService {
   }
 
   /**
-   * Admin approves spare parts requisition with atomic inventory decrement (UC-10)
+   * Admin approves spare parts requisition with atomic conditional inventory decrement (UC-10)
+   * Prevents race conditions and negative inventory via conditional update: stockQuantity >= quantityRequested
    */
   static async approveRequisition(
     requisitionId: string,
@@ -212,16 +217,14 @@ export class SparePartService {
       throw new Error(`คำขอนี้ได้รับการดำเนินการแล้ว (สถานะปัจจุบัน: ${existing.status})`);
     }
 
-    if (existing.part.stockQuantity < existing.quantityRequested) {
-      throw new Error(
-        `ยอดสต็อกคงเหลือ (${existing.part.stockQuantity} ${existing.part.unit}) ไม่เพียงพอต่อการเบิก (${existing.quantityRequested} ${existing.part.unit})`
-      );
-    }
-
     const updated = await prisma.$transaction(async (tx) => {
-      // 1. Decrement inventory atomically
-      await tx.sparePartInventory.update({
-        where: { id: existing.partId },
+      // 1. Concurrency-safe atomic conditional decrement:
+      // Only decrement if current stockQuantity >= quantityRequested
+      const partUpdateResult = await tx.sparePartInventory.updateMany({
+        where: {
+          id: existing.partId,
+          stockQuantity: { gte: existing.quantityRequested },
+        },
         data: {
           stockQuantity: {
             decrement: existing.quantityRequested,
@@ -229,21 +232,28 @@ export class SparePartService {
         },
       });
 
-      // 2. Update requisition status
-      const req = await tx.sparePartRequisition.update({
-        where: { id: existing.id },
+      if (partUpdateResult.count === 0) {
+        throw new Error(
+          `ไม่สามารถอนุมัติได้: ยอดสต็อกคงเหลือในคลังไม่เพียงพอต่อการเบิก หรือถูกเบิกตัดยอดไปแล้วก่อนหน้านี้`
+        );
+      }
+
+      // 2. Conditionally update requisition status strictly from PENDING
+      const reqUpdateResult = await tx.sparePartRequisition.updateMany({
+        where: {
+          id: existing.id,
+          status: 'PENDING',
+        },
         data: {
           status: 'APPROVED',
           approvedAt: new Date(),
           approvedByUserId: adminId,
         },
-        include: {
-          part: true,
-          requestedByUser: true,
-          approvedByUser: true,
-          ticket: true,
-        },
       });
+
+      if (reqUpdateResult.count === 0) {
+        throw new Error('คำขอนี้ถูกประมวลผลโดยคำสั่งอื่นไปแล้ว');
+      }
 
       // 3. Status History
       await tx.sparePartStatusHistory.create({
@@ -260,17 +270,27 @@ export class SparePartService {
         data: {
           tableName: 'spare_part_inventories',
           commandUsed: 'APPROVE_REQUISITION_DECREMENT',
-          oldData: JSON.stringify({ stock: existing.part.stockQuantity }),
+          oldData: JSON.stringify({ partId: existing.partId, requested: existing.quantityRequested }),
           newData: JSON.stringify({
-            stock: existing.part.stockQuantity - existing.quantityRequested,
+            status: 'APPROVED',
             deducted: existing.quantityRequested,
           }),
           userId: adminId,
         },
       });
 
-      return req;
+      return tx.sparePartRequisition.findUnique({
+        where: { id: existing.id },
+        include: {
+          part: true,
+          requestedByUser: true,
+          approvedByUser: true,
+          ticket: true,
+        },
+      });
     });
+
+    if (!updated) return null;
 
     return {
       id: updated.id,

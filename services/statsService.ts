@@ -4,36 +4,60 @@ import { ExecutiveStats } from '@/types';
 export class StatsService {
   /**
    * Compute executive-level SLA, EdPEx, and maintenance performance stats dynamically from PostgreSQL
+   * Uses targeted SQL aggregations for high performance
    */
   static async getExecutiveStats(): Promise<ExecutiveStats> {
-    const totalTickets = await prisma.ticket.count();
-    const completedTickets = await prisma.ticket.count({
-      where: { currentStatus: 'COMPLETED' },
-    });
-    const inProgressTickets = await prisma.ticket.count({
-      where: { currentStatus: 'IN_PROGRESS' },
-    });
+    const [
+      totalTickets,
+      completedTickets,
+      inProgressTickets,
+      evalAgg,
+      categories,
+      techUsers,
+      parts,
+      requisitionAgg,
+      totalRequisitions,
+    ] = await Promise.all([
+      prisma.ticket.count(),
+      prisma.ticket.count({ where: { currentStatus: 'COMPLETED' } }),
+      prisma.ticket.count({ where: { currentStatus: 'IN_PROGRESS' } }),
+      prisma.evaluation.aggregate({
+        _avg: { ratingScore: true },
+        _count: { id: true },
+      }),
+      prisma.problemCategory.findMany({
+        include: {
+          _count: { select: { tickets: true } },
+        },
+      }),
+      prisma.user.findMany({
+        where: { role: 'TECHNICIAN', deletedAt: null },
+        include: {
+          department: true,
+          assignedTickets: {
+            include: { evaluation: true },
+          },
+        },
+      }),
+      prisma.sparePartInventory.findMany(),
+      // Group by partId directly in database for approved requisitions
+      prisma.sparePartRequisition.groupBy({
+        by: ['partId'],
+        where: { status: 'APPROVED' },
+        _sum: { quantityRequested: true },
+      }),
+      prisma.sparePartRequisition.count(),
+    ]);
 
     const completedPercent =
       totalTickets > 0 ? Math.round((completedTickets / totalTickets) * 1000) / 10 : 0;
 
-    // Evaluations
-    const evalAgg = await prisma.evaluation.aggregate({
-      _avg: { ratingScore: true },
-      _count: { id: true },
-    });
     const avgRating = evalAgg._avg.ratingScore
       ? Math.round(evalAgg._avg.ratingScore * 10) / 10
       : 5.0;
     const totalEvaluations = evalAgg._count.id;
 
-    // Categories
-    const categories = await prisma.problemCategory.findMany({
-      include: {
-        _count: { select: { tickets: true } },
-      },
-    });
-
+    // Categories breakdown
     const categoryColors = ['#2563eb', '#06b6d4', '#8b5cf6', '#f59e0b', '#10b981'];
     const categoryBreakdown = categories.map((cat, idx) => ({
       category: cat.categoryName,
@@ -43,16 +67,6 @@ export class StatsService {
     }));
 
     // Technicians Leaderboard
-    const techUsers = await prisma.user.findMany({
-      where: { role: 'TECHNICIAN' },
-      include: {
-        department: true,
-        assignedTickets: {
-          include: { evaluation: true },
-        },
-      },
-    });
-
     const technicianLeaderboard = techUsers.map((tech) => {
       const casesCount = tech.assignedTickets.filter((t) => t.currentStatus === 'COMPLETED').length;
       const ratedTickets = tech.assignedTickets.filter((t) => t.evaluation != null);
@@ -71,16 +85,14 @@ export class StatsService {
       };
     });
 
-    // Spare parts usage
-    const parts = await prisma.sparePartInventory.findMany();
-    const approvedReqs = await prisma.sparePartRequisition.findMany({
-      where: { status: 'APPROVED' },
-    });
+    // Build map of approved parts used from DB groupBy aggregation
+    const usageMap = new Map<string, number>();
+    for (const row of requisitionAgg) {
+      usageMap.set(row.partId, row._sum.quantityRequested || 0);
+    }
 
     const partsUsageSummary = parts.map((p) => {
-      const usedSum = approvedReqs
-        .filter((r) => r.partId === p.id)
-        .reduce((acc, r) => acc + r.quantityRequested, 0);
+      const usedSum = usageMap.get(p.id) || 0;
 
       return {
         partCode: p.partCode || p.id,
@@ -92,7 +104,6 @@ export class StatsService {
     });
 
     const totalPartsCost = parts.reduce((acc, p) => acc + p.stockQuantity * p.unitCost, 0);
-    const totalRequisitions = await prisma.sparePartRequisition.count();
 
     return {
       totalTickets,

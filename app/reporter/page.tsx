@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Navbar } from '@/components/common/Navbar';
-import { Footer } from '@/components/common/Footer';
+import { Sidebar } from '@/components/common/Sidebar';
 import { ReporterHeader } from '@/components/reporter/ReporterHeader';
 import { ReporterStatCards } from '@/components/reporter/ReporterStatCards';
 import { TicketForm } from '@/components/reporter/TicketForm';
@@ -47,7 +46,7 @@ export default function ReporterPage() {
   const completedTicketForEval = tickets.find((t) => t.status === 'COMPLETED');
 
   const handleCancelTicket = async (t: Ticket) => {
-    const confirmCancel = confirm(`คุณต้องการขอยกเลิกคำร้อง ${t.ticketNumber} ใช่หรือไม่? (UC-5)`);
+    const confirmCancel = confirm(`คุณต้องการขอยกเลิกคำร้อง ${t.ticketNumber} ใช่หรือไม่?`);
     if (!confirmCancel) return;
 
     try {
@@ -55,7 +54,6 @@ export default function ReporterPage() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-role': 'REPORTER',
         },
         body: JSON.stringify({
           action: 'CANCEL',
@@ -78,56 +76,82 @@ export default function ReporterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans">
-      <Navbar currentRole="REPORTER" />
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col lg:flex-row font-sans">
+      <Sidebar
+        currentRole="REPORTER"
+        userName="สมชาย เกียรติวิทยา"
+        userEmail="somchai.k@kkumail.com"
+      />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Header */}
-        <ReporterHeader onNewTicketClick={() => setFormKey((k) => k + 1)} />
-
-        {/* 4 Stat Cards */}
-        <ReporterStatCards
-          totalCount={tickets.length}
-          inProgressCount={tickets.filter((t) => t.status === 'IN_PROGRESS').length}
-          pendingCount={tickets.filter((t) => t.status === 'PENDING_DISPATCH').length}
-          completedCount={tickets.filter((t) => t.status === 'COMPLETED').length}
-        />
-
-        {/* 2-Column Responsive Grid matching Prototype Page 89 */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: UC-1 Repair Submission Form */}
-          <div className="lg:col-span-5 space-y-6">
-            <TicketForm key={formKey} onSuccess={refreshTickets} />
+      <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
+        {/* Top Header Bar */}
+        <header className="hidden lg:flex items-center justify-between px-8 py-3.5 bg-white border-b border-slate-200/90 shadow-2xs">
+          <div>
+            <h1 className="text-base font-extrabold text-slate-900 tracking-tight">
+              พอร์ทัลผู้แจ้งเหตุ (Reporter Workspace)
+            </h1>
+            <p className="text-xs text-slate-500 font-medium">
+              SC-09 อาคารวิทยวิภาส • วิทยาลัยการคอมพิวเตอร์ มข.
+            </p>
           </div>
 
-          {/* Right Column: Tracking, Evaluation, and Past History */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* UC-2: Active In-Progress Ticket Tracker */}
-            <ActiveTicketTracker
-              ticket={selectedTicket}
-              onCancelled={() => {
-                setSelectedTicketId(null);
-                refreshTickets();
-              }}
-            />
+          <button
+            type="button"
+            onClick={() => setFormKey((k) => k + 1)}
+            className="px-3.5 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition"
+          >
+            + แบบฟอร์มแจ้งซ่อมใหม่
+          </button>
+        </header>
 
-            {/* UC-6 & UC-3: Satisfaction Rating and Feedback */}
-            <EvaluationCard
-              ticket={completedTicketForEval}
-              onEvaluated={refreshTickets}
-            />
-
-            {/* UC-4: Ticket History & Past Requests */}
-            <TicketHistoryTable
-              tickets={tickets}
-              onSelectTicket={(t) => setSelectedTicketId(t.id)}
-              onCancelTicket={handleCancelTicket}
-            />
+        <main className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
+          {/* Header on mobile */}
+          <div className="lg:hidden mb-4">
+            <ReporterHeader onNewTicketClick={() => setFormKey((k) => k + 1)} />
           </div>
-        </div>
-      </main>
 
-      <Footer />
+          {/* 4 Stat Cards */}
+          <ReporterStatCards
+            totalCount={tickets.length}
+            inProgressCount={tickets.filter((t) => t.status === 'IN_PROGRESS').length}
+            pendingCount={tickets.filter((t) => t.status === 'PENDING_DISPATCH').length}
+            completedCount={tickets.filter((t) => t.status === 'COMPLETED').length}
+          />
+
+          {/* 2-Column Responsive Grid matching Prototype Page 89 */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-6">
+            {/* Left Column: Repair Submission Form */}
+            <div className="lg:col-span-5 space-y-6">
+              <TicketForm key={formKey} onSuccess={refreshTickets} />
+            </div>
+
+            {/* Right Column: Tracking, Evaluation, and Past History */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Active In-Progress Ticket Tracker */}
+              <ActiveTicketTracker
+                ticket={selectedTicket}
+                onCancelled={() => {
+                  setSelectedTicketId(null);
+                  refreshTickets();
+                }}
+              />
+
+              {/* Satisfaction Rating and Feedback */}
+              <EvaluationCard
+                ticket={completedTicketForEval}
+                onEvaluated={refreshTickets}
+              />
+
+              {/* Ticket History & Past Requests */}
+              <TicketHistoryTable
+                tickets={tickets}
+                onSelectTicket={(t) => setSelectedTicketId(t.id)}
+                onCancelTicket={handleCancelTicket}
+              />
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

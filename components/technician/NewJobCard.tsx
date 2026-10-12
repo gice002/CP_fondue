@@ -5,26 +5,39 @@ import { Check, MapPin, Network, Clock, CheckCircle2, ShieldCheck } from 'lucide
 import { Ticket } from '@/types';
 
 interface NewJobCardProps {
-  ticket: Ticket;
+  ticket?: Ticket | null;
+  technicianId?: string;
   hasOngoingTask?: boolean;
   onAccepted?: () => void;
 }
 
 export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, hasOngoingTask = false, onAccepted }) => {
-  const [isAccepted, setIsAccepted] = useState(ticket.status === 'IN_PROGRESS');
+  const [isAccepted, setIsAccepted] = useState(ticket?.status === 'IN_PROGRESS');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   React.useEffect(() => {
-    setIsAccepted(ticket.status === 'IN_PROGRESS');
-    setErrorMessage('');
-  }, [ticket.id, ticket.status]);
+    if (ticket) {
+      setIsAccepted(ticket.status === 'IN_PROGRESS');
+      setErrorMessage('');
+    }
+  }, [ticket?.id, ticket?.status]);
+
+  if (!ticket) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 text-center text-xs text-slate-400">
+        ไม่มีงานที่ต้องดำเนินการรับงานในขณะนี้
+      </div>
+    );
+  }
 
   const handleAccept = async () => {
     if (hasOngoingTask && ticket.status !== 'IN_PROGRESS') {
       alert('คุณมีงานที่กำลังดำเนินการอยู่ กรุณาดำเนินการงานปัจจุบันให้เสร็จก่อนรับงานใหม่');
       return;
     }
+
+    const techIdToAccept = ticket.assignedTechnician?.id || 'usr_tech_01';
 
     setIsSubmitting(true);
     setErrorMessage('');
@@ -34,7 +47,7 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, hasOngoingTask =
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'ACCEPT',
-          technicianId: 'usr_tech_01',
+          technicianId: techIdToAccept,
         }),
       });
 
@@ -138,7 +151,7 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, hasOngoingTask =
           </div>
         </div>
 
-        {/* BR5 & BR6 Policy Box */}
+        {/* Acceptance Policy Box */}
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-xs flex items-start space-x-2">
           <ShieldCheck className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
           <div>

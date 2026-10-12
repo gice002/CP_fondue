@@ -4,8 +4,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Wifi,
   Package,
-  Plus,
-  Trash2,
   Send,
   CheckCircle2,
 } from 'lucide-react';
@@ -26,10 +24,6 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('สำหรับเปลี่ยนซ่อมอุปกรณ์ตามคำร้อง');
 
-  const [requestedItems, setRequestedItems] = useState<
-    { id: string; partId: string; name: string; code: string; quantity: number; unit: string }[]
-  >([]);
-
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -49,30 +43,22 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
     loadParts();
   }, []);
 
-  const handleAddItem = () => {
-    const part = availableParts.find((p) => p.id === selectedPartId);
-    if (!part) return;
+  const selectedPart = availableParts.find((p) => p.id === selectedPartId);
 
-    setRequestedItems([
-      ...requestedItems,
-      {
-        id: `it_${Date.now()}`,
-        partId: part.id,
-        name: part.name,
-        code: part.partCode,
-        quantity,
-        unit: part.unit,
-      },
-    ]);
-  };
+  const handleSubmitRequisition = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPartId) {
+      alert('กรุณาเลือกรายการอุปกรณ์ที่ต้องการเบิก');
+      return;
+    }
 
-  const handleRemoveItem = (id: string) => {
-    setRequestedItems(requestedItems.filter((i) => i.id !== id));
-  };
+    if (quantity <= 0) {
+      alert('จำนวนที่เบิกต้องมากกว่า 0');
+      return;
+    }
 
-  const handleSubmitRequisition = async () => {
-    if (requestedItems.length === 0) {
-      alert('กรุณาเพิ่มรายการอุปกรณ์ที่ต้องการเบิก');
+    if (selectedPart && quantity > selectedPart.stockQuantity) {
+      alert(`จำนวนที่ขอเบิก (${quantity}) เกินกว่าสต็อกคงเหลือ (${selectedPart.stockQuantity})`);
       return;
     }
 
@@ -83,11 +69,13 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ticketId,
-          items: requestedItems.map((it) => ({
-            partId: it.partId,
-            quantity: it.quantity,
-          })),
-          notes,
+          items: [
+            {
+              partId: selectedPartId,
+              quantity,
+            },
+          ],
+          notes: notes.trim(),
         }),
       });
 
@@ -139,128 +127,93 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
           )}
         </div>
         <p className="text-[11px] text-slate-500">
-          เชื่อมต่อ Wi-Fi CoP-Secure @ อาคาร CP-01 พิกัดตรงกับสถานที่แจ้งซ่อม
+          เชื่อมต่อ Wi-Fi CoP-Secure @ อาคาร SC-09 พิกัดตรงกับสถานที่แจ้งซ่อม
         </p>
       </div>
 
-      {/* Part 2: Material Requisition Form */}
-      <div>
+      {/* Part 2: Material Requisition Form - 1 Item Per Requisition Contract */}
+      <form onSubmit={handleSubmitRequisition}>
         <div className="flex items-center space-x-2 mb-3">
           <Package className="w-4 h-4 text-slate-500" />
           <h4 className="text-xs font-semibold text-slate-900">
-            รายการเบิกอะไหล่และอุปกรณ์
+            ขอเบิกอะไหล่ (1 ชนิดต่อ 1 ใบเบิก)
           </h4>
         </div>
 
         {/* Input Add Row */}
-        <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-200/70 mb-3 space-y-2">
-          <div className="grid grid-cols-12 gap-2">
-            <div className="col-span-8">
+        <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/70 mb-3 space-y-3">
+          <div>
+            <label className="text-[10px] font-bold text-slate-500 block mb-1">
+              เลือกอะไหล่ในคลัง
+            </label>
+            <select
+              value={selectedPartId}
+              onChange={(e) => setSelectedPartId(e.target.value)}
+              className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-hidden font-medium"
+            >
+              {availableParts.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.partCode} - {p.name} (คงเหลือ: {p.stockQuantity} {p.unit})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
               <label className="text-[10px] font-bold text-slate-500 block mb-1">
-                เลือกอะไหล่ในคลัง
+                จำนวนที่ต้องการเบิก ({selectedPart?.unit || 'หน่วย'})
               </label>
-              <select
-                value={selectedPartId}
-                onChange={(e) => setSelectedPartId(e.target.value)}
-                className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-hidden font-medium"
-              >
-                {availableParts.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.partCode} - {p.name} (คงเหลือ: {p.stockQuantity} {p.unit})
-                  </option>
-                ))}
-              </select>
+              <input
+                type="number"
+                min="1"
+                max={selectedPart ? selectedPart.stockQuantity : 100}
+                value={quantity}
+                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 font-bold text-center focus:ring-2 focus:ring-blue-500 outline-hidden"
+              />
             </div>
-            <div className="col-span-4">
+            <div>
               <label className="text-[10px] font-bold text-slate-500 block mb-1">
-                จำนวน
+                คงเหลือในคลัง
               </label>
-              <div className="flex items-center space-x-1">
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 font-bold text-center focus:ring-2 focus:ring-blue-500 outline-hidden"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddItem}
-                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shrink-0"
-                  title="เพิ่มรายการ"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
+              <div className="p-2 bg-slate-100 rounded-lg text-xs font-mono font-bold text-slate-700 text-center">
+                {selectedPart ? `${selectedPart.stockQuantity} ${selectedPart.unit}` : '-'}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* List of Added Items */}
-        {requestedItems.length > 0 ? (
-          <div className="border border-slate-200 rounded-xl overflow-hidden mb-4 divide-y divide-slate-100">
-            {requestedItems.map((item) => (
-              <div
-                key={item.id}
-                className="p-2.5 bg-white flex items-center justify-between text-xs hover:bg-slate-50 transition"
-              >
-                <div>
-                  <div className="font-extrabold text-slate-900">{item.name}</div>
-                  <div className="text-[10px] font-mono text-slate-500">{item.code}</div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="font-mono font-bold text-slate-800">
-                    {item.quantity} {item.unit}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveItem(item.id)}
-                    className="text-red-500 hover:text-red-700 p-1 transition"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div>
+            <label className="text-[10px] font-bold text-slate-500 block mb-1">
+              หมายเหตุการขอเบิก
+            </label>
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="ระบุเหตุผลในการเบิก เช่น เพื่อเปลี่ยนสายสัญญาณชำรุด"
+              className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-hidden"
+            />
           </div>
-        ) : (
-          <p className="text-xs text-slate-400 italic text-center py-3 border border-dashed border-slate-200 rounded-xl mb-3">
-            ยังไม่มีรายการขอเบิกอะไหล่
-          </p>
-        )}
-
-        {/* Notes */}
-        <div className="mb-4">
-          <label className="text-[10px] font-bold text-slate-500 block mb-1">
-            หมายเหตุการขอเบิก
-          </label>
-          <input
-            type="text"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-hidden"
-          />
         </div>
 
         {/* Submit Requisition Button */}
         {isSubmitted ? (
           <div className="p-3 rounded-xl bg-emerald-50 text-center text-xs font-medium text-emerald-800 flex items-center justify-center space-x-1.5 ring-1 ring-inset ring-emerald-600/20">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>ส่งคำขอเบิกไปยังเจ้าหน้าที่เรียบร้อยแล้ว (รอการอนุมัติ)</span>
+            <span>ส่งคำขอเบิกอะไหล่เรียบร้อยแล้ว (รอเจ้าหน้าที่พิจารณาอนุมัติ)</span>
           </div>
         ) : (
           <button
-            type="button"
-            disabled={isSubmitting || requestedItems.length === 0}
-            onClick={handleSubmitRequisition}
+            type="submit"
+            disabled={isSubmitting || !selectedPartId}
             className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{isSubmitting ? 'กำลังส่งคำขอ...' : 'ส่งคำขอเบิกอะไหล่'}</span>
           </button>
         )}
-      </div>
+      </form>
     </div>
   );
 };

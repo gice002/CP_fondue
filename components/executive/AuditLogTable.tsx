@@ -32,7 +32,7 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ logs }) => {
             <span>บันทึกประวัติการตรวจสอบย้อนหลัง (Audit Trail &amp; Log Compliance)</span>
           </h3>
           <p className="text-[11px] text-slate-500">
-            บันทึกการทำธุรกรรมและสถานะงานซ่อมแบบเรียลไทม์ตามเกณฑ์ความปลอดภัยและมาตรฐาน BR7, BR11 สำหรับการตรวจประเมิน EdPEx
+            บันทึกการทำธุรกรรมและสถานะงานซ่อมแบบเรียลไทม์ตามเกณฑ์มาตรฐานสำหรับการตรวจประเมิน EdPEx
           </p>
         </div>
 
@@ -75,9 +75,9 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ logs }) => {
               <th className="py-2.5 px-3">สถานที่ / รายละเอียดปัญหา</th>
               <th className="py-2.5 px-3">ผู้แจ้งเหตุ</th>
               <th className="py-2.5 px-3">ช่างรับผิดชอบ</th>
-              <th className="py-2.5 px-3">พัสดุที่ใช้ (UC-10)</th>
+              <th className="py-2.5 px-3">พัสดุที่ใช้</th>
               <th className="py-2.5 px-3 text-center">สถานะ</th>
-              <th className="py-2.5 px-3 text-center">ประเมิน (UC-6)</th>
+              <th className="py-2.5 px-3 text-center">ผลประเมิน</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

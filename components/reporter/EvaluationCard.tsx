@@ -163,14 +163,14 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             placeholder="ความคิดเห็นเพิ่มเติม เช่น ความรวดเร็ว หรือคุณภาพงานซ่อม..."
-            className="w-full text-xs rounded-xl border border-slate-200 p-3 focus:ring-1 focus:ring-slate-900 focus:border-slate-900 outline-hidden transition bg-slate-50/50 focus:bg-white"
+            className="w-full text-xs rounded-xl border border-slate-200 p-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-hidden transition bg-slate-50/50 focus:bg-white"
           />
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
+          className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
         >
           <Send className="w-3.5 h-3.5" />
           <span>{isSubmitting ? 'กำลังส่งแบบประเมิน...' : 'ส่งแบบประเมินความพึงพอใจ'}</span>

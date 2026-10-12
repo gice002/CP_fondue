@@ -191,7 +191,7 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
             type="button"
             disabled={isProcessing}
             onClick={handleApprove}
-            className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center justify-center space-x-1 shadow-xs transition disabled:opacity-50"
+            className="py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs flex items-center justify-center space-x-1 shadow-xs transition disabled:opacity-50"
           >
             <Check className="w-3.5 h-3.5" />
             <span>อนุมัติเบิกพัสดุ</span>

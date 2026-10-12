@@ -36,7 +36,7 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
 
   const handleCancelTicket = async () => {
     const confirmCancel = confirm(
-      `คุณต้องการขอยกเลิกคำร้อง ${ticket.ticketNumber} ใช่หรือไม่? (UC-5)`
+      `คุณต้องการขอยกเลิกคำร้อง ${ticket.ticketNumber} ใช่หรือไม่?`
     );
     if (!confirmCancel) return;
 
@@ -72,7 +72,7 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
         <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 mx-auto flex items-center justify-center mb-2">
           <XCircle className="w-6 h-6" />
         </div>
-        <h3 className="font-extrabold text-sm text-slate-800">คำร้อง {ticket.ticketNumber} ถูกยกเลิกแล้ว (UC-5)</h3>
+        <h3 className="font-extrabold text-sm text-slate-800">คำร้อง {ticket.ticketNumber} ถูกยกเลิกแล้ว</h3>
         <p className="text-xs text-slate-500 mt-1">ผู้แจ้งเหตุได้ยกเลิกคำร้องนี้ ระบบปรับสถานะเป็น &quot;ยกเลิกคำร้อง&quot; เรียบร้อยแล้ว</p>
       </div>
     );
@@ -143,7 +143,7 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
         </div>
       </div>
 
-      {/* 4-Step Stepper (UC-2) */}
+      {/* 4-Step Stepper */}
       <div className="my-5 p-4 rounded-xl bg-slate-50/70 border border-slate-200/70">
         <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-3">
           ความคืบหน้างานซ่อม (Status Timeline)
@@ -245,13 +245,13 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
         </div>
       )}
 
-      {/* Cancellation Notice (UC-5) */}
+      {/* Cancellation Notice */}
       {(ticket.status === 'PENDING_DISPATCH' || ticket.status === 'ASSIGNED') && (
         <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-start space-x-2">
             <AlertCircle className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-slate-800">ยกเลิกคำร้อง (UC-5):</span>
+              <span className="font-semibold text-slate-800">ยกเลิกคำร้อง:</span>
               <p className="text-[11px] text-slate-500">
                 กรณีปัญหาได้รับการแก้ไขแล้ว หรือต้องการยกเลิกคำขอนี้ก่อนช่างเริ่มปฏิบัติงาน
               </p>

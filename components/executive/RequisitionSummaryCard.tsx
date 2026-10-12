@@ -23,7 +23,7 @@ export const RequisitionSummaryCard: React.FC<RequisitionSummaryCardProps> = ({
               <span>สรุปการเบิกจ่ายอุปกรณ์ซ่อมบำรุง</span>
             </h3>
             <p className="text-[11px] text-slate-400">
-              รายงานการตัดจ่ายคลังพัสดุ (UC-10 Summary)
+              รายงานการตัดจ่ายคลังพัสดุ
             </p>
           </div>
           <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">

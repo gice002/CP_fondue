@@ -57,7 +57,7 @@ export const TicketVerificationCard: React.FC<TicketVerificationCardProps> = ({
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
         <div>
           <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block">
-            BR2: รายละเอียดและรูปภาพหลักฐานการแจ้งซ่อม
+            รายละเอียดและรูปภาพหลักฐานการแจ้งซ่อม
           </span>
           <div className="flex items-center space-x-2">
             <h3 className="text-base font-extrabold text-slate-900">
@@ -168,10 +168,10 @@ export const TicketVerificationCard: React.FC<TicketVerificationCardProps> = ({
         </div>
       </div>
 
-      {/* Verification Checkboxes (BR4) */}
+      {/* Verification Checkboxes */}
       <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200 space-y-2">
         <span className="text-xs font-bold text-blue-900 block">
-          การตรวจความถูกต้องเบื้องต้น (BR4):
+          การตรวจความถูกต้องเบื้องต้น:
         </span>
         <label className="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
           <input

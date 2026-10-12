@@ -17,7 +17,7 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({ onExport }) =>
             ศูนย์สรุปผลและรายงานการซ่อมบำรุง
           </h1>
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-            UC-11 EXECUTIVE SUITE
+            EXECUTIVE DASHBOARD
           </span>
         </div>
         <p className="text-xs text-slate-500">

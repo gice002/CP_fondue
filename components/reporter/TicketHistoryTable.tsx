@@ -115,10 +115,10 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[360px] overflow-y-auto custom-scrollbar border border-slate-100 rounded-xl">
         <table className="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-500 font-medium">
+          <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs shadow-2xs">
+            <tr className="border-b border-slate-200 text-slate-600 font-bold">
               <th className="py-2.5 px-3">รหัสคำร้อง</th>
               <th className="py-2.5 px-3">สถานที่</th>
               <th className="py-2.5 px-3">รายการปัญหา</th>
@@ -127,7 +127,7 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
               <th className="py-2.5 px-3 text-center">ดำเนินการ</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 bg-white">
             {filteredTickets.map((t) => (
               <tr key={t.id} className="hover:bg-slate-50/60 transition">
                 <td className="py-3 px-3 font-mono font-medium text-slate-900">

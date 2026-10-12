@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Plus, AlertTriangle } from 'lucide-react';
+import { X } from 'lucide-react';
 import { STANDARD_TAGS, StandardTag } from '@/types';
 
 interface WalkInModalProps {
@@ -28,6 +28,7 @@ export const WalkInModal: React.FC<WalkInModalProps> = ({ isOpen, onClose, onCre
 
     setIsSubmitting(true);
     try {
+      // Atomic Walk-in creation: passes selected tags directly in POST payload
       const res = await fetch('/api/tickets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,26 +38,19 @@ export const WalkInModal: React.FC<WalkInModalProps> = ({ isOpen, onClose, onCre
           category: 'งานฉุกเฉินเฉพาะหน้า (Walk-in)',
           description: `[Walk-in โดย ${reporterName}] ${description}`,
           attachmentUrls: [],
+          tags: [selectedTag],
         }),
       });
       const data = await res.json();
       if (data.success) {
-        // Update tags for walk-in if needed
-        if (data.data?.id && selectedTag) {
-          await fetch(`/api/tickets/${data.data.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'UPDATE_TAGS',
-              tags: [selectedTag],
-            }),
-          });
-        }
         onCreated();
         onClose();
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาดในการสร้างใบงานฉุกเฉิน');
       }
     } catch (err) {
       console.error(err);
+      alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
     } finally {
       setIsSubmitting(false);
     }

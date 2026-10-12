@@ -258,6 +258,11 @@ model Ticket {
   // 1:M ใบเบิกอะไหล่ (UC-10)
   partRequisitions SparePartRequisition[]
 
+  @@index([currentStatus], name: "idx_tickets_current_status")
+  @@index([assignedTechnicianId], name: "idx_tickets_assigned_technician_id")
+  @@index([reporterUserId], name: "idx_tickets_reporter_user_id")
+  @@index([createdAt(sort: Desc)], name: "idx_tickets_created_at_desc")
+  @@index([assignedTechnicianId, currentStatus], name: "idx_tickets_status_tech")
   @@map("tickets") // ตาราง: ใบแจ้งซ่อม
 }
 
@@ -283,6 +288,7 @@ model TicketAttachment {
   // ประเภทไฟล์ (image/jpeg, image/png)
   fileType   String   @map("file_type")
 
+  @@index([ticketId], name: "idx_ticket_attachments_ticket_id")
   @@map("ticket_attachments") // ตาราง: รูปภาพประกอบ
 }
 
@@ -307,6 +313,7 @@ model TicketStatusHistory {
   // หมายเหตุใบแจ้งซ่อม
   ticketNotes     String?  @map("ticket_notes")
 
+  @@index([ticketId, changedAt], name: "idx_ticket_status_histories_ticket_id_changed_at")
   @@map("ticket_status_histories") // ตาราง: ประวัติการเปลี่ยนสถานะใบแจ้งซ่อม
 }
 
@@ -438,6 +445,8 @@ model SparePartRequisition {
   // เก็บ (1:N ประวัติการเปลี่ยนสถานะใบเบิกอะไหล่)
   statusHistories SparePartStatusHistory[]
 
+  @@index([ticketId], name: "idx_spare_part_requisitions_ticket_id")
+  @@index([status], name: "idx_spare_part_requisitions_status")
   @@map("spare_part_requisitions") // ตาราง: ใบเบิกอะไหล่
 }
 
@@ -483,6 +492,8 @@ model AuditLog {
   // เวลาที่แก้ไขตาราง
   changedAt   DateTime @default(now()) @map("changed_at")
 
+  @@index([tableName, changedAt(sort: Desc)], name: "idx_audit_logs_table_changed_at")
+  @@index([userId], name: "idx_audit_logs_user_id")
   @@map("audit_logs") // ตาราง: ประวัติการแก้ไขข้อมูลเชิงลึก
 }
 

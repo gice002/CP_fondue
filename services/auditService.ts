@@ -3,18 +3,34 @@ import { AuditLog } from '@/types';
 
 export class AuditService {
   /**
-   * Get all audit trail and compliance logs from PostgreSQL (BR7, BR11, EdPEx)
+   * Get all audit trail and compliance logs from PostgreSQL with database-level search (BR7, BR11, EdPEx)
    */
-  static async getAuditLogs(filter?: { search?: string }): Promise<AuditLog[]> {
+  static async getAuditLogs(filter?: { search?: string; limit?: number }): Promise<AuditLog[]> {
+    const whereClause: any = {};
+
+    if (filter?.search) {
+      const q = filter.search.trim();
+      whereClause.OR = [
+        { tableName: { contains: q, mode: 'insensitive' } },
+        { commandUsed: { contains: q, mode: 'insensitive' } },
+        { newData: { contains: q, mode: 'insensitive' } },
+        { oldData: { contains: q, mode: 'insensitive' } },
+        { user: { firstName: { contains: q, mode: 'insensitive' } } },
+        { user: { lastName: { contains: q, mode: 'insensitive' } } },
+        { user: { email: { contains: q, mode: 'insensitive' } } },
+      ];
+    }
+
     const logs = await prisma.auditLog.findMany({
+      where: whereClause,
       include: {
         user: true,
       },
       orderBy: { changedAt: 'desc' },
-      take: 100,
+      take: filter?.limit || 100,
     });
 
-    const mapped = logs.map((log) => {
+    return logs.map((log) => {
       let parsedNew: any = {};
       try {
         if (log.newData) parsedNew = JSON.parse(log.newData);
@@ -38,19 +54,6 @@ export class AuditService {
         changedAt: log.changedAt.toLocaleString('th-TH'),
       };
     });
-
-    if (filter?.search) {
-      const q = filter.search.toLowerCase();
-      return mapped.filter(
-        (m) =>
-          m.tableName.toLowerCase().includes(q) ||
-          m.action.toLowerCase().includes(q) ||
-          m.changedBy.toLowerCase().includes(q) ||
-          (m.ticketNumber && m.ticketNumber.toLowerCase().includes(q))
-      );
-    }
-
-    return mapped;
   }
 
   /**

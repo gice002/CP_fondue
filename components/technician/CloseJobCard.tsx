@@ -10,7 +10,8 @@ import {
 import { Ticket } from '@/types';
 
 interface CloseJobCardProps {
-  ticket?: Ticket;
+  ticket?: Ticket | null;
+  technicianId?: string;
   onClosed?: () => void;
 }
 
@@ -71,7 +72,7 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
   const handleCloseJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!repairNotes.trim()) {
-      alert('กรุณากรอกบันทึกสรุปผลการซ่อม (BR8)');
+      alert('กรุณากรอกบันทึกสรุปผลการซ่อม');
       return;
     }
 
@@ -134,7 +135,7 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
       </div>
 
       <form onSubmit={handleCloseJob} className="space-y-4">
-        {/* Repair Notes Input (BR8) */}
+        {/* Repair Notes Input */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="text-xs font-semibold text-slate-700">
@@ -151,7 +152,7 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
           />
         </div>
 
-        {/* Upload Proof Photos (BR8) */}
+        {/* Upload Proof Photos */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-xs font-semibold text-slate-700">
@@ -200,7 +201,7 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
+          className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
         >
           <Check className="w-3.5 h-3.5" />
           <span>{isSubmitting ? 'กำลังบันทึกและปิดงาน...' : 'ยืนยันและปิดงานซ่อม'}</span>

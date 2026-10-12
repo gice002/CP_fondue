@@ -84,7 +84,7 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({ stats })
             <span className="text-xs font-bold text-amber-500">/ 5.0 ดาว</span>
           </div>
           <div className="text-[10px] text-slate-400 mt-1 flex items-center space-x-1">
-            <span>{stats.totalEvaluations} แบบประเมิน (UC-6)</span>
+            <span>{stats.totalEvaluations} แบบประเมิน</span>
             <span className="text-emerald-600 font-bold">• ระดับดีเยี่ยม</span>
           </div>
         </div>

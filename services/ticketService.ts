@@ -2,6 +2,16 @@ import { prisma } from '@/lib/prisma';
 import { Ticket, TicketStatus, TicketUrgency, Evaluation, TAG_PRIORITY_ORDER } from '@/types';
 import { AuditService } from './auditService';
 
+export interface PaginatedTicketsResult {
+  tickets: Ticket[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+  };
+}
+
 export class TicketService {
   /**
    * Safe mapping from Prisma database record to domain Ticket interface
@@ -128,15 +138,34 @@ export class TicketService {
   }
 
   /**
-   * Fetch tickets from PostgreSQL with optional filtering and Tag priority ordering
+   * Sort domain tickets by Tag priority (1 = งานเร่งด่วน is highest, 5 = งานที่ต้องรออุปกรณ์ is lowest)
    */
-  static async getTickets(filter?: {
+  private static sortTicketsByTagPriority(tickets: Ticket[]): Ticket[] {
+    return tickets.sort((a, b) => {
+      const getPriority = (t: Ticket) => {
+        if (!t.tags || t.tags.length === 0) return 99;
+        const priorities = t.tags.map((tag) => TAG_PRIORITY_ORDER[tag] ?? 99);
+        return Math.min(...priorities);
+      };
+      const prioA = getPriority(a);
+      const prioB = getPriority(b);
+      if (prioA !== prioB) {
+        return prioA - prioB;
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }
+
+  /**
+   * Build Prisma where filter for tickets
+   */
+  private static buildWhereClause(filter?: {
     status?: TicketStatus;
     excludeStatus?: string;
     reporterId?: string;
     technicianId?: string;
     search?: string;
-  }): Promise<Ticket[]> {
+  }) {
     const whereClause: any = {};
 
     if (filter?.status) {
@@ -166,6 +195,21 @@ export class TicketService {
       ];
     }
 
+    return whereClause;
+  }
+
+  /**
+   * Fetch tickets from PostgreSQL with optional filtering and Tag priority ordering
+   */
+  static async getTickets(filter?: {
+    status?: TicketStatus;
+    excludeStatus?: string;
+    reporterId?: string;
+    technicianId?: string;
+    search?: string;
+  }): Promise<Ticket[]> {
+    const whereClause = this.buildWhereClause(filter);
+
     const dbTickets = await prisma.ticket.findMany({
       where: whereClause,
       include: {
@@ -186,22 +230,62 @@ export class TicketService {
     });
 
     const domainTickets = dbTickets.map((t) => this.mapDbTicketToDomain(t));
+    return this.sortTicketsByTagPriority(domainTickets);
+  }
 
-    // Sort by Tag priority (Priority 1 = งานเร่งด่วน is highest, 5 = งานที่ต้องรออุปกรณ์ is lowest)
-    // If multiple tags exist, use the tag with highest priority (lowest number)
-    return domainTickets.sort((a, b) => {
-      const getPriority = (t: Ticket) => {
-        if (!t.tags || t.tags.length === 0) return 99;
-        const priorities = t.tags.map((tag) => TAG_PRIORITY_ORDER[tag] ?? 99);
-        return Math.min(...priorities);
-      };
-      const prioA = getPriority(a);
-      const prioB = getPriority(b);
-      if (prioA !== prioB) {
-        return prioA - prioB;
-      }
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+  /**
+   * Fetch tickets with pagination support (Phase 4 performance improvement)
+   */
+  static async getTicketsWithPagination(filter?: {
+    status?: TicketStatus;
+    excludeStatus?: string;
+    reporterId?: string;
+    technicianId?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedTicketsResult> {
+    const whereClause = this.buildWhereClause(filter);
+    const page = filter?.page || 1;
+    const limit = filter?.limit || 50;
+    const skip = (page - 1) * limit;
+
+    const [totalCount, dbTickets] = await Promise.all([
+      prisma.ticket.count({ where: whereClause }),
+      prisma.ticket.findMany({
+        where: whereClause,
+        include: {
+          reporter: { include: { department: true } },
+          assignedTechnician: { include: { department: true } },
+          location: true,
+          equipment: { include: { location: true } },
+          category: true,
+          attachments: true,
+          tags: { include: { tag: true } },
+          statusHistories: {
+            orderBy: { changedAt: 'asc' },
+            include: { changedByUser: true },
+          },
+          evaluation: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+    ]);
+
+    const domainTickets = dbTickets.map((t) => this.mapDbTicketToDomain(t));
+    const sorted = this.sortTicketsByTagPriority(domainTickets);
+
+    return {
+      tickets: sorted,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit) || 1,
+      },
+    };
   }
 
   /**
@@ -234,6 +318,7 @@ export class TicketService {
 
   /**
    * Create a new ticket in PostgreSQL (BR2, BR3)
+   * Implements concurrency-safe monthly sequence numbering using transaction isolation and retry
    */
   static async createTicket(dto: {
     locationId: string;
@@ -244,25 +329,17 @@ export class TicketService {
     description: string;
     attachmentUrls?: string[];
     reporterId?: string;
+    initialTags?: string[];
   }): Promise<Ticket> {
-    // Generate sequential unique ticket number under concurrency
     const now = new Date();
     const yearMonth = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
     const prefix = `REQ-${yearMonth}-`;
-
-    const countThisMonth = await prisma.ticket.count({
-      where: {
-        ticketNumber: { startsWith: prefix },
-      },
-    });
-    const seqNum = String(countThisMonth + 1).padStart(4, '0');
-    const ticketNumber = `${prefix}${seqNum}`;
 
     // Resolve reporter user
     let reporterUserId = dto.reporterId;
     if (!reporterUserId) {
       const defaultReporter = await prisma.user.findFirst({
-        where: { role: 'REPORTER' },
+        where: { role: 'REPORTER', deletedAt: null },
       });
       reporterUserId = defaultReporter?.id || 'usr_reporter_01';
     }
@@ -306,86 +383,135 @@ export class TicketService {
       locationId = sc09Loc?.id || 'loc_01';
     }
 
-    // Atomic transaction: Create Ticket + Default Tag + Attachments + Initial Status History + Audit
-    const createdTicket = await prisma.$transaction(async (tx) => {
-      const ticket = await tx.ticket.create({
-        data: {
-          ticketNumber,
-          problemDescription: dto.description,
-          currentStatus: 'PENDING_DISPATCH',
-          urgency: 'NORMAL',
-          locationDetail: dto.locationDetail || null,
-          reporterUserId: reporterUserId!,
-          categoryId: categoryRecord!.id,
-          locationId,
-          equipmentId: equipmentId || null,
-          attachments: {
-            create: (dto.attachmentUrls || []).map((url, i) => ({
-              filePath: url,
-              fileName: `damage_photo_${i + 1}.jpg`,
-              fileType: 'image/jpeg',
-              phase: 'BEFORE_REPAIR',
-              caption: 'ภาพถ่ายความเสียหายก่อนซ่อม (BR2)',
-            })),
-          },
-          statusHistories: {
-            create: {
-              oldStatus: null,
-              newStatus: 'PENDING_DISPATCH',
-              changedByUserId: reporterUserId!,
-              ticketNotes: 'ผู้ใช้ส่งคำร้องแจ้งซ่อมผ่านระบบออนไลน์ (BR2, BR3)',
+    // Attempt creation with optimistic concurrency retry loop for ticketNumber uniqueness
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        const createdTicket = await prisma.$transaction(async (tx) => {
+          // Serialize monthly sequence numbering using PostgreSQL transaction-level advisory lock
+          try {
+            await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`ticket_seq_${yearMonth}`}))`;
+          } catch {
+            // Advisory lock fallback if unsupported
+          }
+
+          // Query the maximum existing sequence for this month
+          const latestTicket = await tx.ticket.findFirst({
+            where: {
+              ticketNumber: { startsWith: prefix },
             },
-          },
-        },
-      });
+            orderBy: { ticketNumber: 'desc' },
+            select: { ticketNumber: true },
+          });
 
-      // Default tag: งานทั่วไป
-      const defaultTag = await tx.tag.findUnique({ where: { tagName: 'งานทั่วไป' } });
-      if (defaultTag) {
-        await tx.ticketTagMap.create({
-          data: {
-            ticketId: ticket.id,
-            tagId: defaultTag.id,
-          },
+          let nextSeq = 1;
+          if (latestTicket?.ticketNumber) {
+            const parts = latestTicket.ticketNumber.split('-');
+            const lastNum = parseInt(parts[parts.length - 1], 10);
+            if (!isNaN(lastNum)) {
+              nextSeq = lastNum + 1;
+            }
+          }
+
+          const ticketNumber = `${prefix}${String(nextSeq).padStart(4, '0')}`;
+
+          const ticket = await tx.ticket.create({
+            data: {
+              ticketNumber,
+              problemDescription: dto.description,
+              currentStatus: 'PENDING_DISPATCH',
+              urgency: 'NORMAL',
+              locationDetail: dto.locationDetail || null,
+              reporterUserId: reporterUserId!,
+              categoryId: categoryRecord!.id,
+              locationId,
+              equipmentId: equipmentId || null,
+              attachments: {
+                create: (dto.attachmentUrls || []).map((url, i) => ({
+                  filePath: url,
+                  fileName: `damage_photo_${i + 1}.jpg`,
+                  fileType: 'image/jpeg',
+                  phase: 'BEFORE_REPAIR',
+                  caption: 'ภาพถ่ายความเสียหายก่อนซ่อม (BR2)',
+                })),
+              },
+              statusHistories: {
+                create: {
+                  oldStatus: null,
+                  newStatus: 'PENDING_DISPATCH',
+                  changedByUserId: reporterUserId!,
+                  ticketNotes: 'ผู้ใช้ส่งคำร้องแจ้งซ่อมผ่านระบบออนไลน์ (BR2, BR3)',
+                },
+              },
+            },
+          });
+
+          // Determine initial tags: use custom provided tags (e.g. from Walk-in admin) or default 'งานทั่วไป'
+          const tagsToApply = dto.initialTags && dto.initialTags.length > 0 ? dto.initialTags : ['งานทั่วไป'];
+          for (const tagName of tagsToApply) {
+            let tagRecord = await tx.tag.findUnique({ where: { tagName } });
+            if (!tagRecord) {
+              tagRecord = await tx.tag.create({ data: { tagName } });
+            }
+            await tx.ticketTagMap.create({
+              data: {
+                ticketId: ticket.id,
+                tagId: tagRecord.id,
+              },
+            });
+          }
+
+          await tx.auditLog.create({
+            data: {
+              tableName: 'tickets',
+              commandUsed: 'INSERT',
+              newData: JSON.stringify({
+                ticketNumber: ticket.ticketNumber,
+                description: ticket.problemDescription,
+                tags: tagsToApply,
+              }),
+              userId: reporterUserId!,
+            },
+          });
+
+          return tx.ticket.findUnique({
+            where: { id: ticket.id },
+            include: {
+              reporter: { include: { department: true } },
+              assignedTechnician: { include: { department: true } },
+              location: true,
+              equipment: { include: { location: true } },
+              category: true,
+              attachments: true,
+              tags: { include: { tag: true } },
+              statusHistories: {
+                orderBy: { changedAt: 'asc' },
+                include: { changedByUser: true },
+              },
+              evaluation: true,
+            },
+          });
         });
+
+        return this.mapDbTicketToDomain(createdTicket);
+      } catch (err: any) {
+        // If unique constraint collision on ticketNumber, retry
+        if (err.code === 'P2002' && attempts < maxAttempts) {
+          continue;
+        }
+        throw err;
       }
+    }
 
-      await tx.auditLog.create({
-        data: {
-          tableName: 'tickets',
-          commandUsed: 'INSERT',
-          newData: JSON.stringify({
-            ticketNumber: ticket.ticketNumber,
-            description: ticket.problemDescription,
-          }),
-          userId: reporterUserId!,
-        },
-      });
-
-      return tx.ticket.findUnique({
-        where: { id: ticket.id },
-        include: {
-          reporter: { include: { department: true } },
-          assignedTechnician: { include: { department: true } },
-          location: true,
-          equipment: { include: { location: true } },
-          category: true,
-          attachments: true,
-          tags: { include: { tag: true } },
-          statusHistories: {
-            orderBy: { changedAt: 'asc' },
-            include: { changedByUser: true },
-          },
-          evaluation: true,
-        },
-      });
-    });
-
-    return this.mapDbTicketToDomain(createdTicket);
+    throw new Error('ไม่สามารถสร้างเลขที่ใบแจ้งซ่อมได้เนื่องจากมีการใช้งานพร้อมกันสูง กรุณาลองใหม่อีกครั้ง');
   }
 
   /**
-   * Dispatch & assign ticket to a technician in PostgreSQL (Queue-based dispatch: unlimited assigned tasks allowed per technician)
+   * Dispatch & assign ticket to a technician in PostgreSQL
+   * Enforces strict state machine transitions (cannot reassign completed or cancelled tickets)
    */
   static async assignTicket(
     ticketId: string,
@@ -400,12 +526,15 @@ export class TicketService {
     });
     if (!existing) return null;
 
+    // Strict State Machine: Cannot assign completed or cancelled tickets
+    if (existing.currentStatus === 'COMPLETED' || existing.currentStatus === 'CANCELLED') {
+      throw new Error(`ไม่สามารถมอบหมายงานที่เสร็จสิ้นหรือถูกยกเลิกแล้วได้ (สถานะปัจจุบัน: ${existing.currentStatus})`);
+    }
+
     const tech = await prisma.user.findUnique({ where: { id: technicianId } });
     if (!tech) throw new Error(`ไม่พบข้อมูลช่างรหัส: ${technicianId}`);
 
     const updated = await prisma.$transaction(async (tx) => {
-      // Note: Admin can assign multiple tickets to the technician queue without restrictions.
-
       // Update tags if provided by Admin
       if (tags && Array.isArray(tags)) {
         await tx.ticketTagMap.deleteMany({
@@ -423,7 +552,7 @@ export class TicketService {
         }
       }
 
-      // Update equipment status to "ชำรุดรอซ่อม" if equipment is associated (Requirement 5 & 6)
+      // Update equipment status to "ชำรุดรอซ่อม" if equipment is associated
       if (existing.equipmentId) {
         await tx.equipment.update({
           where: { id: existing.equipmentId },
@@ -613,17 +742,13 @@ export class TicketService {
     return this.mapDbTicketToDomain(updated);
   }
 
-
-  /**
-   * Technician accepts job in PostgreSQL (BR5, BR6)
-   */
   /**
    * Technician accepts job in PostgreSQL (BR5, BR6)
    * Strictly enforces max 1 IN_PROGRESS task per technician with PostgreSQL row-level locks
    */
   static async acceptTicket(
     ticketId: string,
-    technicianId: string = 'usr_tech_01'
+    technicianId: string
   ): Promise<Ticket | null> {
     const existing = await prisma.ticket.findFirst({
       where: { OR: [{ id: ticketId }, { ticketNumber: ticketId }] },
@@ -640,7 +765,7 @@ export class TicketService {
     }
 
     if (existing.currentStatus !== 'ASSIGNED') {
-      throw new Error(`ไม่สามารถรับงานนี้ได้ เนื่องจากสถานะปัจจุบันคือ ${existing.currentStatus}`);
+      throw new Error(`ไม่สามารถรับงานนี้ได้ เนื่องจากสถานะปัจจุบันคือ ${existing.currentStatus} (ต้องอยู่ในสถานะ ASSIGNED เท่านั้น)`);
     }
 
     const updated = await prisma.$transaction(async (tx) => {
@@ -658,7 +783,7 @@ export class TicketService {
 
       if (ongoingTasks.length > 0) {
         throw new Error(
-          `คุณมีงานที่กำลังดำเนินการอยู่ (${ongoingTasks[0].ticketNumber}) กรุณาดำเนินการงานปัจจุบันให้เสร็จก่อนรับงานใหม่`
+          `คุณมีงานที่กำลังดำเนินการอยู่ (${ongoingTasks[0].ticketNumber}) กรุณาดำเนินการงานปัจจุบันให้เสร็จก่อนรับงานใหม่ (BR5)`
         );
       }
 
@@ -715,6 +840,7 @@ export class TicketService {
 
   /**
    * Complete and close ticket with proof photos and repair notes in PostgreSQL (BR8, BR9)
+   * Strictly requires current status to be IN_PROGRESS
    */
   static async closeTicket(
     ticketId: string,
@@ -726,6 +852,11 @@ export class TicketService {
       where: { OR: [{ id: ticketId }, { ticketNumber: ticketId }] },
     });
     if (!existing) return null;
+
+    // Strict State Machine: Must be currently IN_PROGRESS to complete
+    if (existing.currentStatus !== 'IN_PROGRESS') {
+      throw new Error(`ไม่สามารถปิดงานได้ เนื่องจากสถานะปัจจุบันคือ ${existing.currentStatus} (ต้องเป็น IN_PROGRESS เท่านั้น)`);
+    }
 
     const updated = await prisma.$transaction(async (tx) => {
       // 1. Add after repair attachments
@@ -825,7 +956,10 @@ export class TicketService {
     }
 
     // Role-based rule: Reporter can only cancel before work starts (PENDING_DISPATCH or ASSIGNED)
-    if (userRole === 'REPORTER' || (!userRole && userId.includes('reporter'))) {
+    if (userRole === 'REPORTER') {
+      if (existing.reporterUserId !== userId) {
+        throw new Error('คุณไม่มีสิทธิ์ยกเลิกคำร้องของผู้ใช้อื่น');
+      }
       if (existing.currentStatus === 'IN_PROGRESS') {
         throw new Error('ไม่สามารถยกเลิกคำร้องที่ช่างเริ่มปฏิบัติงานแล้วได้ กรุณาประสานงานเจ้าหน้าที่ผู้ดูแล');
       }
@@ -860,7 +994,7 @@ export class TicketService {
           oldStatus: existing.currentStatus,
           newStatus: 'CANCELLED',
           changedByUserId: userId,
-          ticketNotes: `ผู้แจ้งขอยกเลิกคำร้อง: ${reason || 'ไม่มีเหตุผลระบุ'} (UC-5)`,
+          ticketNotes: `ขอยกเลิกคำร้อง: ${reason || 'ไม่มีเหตุผลระบุ'} (UC-5)`,
         },
       });
 

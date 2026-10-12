@@ -25,12 +25,15 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success && data.data.length > 0) {
         setTickets(data.data);
-        // keep current selection if valid
+        const nonCancelled = data.data.filter((t: Ticket) => t.status !== 'CANCELLED');
         const found = selectedTicket
           ? data.data.find((t: Ticket) => t.id === selectedTicket.id)
           : null;
-        if (found) setSelectedTicket(found);
-        else setSelectedTicket(data.data[0]);
+        if (found && found.status !== 'CANCELLED') {
+          setSelectedTicket(found);
+        } else {
+          setSelectedTicket(nonCancelled.length > 0 ? nonCancelled[0] : data.data[0]);
+        }
       } else {
         setTickets([]);
         setSelectedTicket(null);
@@ -80,7 +83,10 @@ export default function AdminPage() {
             />
 
             {selectedTicket && (
-              <TicketVerificationCard ticket={selectedTicket} />
+              <TicketVerificationCard
+                ticket={selectedTicket}
+                onCancelled={() => fetchTickets()}
+              />
             )}
           </div>
 

@@ -25,8 +25,12 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
   const [isCancelling, setIsCancelling] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
 
-  // If no ticket provided, or ticket is completed/cancelled, don't show active tracker
-  if (!ticket || ticket.status === 'COMPLETED' || ticket.status === 'CANCELLED') {
+  React.useEffect(() => {
+    setIsCancelled(false);
+  }, [ticket?.id]);
+
+  // If no ticket provided, don't show tracker
+  if (!ticket) {
     return null;
   }
 
@@ -89,6 +93,10 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
                 ? 'กำลังเข้าซ่อม (In-Progress)'
                 : ticket.status === 'ASSIGNED'
                 ? 'มอบหมายช่างแล้ว (Assigned)'
+                : ticket.status === 'COMPLETED'
+                ? 'ซ่อมเสร็จสิ้น (Completed)'
+                : ticket.status === 'CANCELLED'
+                ? 'ยกเลิกคำร้องแล้ว (Cancelled)'
                 : 'รอการคัดกรอง (Pending)'}
             </span>
             <span className="text-xs font-mono font-medium text-slate-500">
@@ -107,16 +115,32 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
           </div>
         </div>
 
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium shrink-0 ${
-          ticket.urgency === 'CRITICAL'
-            ? 'bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20'
-            : ticket.urgency === 'URGENT'
-            ? 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20'
-            : 'bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200'
-        }`}>
-          <Flame className="w-3.5 h-3.5 mr-1" />
-          {ticket.urgency}
-        </span>
+        <div className="flex flex-wrap gap-1.5 justify-end">
+          {ticket.tags && ticket.tags.length > 0 ? (
+            ticket.tags.map((tag) => (
+              <span
+                key={tag}
+                className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${
+                  tag === 'งานเร่งด่วน'
+                    ? 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20'
+                    : tag === 'งานเร่ง'
+                    ? 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20'
+                    : tag === 'งานจำเป็น'
+                    ? 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20'
+                    : tag === 'งานที่ต้องรออุปกรณ์'
+                    ? 'bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-600/20'
+                    : 'bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200'
+                }`}
+              >
+                {tag}
+              </span>
+            ))
+          ) : (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700">
+              งานทั่วไป
+            </span>
+          )}
+        </div>
       </div>
 
       {/* 4-Step Stepper (UC-2) */}
@@ -222,26 +246,28 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
       )}
 
       {/* Cancellation Notice (UC-5) */}
-      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-start space-x-2">
-          <AlertCircle className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-          <div>
-            <span className="font-semibold text-slate-800">ยกเลิกคำร้อง (UC-5):</span>
-            <p className="text-[11px] text-slate-500">
-              กรณีปัญหาได้รับการแก้ไขแล้ว หรือต้องการยกเลิกคำขอนี้
-            </p>
+      {(ticket.status === 'PENDING_DISPATCH' || ticket.status === 'ASSIGNED') && (
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold text-slate-800">ยกเลิกคำร้อง (UC-5):</span>
+              <p className="text-[11px] text-slate-500">
+                กรณีปัญหาได้รับการแก้ไขแล้ว หรือต้องการยกเลิกคำขอนี้ก่อนช่างเริ่มปฏิบัติงาน
+              </p>
+            </div>
           </div>
-        </div>
 
-        <button
-          type="button"
-          disabled={isCancelling}
-          onClick={handleCancelTicket}
-          className="px-3 py-1.5 rounded-lg border border-rose-200 text-rose-700 bg-white hover:bg-rose-50 text-xs font-medium shrink-0 transition disabled:opacity-50"
-        >
-          {isCancelling ? 'กำลังยกเลิก...' : 'ขอยกเลิกคำร้อง'}
-        </button>
-      </div>
+          <button
+            type="button"
+            disabled={isCancelling}
+            onClick={handleCancelTicket}
+            className="px-3 py-1.5 rounded-lg border border-rose-200 text-rose-700 bg-white hover:bg-rose-50 text-xs font-semibold shrink-0 transition disabled:opacity-50"
+          >
+            {isCancelling ? 'กำลังยกเลิก...' : 'ขอยกเลิกคำร้อง'}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,12 +7,14 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') as TicketStatus | null;
+    const excludeStatus = searchParams.get('excludeStatus') ?? undefined;
     const search = searchParams.get('search') ?? undefined;
     const reporterId = searchParams.get('reporterId') ?? undefined;
     const technicianId = searchParams.get('technicianId') ?? undefined;
 
     const tickets = await TicketService.getTickets({
       status: status || undefined,
+      excludeStatus,
       search,
       reporterId,
       technicianId,
@@ -54,7 +56,6 @@ export async function POST(req: NextRequest) {
       equipmentId: body.equipmentId,
       assetCode: body.assetCode,
       description: body.description.trim(),
-      urgency: body.urgency || 'NORMAL',
       attachmentUrls: body.attachmentUrls || [],
       reporterId: body.reporterId || session.userId,
     });

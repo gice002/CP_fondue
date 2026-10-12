@@ -13,6 +13,7 @@ import { Ticket } from '@/types';
 
 export default function ReporterPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [formKey, setFormKey] = useState(0);
 
@@ -35,11 +36,46 @@ export default function ReporterPage() {
     refreshTickets();
   }, []);
 
-  const activeTicket = tickets.find(
+  const defaultActiveTicket = tickets.find(
     (t) => t.status === 'IN_PROGRESS' || t.status === 'ASSIGNED' || t.status === 'PENDING_DISPATCH'
   );
 
+  const selectedTicket = selectedTicketId
+    ? tickets.find((t) => t.id === selectedTicketId) || defaultActiveTicket
+    : defaultActiveTicket || tickets[0];
+
   const completedTicketForEval = tickets.find((t) => t.status === 'COMPLETED');
+
+  const handleCancelTicket = async (t: Ticket) => {
+    const confirmCancel = confirm(`คุณต้องการขอยกเลิกคำร้อง ${t.ticketNumber} ใช่หรือไม่? (UC-5)`);
+    if (!confirmCancel) return;
+
+    try {
+      const res = await fetch(`/api/tickets/${t.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': 'REPORTER',
+        },
+        body: JSON.stringify({
+          action: 'CANCEL',
+          reason: 'ผู้แจ้งขอยกเลิกคำร้องผ่านหน้าเว็บไซต์',
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert(`ยกเลิกคำร้อง ${t.ticketNumber} เรียบร้อยแล้ว`);
+        setSelectedTicketId(null);
+        refreshTickets();
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาดในการยกเลิก');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่อยกเลิกคำร้องได้');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans">
@@ -68,8 +104,11 @@ export default function ReporterPage() {
           <div className="lg:col-span-7 space-y-6">
             {/* UC-2: Active In-Progress Ticket Tracker */}
             <ActiveTicketTracker
-              ticket={activeTicket}
-              onCancelled={refreshTickets}
+              ticket={selectedTicket}
+              onCancelled={() => {
+                setSelectedTicketId(null);
+                refreshTickets();
+              }}
             />
 
             {/* UC-6 & UC-3: Satisfaction Rating and Feedback */}
@@ -79,7 +118,11 @@ export default function ReporterPage() {
             />
 
             {/* UC-4: Ticket History & Past Requests */}
-            <TicketHistoryTable tickets={tickets} />
+            <TicketHistoryTable
+              tickets={tickets}
+              onSelectTicket={(t) => setSelectedTicketId(t.id)}
+              onCancelTicket={handleCancelTicket}
+            />
           </div>
         </div>
       </main>

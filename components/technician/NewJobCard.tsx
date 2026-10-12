@@ -6,15 +6,28 @@ import { Ticket } from '@/types';
 
 interface NewJobCardProps {
   ticket: Ticket;
+  hasOngoingTask?: boolean;
   onAccepted?: () => void;
 }
 
-export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, onAccepted }) => {
+export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, hasOngoingTask = false, onAccepted }) => {
   const [isAccepted, setIsAccepted] = useState(ticket.status === 'IN_PROGRESS');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  React.useEffect(() => {
+    setIsAccepted(ticket.status === 'IN_PROGRESS');
+    setErrorMessage('');
+  }, [ticket.id, ticket.status]);
 
   const handleAccept = async () => {
+    if (hasOngoingTask && ticket.status !== 'IN_PROGRESS') {
+      alert('คุณมีงานที่กำลังดำเนินการอยู่ กรุณาดำเนินการงานปัจจุบันให้เสร็จก่อนรับงานใหม่');
+      return;
+    }
+
     setIsSubmitting(true);
+    setErrorMessage('');
     try {
       const res = await fetch(`/api/tickets/${ticket.id}`, {
         method: 'PATCH',
@@ -29,9 +42,16 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, onAccepted }) =>
       if (data.success) {
         setIsAccepted(true);
         if (onAccepted) onAccepted();
+      } else {
+        const err = data.error || 'ไม่สามารถรับงานได้';
+        setErrorMessage(err);
+        alert(err);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      const msg = err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์';
+      setErrorMessage(msg);
+      alert(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -44,12 +64,35 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, onAccepted }) =>
         <div className="flex items-center space-x-2">
           <span className="w-2 h-2 rounded-full bg-slate-900"></span>
           <h3 className="text-sm font-bold text-slate-900">
-            คิวงานใหม่ที่ได้รับมอบหมาย (Assigned Work Order)
+            คิวงานที่ได้รับมอบหมาย (Assigned Work Order)
           </h3>
         </div>
-        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20">
-          ด่วนมาก
-        </span>
+        <div className="flex flex-wrap gap-1 justify-end">
+          {ticket.tags && ticket.tags.length > 0 ? (
+            ticket.tags.map((tag) => (
+              <span
+                key={tag}
+                className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                  tag === 'งานเร่งด่วน'
+                    ? 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20'
+                    : tag === 'งานเร่ง'
+                    ? 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20'
+                    : tag === 'งานจำเป็น'
+                    ? 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20'
+                    : tag === 'งานที่ต้องรออุปกรณ์'
+                    ? 'bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-600/20'
+                    : 'bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200'
+                }`}
+              >
+                {tag}
+              </span>
+            ))
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+              งานทั่วไป
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Ticket Details */}
@@ -115,24 +158,42 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, onAccepted }) =>
             </div>
           </div>
         ) : (
-          <div className="flex items-center space-x-3 pt-1">
-            <button
-              type="button"
-              onClick={() => alert('ส่งต่อให้หัวหน้าทีมเพื่อสับเปลี่ยนช่าง')}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs transition"
-            >
-              ส่งต่องาน
-            </button>
+          <div className="space-y-2 pt-1">
+            {hasOngoingTask && (
+              <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                ⚠️ คุณมีงานอื่นที่กำลังปฏิบัติงานอยู่ (จำกัดเริ่มงานครั้งละ 1 งาน) โปรดดำเนินการปิดงานปัจจุบันให้เสร็จสิ้นก่อนรับงานนี้
+              </div>
+            )}
+            {errorMessage && (
+              <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                {errorMessage}
+              </div>
+            )}
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => alert('ส่งต่อให้หัวหน้าทีมเพื่อสับเปลี่ยนช่าง')}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs transition"
+              >
+                ส่งต่องาน
+              </button>
 
-            <button
-              type="button"
-              onClick={handleAccept}
-              disabled={isSubmitting}
-              className="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-98 text-white font-medium text-xs shadow-xs flex items-center justify-center space-x-2 transition disabled:opacity-50"
-            >
-              <Check className="w-3.5 h-3.5" />
-              <span>{isSubmitting ? 'กำลังบันทึก...' : 'กดรับงาน (Accept Job)'}</span>
-            </button>
+              <button
+                type="button"
+                onClick={handleAccept}
+                disabled={isSubmitting || hasOngoingTask}
+                className="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-98 text-white font-medium text-xs shadow-xs flex items-center justify-center space-x-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>
+                  {isSubmitting
+                    ? 'กำลังบันทึก...'
+                    : hasOngoingTask
+                    ? 'ไม่สามารถรับงานซ้อนได้'
+                    : 'กดรับงาน (Accept Job)'}
+                </span>
+              </button>
+            </div>
           </div>
         )}
       </div>

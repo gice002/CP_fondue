@@ -37,7 +37,7 @@ export async function PATCH(
     let updatedTicket = null;
 
     if (action === 'ASSIGN') {
-      // Admin assigns technician (BR4, UC-9)
+      // Admin assigns technician (BR4, UC-9) with workload validation and tags
       if (!body.technicianId) {
         return NextResponse.json({ success: false, error: 'กรุณาระบุช่างผู้รับผิดชอบ' }, { status: 400 });
       }
@@ -45,11 +45,20 @@ export async function PATCH(
       updatedTicket = await TicketService.assignTicket(
         id,
         body.technicianId,
-        body.urgency,
+        body.tags,
         body.targetSlaDate,
         body.adminNotes,
         session.userId
       );
+    } else if (action === 'UNASSIGN') {
+      // Admin unassigns technician to release back to PENDING_DISPATCH
+      updatedTicket = await TicketService.unassignTicket(id, session.userId, body.reason);
+    } else if (action === 'UPDATE_TAGS') {
+      // Admin updates tags
+      if (!Array.isArray(body.tags)) {
+        return NextResponse.json({ success: false, error: 'Tags must be an array' }, { status: 400 });
+      }
+      updatedTicket = await TicketService.updateTicketTags(id, body.tags, session.userId);
     } else if (action === 'ACCEPT') {
       // Technician accepts job (BR5, BR6)
       updatedTicket = await TicketService.acceptTicket(id, body.technicianId || session.userId);
@@ -66,8 +75,8 @@ export async function PATCH(
         session.userId
       );
     } else if (action === 'CANCEL') {
-      // Reporter cancels ticket (UC-5)
-      updatedTicket = await TicketService.cancelTicket(id, body.reason, session.userId);
+      // Cancels ticket (UC-5) with role verification
+      updatedTicket = await TicketService.cancelTicket(id, body.reason, session.userId, session.role);
     } else {
       return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
     }

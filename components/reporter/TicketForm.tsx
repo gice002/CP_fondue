@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MapPin,
   QrCode,
@@ -12,17 +12,16 @@ import {
   ShieldAlert,
   X,
   Laptop,
+  ChevronDown,
 } from 'lucide-react';
-import { TicketUrgency } from '@/types';
 
 interface TicketFormProps {
   onSuccess?: () => void;
 }
 
 export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
-  const [building, setBuilding] = useState('CP-01 อาคารวิทยวิภาส');
-  const [floor, setFloor] = useState('ชั้น 3 (ห้องปฏิบัติการ)');
-  const [room, setRoom] = useState('CP-304 Lab High-Performance Computing');
+  const [locations, setLocations] = useState<Array<{ id: string; building: string; roomName: string; roomNumber: string; floor: string }>>([]);
+  const [selectedLocationId, setSelectedLocationId] = useState('loc_03');
   const [locationDetail, setLocationDetail] = useState(
     'โต๊ะแถวที่ 3 เครื่องฝั่งริมหน้าต่างติดเครื่องปรับอากาศ'
   );
@@ -34,8 +33,6 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
   const [description, setDescription] = useState(
     'เปิดสวิตช์เครื่องแล้วไม่มีไฟเข้าพาวเวอร์ซัพพลาย พัดลมด้านหลังไม่หมุน และมีกลิ่นไหม้ใหม่อ่อน ๆ ตอนแรกคิดว่าปลั๊กไฟหลวมแต่ตรวจสอบสายไฟ AC เสียบแน่นดีแล้วก็ยังไม่ทำงาน'
   );
-
-  const [urgency, setUrgency] = useState<TicketUrgency>('URGENT');
 
   // Attached images
   const [images, setImages] = useState<string[]>([
@@ -49,6 +46,21 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
 
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/locations')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data && data.data.length > 0) {
+          setLocations(data.data);
+          // Default to loc_03 if present, else first
+          const found = data.data.find((l: any) => l.id === 'loc_03');
+          if (found) setSelectedLocationId(found.id);
+          else setSelectedLocationId(data.data[0].id);
+        }
+      })
+      .catch((err) => console.error('Error fetching locations:', err));
+  }, []);
 
   const handleAssetCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -111,12 +123,11 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          locationId: 'loc_03',
+          locationId: selectedLocationId || 'loc_03',
           locationDetail,
           category,
           assetCode: assetId,
           description,
-          urgency,
           attachmentUrls: images,
         }),
       });
@@ -180,84 +191,105 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
 
       <form onSubmit={handleSubmit} className="p-5 space-y-5">
         {/* Section 1: Location */}
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs font-bold text-slate-800">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
+            <div className="flex items-center space-x-2 text-sm font-bold text-slate-800">
               <MapPin className="w-4 h-4 text-blue-600" />
               <span>1. สถานที่เกิดเหตุ / ห้องเรียน</span>
             </div>
-            <span className="text-[11px] font-bold text-red-500">* จำเป็น</span>
+            <span className="inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 ring-1 ring-inset ring-red-600/20">
+              * จำเป็น
+            </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="text-[11px] font-medium text-slate-500 block mb-1">อาคาร</label>
-              <select
-                value={building}
-                onChange={(e) => setBuilding(e.target.value)}
-                className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option>CP-01 อาคารวิทยวิภาส</option>
-                <option>CP-02</option>
-                <option>CP-03</option>
-              </select>
+              <label htmlFor="building-select" className="text-sm font-medium text-gray-700 block mb-1.5">
+                อาคาร <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  id="building-select"
+                  type="text"
+                  readOnly
+                  value="SC-09 อาคารวิทยวิภาส"
+                  className="w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 font-medium cursor-not-allowed focus:outline-none shadow-xs"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="text-[11px] font-medium text-slate-500 block mb-1">ชั้น</label>
-              <select
-                value={floor}
-                onChange={(e) => setFloor(e.target.value)}
-                className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option>ชั้น 1</option>
-                <option>ชั้น 2</option>
-                <option>ชั้น 3 (ห้องปฏิบัติการ)</option>
-                <option>ชั้น 4</option>
-              </select>
+              <label htmlFor="floor-select" className="text-sm font-medium text-gray-700 block mb-1.5">
+                ชั้น <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  id="floor-select"
+                  type="text"
+                  readOnly
+                  value={locations.find((l) => l.id === selectedLocationId)?.floor || 'ชั้น 3'}
+                  className="w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 font-medium cursor-not-allowed focus:outline-none shadow-xs"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="text-[11px] font-medium text-slate-500 block mb-1">เลขที่ห้อง</label>
-              <select
-                value={room}
-                onChange={(e) => setRoom(e.target.value)}
-                className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option>CP-304 Lab High-Performance Computing</option>
-                <option>201 ห้องพักอาจารย์ CS</option>
-                <option>208 ห้องพักอาจารย์ 208</option>
-                <option>405 Lab Comp</option>
-                <option>402 ห้องแล็บเครือข่าย</option>
-              </select>
+              <label htmlFor="room-select" className="text-sm font-medium text-gray-700 block mb-1.5">
+                เลขที่ห้อง / ห้องปฏิบัติการ <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  id="room-select"
+                  value={selectedLocationId}
+                  onChange={(e) => setSelectedLocationId(e.target.value)}
+                  className="w-full appearance-none text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-10 font-medium hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition shadow-xs"
+                >
+                  {locations.length > 0 ? (
+                    locations.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.roomNumber} - {loc.roomName} ({loc.floor})
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="loc_01">101 - ห้องสำนักงานคณบดีและธุรการ (ชั้น 1)</option>
+                      <option value="loc_02">202 - ห้องบรรยาย Smart Classroom 202 (ชั้น 2)</option>
+                      <option value="loc_03">304 - Lab High-Performance Computing (ชั้น 3)</option>
+                      <option value="loc_04">405 - Network Operation Center & Server Room (ชั้น 4)</option>
+                    </>
+                  )}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              </div>
             </div>
           </div>
 
           <div>
-            <label className="text-[11px] font-medium text-slate-500 block mb-1">
+            <label htmlFor="location-detail" className="text-sm font-medium text-gray-700 block mb-1.5">
               จุดสังเกตเฉพาะจุด / ตำแหน่งภายในห้อง
             </label>
-            <input
-              type="text"
+            <textarea
+              id="location-detail"
+              rows={2}
               value={locationDetail}
               onChange={(e) => setLocationDetail(e.target.value)}
-              placeholder="เช่น โต๊ะแถวที่ 3 เครื่องฝั่งริมหน้าต่าง"
-              className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="เช่น โต๊ะแถวที่ 3 เครื่องฝั่งริมหน้าต่างติดเครื่องปรับอากาศ"
+              className="w-full text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-4 py-2.5 font-normal placeholder:text-gray-400 hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition shadow-xs resize-none"
             />
           </div>
         </div>
 
         {/* Section 2: Equipment / Asset */}
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-3">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs font-bold text-slate-800">
+            <div className="flex items-center space-x-2 text-sm font-bold text-slate-800">
               <Laptop className="w-4 h-4 text-blue-600" />
               <span>2. ข้อมูลครุภัณฑ์ / อุปกรณ์</span>
             </div>
             <button
               type="button"
               onClick={() => alert('เปิดกล้องสแกน QR Code ครุภัณฑ์มหาวิทยาลัยขอนแก่น')}
-              className="flex items-center space-x-1 text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md hover:bg-blue-100 transition"
+              className="flex items-center space-x-1 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1.5 rounded-lg hover:bg-blue-100 transition"
             >
               <QrCode className="w-3.5 h-3.5" />
               <span>สแกน QR Code ครุภัณฑ์</span>
@@ -266,34 +298,39 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-medium text-slate-500 block mb-1">หมวดหมู่อุปกรณ์</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option>ระบบคอมพิวเตอร์และเครือข่าย</option>
-                <option>ระบบปรับอากาศ</option>
-                <option>ระบบไฟฟ้าและแสงสว่าง</option>
-                <option>โสตทัศนูปกรณ์</option>
-                <option>อาคารสถานที่และเฟอร์นิเจอร์</option>
-              </select>
+              <label htmlFor="category-select" className="text-sm font-medium text-gray-700 block mb-1.5">หมวดหมู่อุปกรณ์</label>
+              <div className="relative">
+                <select
+                  id="category-select"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full appearance-none text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-10 font-medium hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition shadow-xs"
+                >
+                  <option>ระบบคอมพิวเตอร์และเครือข่าย</option>
+                  <option>ระบบปรับอากาศ</option>
+                  <option>ระบบไฟฟ้าและแสงสว่าง</option>
+                  <option>โสตทัศนูปกรณ์</option>
+                  <option>อาคารสถานที่และเฟอร์นิเจอร์</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              </div>
             </div>
 
             <div>
-              <label className="text-[11px] font-medium text-slate-500 block mb-1">
+              <label htmlFor="asset-id" className="text-sm font-medium text-gray-700 block mb-1.5">
                 รหัสครุภัณฑ์ (CoP Asset ID)
               </label>
               <div className="relative">
                 <input
+                  id="asset-id"
                   type="text"
                   value={assetId}
                   onChange={handleAssetCodeChange}
                   placeholder="เช่น KKU-CP-67-0891"
-                  className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 pr-8 font-mono font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-10 font-mono font-medium placeholder:text-gray-400 hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition shadow-xs"
                 />
                 {isAssetVerified && (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 absolute right-2.5 top-2.5" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 absolute right-3 top-1/2 -translate-y-1/2" />
                 )}
               </div>
             </div>
@@ -316,17 +353,20 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
         {/* Section 3: Problem Description */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-800">
+            <label htmlFor="problem-description" className="text-sm font-bold text-slate-800">
               3. รายละเอียดอาการชำรุด (BR2 บังคับกรอก)
             </label>
-            <span className="text-[11px] font-bold text-red-500">* จำเป็น</span>
+            <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600 ring-1 ring-inset ring-red-600/20">
+              * จำเป็น
+            </span>
           </div>
           <textarea
+            id="problem-description"
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="อธิบายอาการเสีย สภาพที่พบเห็น หรือข้อขัดข้องอย่างละเอียด..."
-            className="w-full text-xs bg-white border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none resize-none leading-relaxed"
+            className="w-full text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-4 py-2.5 placeholder:text-gray-400 hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition shadow-xs resize-none leading-relaxed"
           />
         </div>
 
@@ -392,52 +432,7 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
           </div>
         </div>
 
-        {/* Section 5: Urgency Level */}
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-800 block">
-            5. ระดับความเร่งด่วน (Urgency)
-          </label>
-          <div className="grid grid-cols-3 gap-2.5">
-            <button
-              type="button"
-              onClick={() => setUrgency('NORMAL')}
-              className={`p-3 rounded-xl border text-center transition-all ${
-                urgency === 'NORMAL'
-                  ? 'border-slate-900 bg-slate-900 text-white font-semibold shadow-xs'
-                  : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
-              }`}
-            >
-              <div className="text-xs font-semibold mb-0.5">ทั่วไป (Normal)</div>
-              <div className={`text-[10px] ${urgency === 'NORMAL' ? 'text-slate-300' : 'text-slate-400'}`}>ภายใน 3 วัน</div>
-            </button>
 
-            <button
-              type="button"
-              onClick={() => setUrgency('URGENT')}
-              className={`p-3 rounded-xl border text-center transition-all ${
-                urgency === 'URGENT'
-                  ? 'border-amber-600 bg-amber-500 text-white font-semibold shadow-xs'
-                  : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
-              }`}
-            >
-              <div className="text-xs font-semibold mb-0.5">เร่งด่วน (Urgent)</div>
-              <div className={`text-[10px] ${urgency === 'URGENT' ? 'text-amber-100' : 'text-slate-400'}`}>ภายใน 24 ชม.</div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setUrgency('CRITICAL')}
-              className={`p-3 rounded-xl border text-center transition-all ${
-                urgency === 'CRITICAL'
-                  ? 'border-rose-600 bg-rose-600 text-white font-semibold shadow-xs'
-                  : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
-              }`}
-            >
-              <div className="text-xs font-semibold mb-0.5">ฉุกเฉิน (Critical)</div>
-              <div className={`text-[10px] ${urgency === 'CRITICAL' ? 'text-rose-100' : 'text-slate-400'}`}>ทันที &lt; 2 ชม.</div>
-            </button>
-          </div>
-        </div>
 
         {/* Action Buttons */}
         <div className="pt-2 flex items-center space-x-3">

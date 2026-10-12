@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { Ticket, TicketStatus, TicketUrgency, Evaluation } from '@/types';
+import { Ticket, TicketStatus, TicketUrgency, Evaluation, TAG_PRIORITY_ORDER } from '@/types';
 import { AuditService } from './auditService';
 
 export class TicketService {
@@ -37,18 +37,18 @@ export class TicketService {
         }
       : undefined;
 
-    // Resolve location (either direct location on Ticket or via Equipment)
+    // Resolve location (strictly in SC-09 อาคารวิทยวิภาส)
     const loc = t.location || t.equipment?.location || {
-      id: 'loc_unknown',
-      building: 'อาคารวิทยวิภาส',
+      id: 'loc_01',
+      building: 'SC-09 อาคารวิทยวิภาส',
       floor: 'ชั้น 1',
-      roomNumber: 'กลาง',
-      roomName: 'พื้นที่ส่วนกลาง',
+      roomNumber: '101',
+      roomName: 'ห้องสำนักงานคณบดีและธุรการ',
     };
 
     const locationObj = {
       id: loc.id,
-      building: loc.building || 'CP-01 อาคารวิทยวิภาส',
+      building: loc.building || 'SC-09 อาคารวิทยวิภาส',
       floor: loc.floor || 'ชั้น 1',
       roomNumber: loc.roomNumber || '-',
       roomName: loc.roomName || 'ไม่ระบุห้อง',
@@ -76,6 +76,12 @@ export class TicketService {
           evaluatedAt: t.evaluation.evaluationTime.toISOString(),
         }
       : undefined;
+
+    // Extract real tags from TicketTagMap relation
+    const rawTags: string[] = (t.tags || [])
+      .map((tm: any) => tm.tag?.tagName || tm.tagName || (typeof tm === 'string' ? tm : null))
+      .filter((tag: any): tag is string => Boolean(tag));
+    const finalTags = rawTags.length > 0 ? rawTags : ['งานทั่วไป'];
 
     return {
       id: t.id,
@@ -117,22 +123,16 @@ export class TicketService {
       updatedAt: t.updatedAt.toISOString(),
       completedAt: t.completedAt ? t.completedAt.toISOString() : undefined,
       cancelledAt: t.cancelledAt ? t.cancelledAt.toISOString() : undefined,
-      tags: [
-        t.urgency === 'CRITICAL'
-          ? 'ฉุกเฉิน (Critical)'
-          : t.urgency === 'URGENT'
-          ? 'เร่งด่วน (Urgent)'
-          : 'ปกติ (Normal)',
-        evaluationObj ? `ประเมินแล้ว (${evaluationObj.rating}★)` : 'รอประเมิน',
-      ],
+      tags: finalTags,
     };
   }
 
   /**
-   * Fetch tickets from PostgreSQL with optional filtering
+   * Fetch tickets from PostgreSQL with optional filtering and Tag priority ordering
    */
   static async getTickets(filter?: {
     status?: TicketStatus;
+    excludeStatus?: string;
     reporterId?: string;
     technicianId?: string;
     search?: string;
@@ -141,6 +141,9 @@ export class TicketService {
 
     if (filter?.status) {
       whereClause.currentStatus = filter.status;
+    } else if (filter?.excludeStatus) {
+      const excluded = filter.excludeStatus.split(',').map((s) => s.trim());
+      whereClause.currentStatus = { notIn: excluded };
     }
 
     if (filter?.reporterId) {
@@ -172,6 +175,7 @@ export class TicketService {
         equipment: { include: { location: true } },
         category: true,
         attachments: true,
+        tags: { include: { tag: true } },
         statusHistories: {
           orderBy: { changedAt: 'asc' },
           include: { changedByUser: true },
@@ -181,7 +185,23 @@ export class TicketService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return dbTickets.map((t) => this.mapDbTicketToDomain(t));
+    const domainTickets = dbTickets.map((t) => this.mapDbTicketToDomain(t));
+
+    // Sort by Tag priority (Priority 1 = งานเร่งด่วน is highest, 5 = งานที่ต้องรออุปกรณ์ is lowest)
+    // If multiple tags exist, use the tag with highest priority (lowest number)
+    return domainTickets.sort((a, b) => {
+      const getPriority = (t: Ticket) => {
+        if (!t.tags || t.tags.length === 0) return 99;
+        const priorities = t.tags.map((tag) => TAG_PRIORITY_ORDER[tag] ?? 99);
+        return Math.min(...priorities);
+      };
+      const prioA = getPriority(a);
+      const prioB = getPriority(b);
+      if (prioA !== prioB) {
+        return prioA - prioB;
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
   }
 
   /**
@@ -199,6 +219,7 @@ export class TicketService {
         equipment: { include: { location: true } },
         category: true,
         attachments: true,
+        tags: { include: { tag: true } },
         statusHistories: {
           orderBy: { changedAt: 'asc' },
           include: { changedByUser: true },
@@ -221,7 +242,6 @@ export class TicketService {
     equipmentId?: string;
     assetCode?: string;
     description: string;
-    urgency?: TicketUrgency;
     attachmentUrls?: string[];
     reporterId?: string;
   }): Promise<Ticket> {
@@ -269,27 +289,31 @@ export class TicketService {
       if (eq) equipmentId = eq.id;
     }
 
-    // Resolve location
+    // Resolve location strictly within SC-09 อาคารวิทยวิภาส
     let locationId = dto.locationId;
     if (locationId) {
       const locExists = await prisma.location.findUnique({ where: { id: locationId } });
       if (!locExists) {
-        const firstLoc = await prisma.location.findFirst();
-        locationId = firstLoc?.id || 'loc_01';
+        const sc09Loc = await prisma.location.findFirst({
+          where: { building: { contains: 'SC-09' } },
+        });
+        locationId = sc09Loc?.id || 'loc_01';
       }
     } else {
-      const firstLoc = await prisma.location.findFirst();
-      locationId = firstLoc?.id || 'loc_01';
+      const sc09Loc = await prisma.location.findFirst({
+        where: { building: { contains: 'SC-09' } },
+      });
+      locationId = sc09Loc?.id || 'loc_01';
     }
 
-    // Atomic transaction: Create Ticket + Attachments + Initial Status History + Audit
+    // Atomic transaction: Create Ticket + Default Tag + Attachments + Initial Status History + Audit
     const createdTicket = await prisma.$transaction(async (tx) => {
       const ticket = await tx.ticket.create({
         data: {
           ticketNumber,
           problemDescription: dto.description,
           currentStatus: 'PENDING_DISPATCH',
-          urgency: dto.urgency || 'NORMAL',
+          urgency: 'NORMAL',
           locationDetail: dto.locationDetail || null,
           reporterUserId: reporterUserId!,
           categoryId: categoryRecord!.id,
@@ -313,20 +337,18 @@ export class TicketService {
             },
           },
         },
-        include: {
-          reporter: { include: { department: true } },
-          assignedTechnician: { include: { department: true } },
-          location: true,
-          equipment: { include: { location: true } },
-          category: true,
-          attachments: true,
-          statusHistories: {
-            orderBy: { changedAt: 'asc' },
-            include: { changedByUser: true },
-          },
-          evaluation: true,
-        },
       });
+
+      // Default tag: งานทั่วไป
+      const defaultTag = await tx.tag.findUnique({ where: { tagName: 'งานทั่วไป' } });
+      if (defaultTag) {
+        await tx.ticketTagMap.create({
+          data: {
+            ticketId: ticket.id,
+            tagId: defaultTag.id,
+          },
+        });
+      }
 
       await tx.auditLog.create({
         data: {
@@ -335,25 +357,40 @@ export class TicketService {
           newData: JSON.stringify({
             ticketNumber: ticket.ticketNumber,
             description: ticket.problemDescription,
-            urgency: ticket.urgency,
           }),
           userId: reporterUserId!,
         },
       });
 
-      return ticket;
+      return tx.ticket.findUnique({
+        where: { id: ticket.id },
+        include: {
+          reporter: { include: { department: true } },
+          assignedTechnician: { include: { department: true } },
+          location: true,
+          equipment: { include: { location: true } },
+          category: true,
+          attachments: true,
+          tags: { include: { tag: true } },
+          statusHistories: {
+            orderBy: { changedAt: 'asc' },
+            include: { changedByUser: true },
+          },
+          evaluation: true,
+        },
+      });
     });
 
     return this.mapDbTicketToDomain(createdTicket);
   }
 
   /**
-   * Dispatch & assign ticket to a technician in PostgreSQL (BR4, UC-9)
+   * Dispatch & assign ticket to a technician in PostgreSQL (Queue-based dispatch: unlimited assigned tasks allowed per technician)
    */
   static async assignTicket(
     ticketId: string,
     technicianId: string,
-    urgency?: TicketUrgency,
+    tags?: string[],
     targetSlaDate?: string,
     adminNotes?: string,
     adminUserId: string = 'usr_admin_01'
@@ -367,12 +404,38 @@ export class TicketService {
     if (!tech) throw new Error(`ไม่พบข้อมูลช่างรหัส: ${technicianId}`);
 
     const updated = await prisma.$transaction(async (tx) => {
+      // Note: Admin can assign multiple tickets to the technician queue without restrictions.
+
+      // Update tags if provided by Admin
+      if (tags && Array.isArray(tags)) {
+        await tx.ticketTagMap.deleteMany({
+          where: { ticketId: existing.id },
+        });
+
+        for (const tagName of tags) {
+          let tagRecord = await tx.tag.findUnique({ where: { tagName } });
+          if (!tagRecord) {
+            tagRecord = await tx.tag.create({ data: { tagName } });
+          }
+          await tx.ticketTagMap.create({
+            data: { ticketId: existing.id, tagId: tagRecord.id },
+          });
+        }
+      }
+
+      // Update equipment status to "ชำรุดรอซ่อม" if equipment is associated (Requirement 5 & 6)
+      if (existing.equipmentId) {
+        await tx.equipment.update({
+          where: { id: existing.equipmentId },
+          data: { equipmentStatus: 'ชำรุดรอซ่อม' },
+        });
+      }
+
       const t = await tx.ticket.update({
         where: { id: existing.id },
         data: {
           assignedTechnicianId: technicianId,
           currentStatus: 'ASSIGNED',
-          urgency: urgency || existing.urgency,
           targetSlaDate: targetSlaDate ? new Date(targetSlaDate) : existing.targetSlaDate,
           adminNotes: adminNotes || existing.adminNotes,
         },
@@ -383,6 +446,7 @@ export class TicketService {
           equipment: { include: { location: true } },
           category: true,
           attachments: true,
+          tags: { include: { tag: true } },
           statusHistories: {
             orderBy: { changedAt: 'asc' },
             include: { changedByUser: true },
@@ -406,7 +470,7 @@ export class TicketService {
           tableName: 'tickets',
           commandUsed: 'UPDATE_ASSIGN',
           oldData: JSON.stringify({ status: existing.currentStatus }),
-          newData: JSON.stringify({ status: 'ASSIGNED', assignedTo: tech.email }),
+          newData: JSON.stringify({ status: 'ASSIGNED', assignedTo: tech.email, tags }),
           userId: adminUserId,
         },
       });
@@ -418,7 +482,144 @@ export class TicketService {
   }
 
   /**
+   * Unassign technician from ticket and release back to PENDING_DISPATCH
+   */
+  static async unassignTicket(
+    ticketId: string,
+    adminUserId: string = 'usr_admin_01',
+    reason?: string
+  ): Promise<Ticket | null> {
+    const existing = await prisma.ticket.findFirst({
+      where: { OR: [{ id: ticketId }, { ticketNumber: ticketId }] },
+      include: { assignedTechnician: true },
+    });
+    if (!existing) return null;
+
+    if (existing.currentStatus === 'COMPLETED' || existing.currentStatus === 'CANCELLED') {
+      throw new Error('ไม่สามารถปลดการมอบหมายงานที่เสร็จสิ้นหรือถูกยกเลิกแล้วได้');
+    }
+
+    const prevTechName = existing.assignedTechnician
+      ? `${existing.assignedTechnician.firstName} ${existing.assignedTechnician.lastName}`
+      : 'ช่างเดิม';
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const t = await tx.ticket.update({
+        where: { id: existing.id },
+        data: {
+          assignedTechnicianId: null,
+          currentStatus: 'PENDING_DISPATCH',
+        },
+        include: {
+          reporter: { include: { department: true } },
+          assignedTechnician: { include: { department: true } },
+          location: true,
+          equipment: { include: { location: true } },
+          category: true,
+          attachments: true,
+          tags: { include: { tag: true } },
+          statusHistories: {
+            orderBy: { changedAt: 'asc' },
+            include: { changedByUser: true },
+          },
+          evaluation: true,
+        },
+      });
+
+      await tx.ticketStatusHistory.create({
+        data: {
+          ticketId: existing.id,
+          oldStatus: existing.currentStatus,
+          newStatus: 'PENDING_DISPATCH',
+          changedByUserId: adminUserId,
+          ticketNotes: `จนท. ปลดการมอบหมายจาก ${prevTechName} เพื่อจัดสรรงานใหม่: ${reason || 'ปรับสมดุลภาระงาน'}`,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          tableName: 'tickets',
+          commandUsed: 'UPDATE_UNASSIGN',
+          oldData: JSON.stringify({ status: existing.currentStatus, assignedTechnicianId: existing.assignedTechnicianId }),
+          newData: JSON.stringify({ status: 'PENDING_DISPATCH', assignedTechnicianId: null }),
+          userId: adminUserId,
+        },
+      });
+
+      return t;
+    });
+
+    return this.mapDbTicketToDomain(updated);
+  }
+
+  /**
+   * Update tags for a ticket by Admin
+   */
+  static async updateTicketTags(
+    ticketId: string,
+    tags: string[],
+    adminUserId: string = 'usr_admin_01'
+  ): Promise<Ticket | null> {
+    const existing = await prisma.ticket.findFirst({
+      where: { OR: [{ id: ticketId }, { ticketNumber: ticketId }] },
+    });
+    if (!existing) return null;
+
+    const updated = await prisma.$transaction(async (tx) => {
+      await tx.ticketTagMap.deleteMany({
+        where: { ticketId: existing.id },
+      });
+
+      for (const tagName of tags) {
+        let tagRecord = await tx.tag.findUnique({ where: { tagName } });
+        if (!tagRecord) {
+          tagRecord = await tx.tag.create({ data: { tagName } });
+        }
+        await tx.ticketTagMap.create({
+          data: { ticketId: existing.id, tagId: tagRecord.id },
+        });
+      }
+
+      const t = await tx.ticket.findUnique({
+        where: { id: existing.id },
+        include: {
+          reporter: { include: { department: true } },
+          assignedTechnician: { include: { department: true } },
+          location: true,
+          equipment: { include: { location: true } },
+          category: true,
+          attachments: true,
+          tags: { include: { tag: true } },
+          statusHistories: {
+            orderBy: { changedAt: 'asc' },
+            include: { changedByUser: true },
+          },
+          evaluation: true,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          tableName: 'ticket_tag_maps',
+          commandUsed: 'UPDATE_TAGS',
+          newData: JSON.stringify({ ticketId: existing.id, tags }),
+          userId: adminUserId,
+        },
+      });
+
+      return t;
+    });
+
+    return this.mapDbTicketToDomain(updated);
+  }
+
+
+  /**
    * Technician accepts job in PostgreSQL (BR5, BR6)
+   */
+  /**
+   * Technician accepts job in PostgreSQL (BR5, BR6)
+   * Strictly enforces max 1 IN_PROGRESS task per technician with PostgreSQL row-level locks
    */
   static async acceptTicket(
     ticketId: string,
@@ -429,11 +630,44 @@ export class TicketService {
     });
     if (!existing) return null;
 
+    // Must be assigned to this technician
+    if (existing.assignedTechnicianId && existing.assignedTechnicianId !== technicianId) {
+      throw new Error('ไม่สามารถรับงานนี้ได้ เนื่องจากถูกมอบหมายให้ช่างคนอื่น');
+    }
+
+    if (existing.currentStatus === 'IN_PROGRESS') {
+      return this.mapDbTicketToDomain(existing);
+    }
+
+    if (existing.currentStatus !== 'ASSIGNED') {
+      throw new Error(`ไม่สามารถรับงานนี้ได้ เนื่องจากสถานะปัจจุบันคือ ${existing.currentStatus}`);
+    }
+
     const updated = await prisma.$transaction(async (tx) => {
+      // 1. Lock technician user row to serialize concurrent accept requests for the same technician
+      await tx.$executeRaw`SELECT 1 FROM users WHERE user_id = ${technicianId} FOR UPDATE`;
+
+      // 2. Concurrency-safe verification: check if technician already has any task in progress
+      const ongoingTasks = await tx.ticket.findMany({
+        where: {
+          assignedTechnicianId: technicianId,
+          currentStatus: 'IN_PROGRESS',
+        },
+        select: { id: true, ticketNumber: true },
+      });
+
+      if (ongoingTasks.length > 0) {
+        throw new Error(
+          `คุณมีงานที่กำลังดำเนินการอยู่ (${ongoingTasks[0].ticketNumber}) กรุณาดำเนินการงานปัจจุบันให้เสร็จก่อนรับงานใหม่`
+        );
+      }
+
+      // 3. Update ticket status to IN_PROGRESS
       const t = await tx.ticket.update({
         where: { id: existing.id },
         data: {
           currentStatus: 'IN_PROGRESS',
+          assignedTechnicianId: technicianId,
         },
         include: {
           reporter: { include: { department: true } },
@@ -442,6 +676,7 @@ export class TicketService {
           equipment: { include: { location: true } },
           category: true,
           attachments: true,
+          tags: { include: { tag: true } },
           statusHistories: {
             orderBy: { changedAt: 'asc' },
             include: { changedByUser: true },
@@ -471,6 +706,8 @@ export class TicketService {
       });
 
       return t;
+    }, {
+      isolationLevel: 'Serializable',
     });
 
     return this.mapDbTicketToDomain(updated);
@@ -520,6 +757,7 @@ export class TicketService {
           equipment: { include: { location: true } },
           category: true,
           attachments: true,
+          tags: { include: { tag: true } },
           statusHistories: {
             orderBy: { changedAt: 'asc' },
             include: { changedByUser: true },
@@ -550,6 +788,14 @@ export class TicketService {
         },
       });
 
+      // 5. Update equipment status back to "ใช้งานได้ปกติ" if attached
+      if (existing.equipmentId) {
+        await tx.equipment.update({
+          where: { id: existing.equipmentId },
+          data: { equipmentStatus: 'ใช้งานได้ปกติ' },
+        });
+      }
+
       return t;
     });
 
@@ -562,7 +808,8 @@ export class TicketService {
   static async cancelTicket(
     ticketId: string,
     reason?: string,
-    userId: string = 'usr_reporter_01'
+    userId: string = 'usr_reporter_01',
+    userRole?: string
   ): Promise<Ticket | null> {
     const existing = await prisma.ticket.findFirst({
       where: { OR: [{ id: ticketId }, { ticketNumber: ticketId }] },
@@ -571,6 +818,17 @@ export class TicketService {
 
     if (existing.currentStatus === 'COMPLETED') {
       throw new Error('ไม่สามารถยกเลิกคำร้องที่ดำเนินการเสร็จสิ้นแล้วได้');
+    }
+
+    if (existing.currentStatus === 'CANCELLED') {
+      throw new Error('คำร้องนี้ถูกยกเลิกไปแล้ว');
+    }
+
+    // Role-based rule: Reporter can only cancel before work starts (PENDING_DISPATCH or ASSIGNED)
+    if (userRole === 'REPORTER' || (!userRole && userId.includes('reporter'))) {
+      if (existing.currentStatus === 'IN_PROGRESS') {
+        throw new Error('ไม่สามารถยกเลิกคำร้องที่ช่างเริ่มปฏิบัติงานแล้วได้ กรุณาประสานงานเจ้าหน้าที่ผู้ดูแล');
+      }
     }
 
     const updated = await prisma.$transaction(async (tx) => {
@@ -587,6 +845,7 @@ export class TicketService {
           equipment: { include: { location: true } },
           category: true,
           attachments: true,
+          tags: { include: { tag: true } },
           statusHistories: {
             orderBy: { changedAt: 'asc' },
             include: { changedByUser: true },

@@ -5,7 +5,17 @@ export class UserService {
   /**
    * Get all technicians and their live task workloads from PostgreSQL (UC-9)
    */
-  static async getTechnicians(): Promise<(User & { activeTasks: number; isAvailable: boolean; specialty?: string })[]> {
+  /**
+   * Get all technicians and their live task workloads from PostgreSQL (UC-9)
+   * Separates total assigned/queued tasks from in-progress tasks
+   */
+  static async getTechnicians(): Promise<(User & {
+    activeTasks: number;
+    inProgressCount: number;
+    queuedCount: number;
+    isAvailable: boolean;
+    specialty?: string;
+  })[]> {
     const techUsers = await prisma.user.findMany({
       where: { role: 'TECHNICIAN' },
       include: {
@@ -14,12 +24,15 @@ export class UserService {
           where: {
             currentStatus: { in: ['ASSIGNED', 'IN_PROGRESS'] },
           },
+          select: { id: true, currentStatus: true },
         },
       },
       orderBy: { firstName: 'asc' },
     });
 
     return techUsers.map((u) => {
+      const inProgressCount = u.assignedTickets.filter((t) => t.currentStatus === 'IN_PROGRESS').length;
+      const queuedCount = u.assignedTickets.filter((t) => t.currentStatus === 'ASSIGNED').length;
       const activeTasks = u.assignedTickets.length;
       return {
         id: u.id,
@@ -30,7 +43,10 @@ export class UserService {
         roleCode: 'TECHNICIAN',
         departmentName: u.department?.departmentName || 'ฝ่ายปฏิบัติการ',
         activeTasks,
-        isAvailable: activeTasks === 0,
+        inProgressCount,
+        queuedCount,
+        // isAvailable: true if technician is not currently executing an in-progress task
+        isAvailable: inProgressCount === 0,
         specialty: u.id === 'usr_tech_01'
           ? 'ผู้เชี่ยวชาญ Switch/Router & LAN'
           : u.id === 'usr_tech_02'

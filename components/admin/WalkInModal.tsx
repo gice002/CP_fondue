@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Plus, AlertTriangle } from 'lucide-react';
-import { TicketUrgency } from '@/types';
+import { STANDARD_TAGS, StandardTag } from '@/types';
 
 interface WalkInModalProps {
   isOpen: boolean;
@@ -12,8 +12,8 @@ interface WalkInModalProps {
 
 export const WalkInModal: React.FC<WalkInModalProps> = ({ isOpen, onClose, onCreated }) => {
   const [description, setDescription] = useState('');
-  const [room, setRoom] = useState('CP-304');
-  const [urgency, setUrgency] = useState<TicketUrgency>('URGENT');
+  const [locationId, setLocationId] = useState('loc_03');
+  const [selectedTag, setSelectedTag] = useState<StandardTag>('งานเร่งด่วน');
   const [reporterName, setReporterName] = useState('ผู้ติดต่อ Walk-in หน้าเคาน์เตอร์');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,15 +32,26 @@ export const WalkInModal: React.FC<WalkInModalProps> = ({ isOpen, onClose, onCre
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          locationId: 'loc_03',
-          locationDetail: `Walk-in แจ้งที่ห้อง ${room}`,
+          locationId,
+          locationDetail: `Walk-in ติดต่อแจ้งที่อาคาร SC-09 อาคารวิทยวิภาส`,
           category: 'งานฉุกเฉินเฉพาะหน้า (Walk-in)',
           description: `[Walk-in โดย ${reporterName}] ${description}`,
-          urgency,
+          attachmentUrls: [],
         }),
       });
       const data = await res.json();
       if (data.success) {
+        // Update tags for walk-in if needed
+        if (data.data?.id && selectedTag) {
+          await fetch(`/api/tickets/${data.data.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'UPDATE_TAGS',
+              tags: [selectedTag],
+            }),
+          });
+        }
         onCreated();
         onClose();
       }
@@ -89,29 +100,31 @@ export const WalkInModal: React.FC<WalkInModalProps> = ({ isOpen, onClose, onCre
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="font-bold text-slate-700 block mb-1">สถานที่ / ห้อง:</label>
+              <label className="font-bold text-slate-700 block mb-1">สถานที่ / ห้อง (SC-09):</label>
               <select
-                value={room}
-                onChange={(e) => setRoom(e.target.value)}
+                value={locationId}
+                onChange={(e) => setLocationId(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-blue-500 font-medium"
               >
-                <option value="CP-304">CP-304 Lab High-Performance</option>
-                <option value="208">208 ห้องพักอาจารย์</option>
-                <option value="405">405 Lab Comp</option>
-                <option value="402">402 ห้องแล็บเครือข่าย</option>
+                <option value="loc_01">101 ห้องธุรการ (ชั้น 1)</option>
+                <option value="loc_02">202 Smart Classroom (ชั้น 2)</option>
+                <option value="loc_03">304 Lab High-Performance (ชั้น 3)</option>
+                <option value="loc_04">405 Network NOC (ชั้น 4)</option>
               </select>
             </div>
 
             <div>
-              <label className="font-bold text-slate-700 block mb-1">ความเร่งด่วน:</label>
+              <label className="font-bold text-slate-700 block mb-1">กำหนด Tag ลำดับความสำคัญ:</label>
               <select
-                value={urgency}
-                onChange={(e) => setUrgency(e.target.value as TicketUrgency)}
+                value={selectedTag}
+                onChange={(e) => setSelectedTag(e.target.value as StandardTag)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-blue-500 font-medium"
               >
-                <option value="CRITICAL">ฉุกเฉินมาก (&lt; 2 ชม.)</option>
-                <option value="URGENT">เร่งด่วน (24 ชม.)</option>
-                <option value="NORMAL">ปกติ (3 วัน)</option>
+                {STANDARD_TAGS.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

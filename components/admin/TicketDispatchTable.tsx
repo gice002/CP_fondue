@@ -20,6 +20,9 @@ export const TicketDispatchTable: React.FC<TicketDispatchTableProps> = ({
   const [buildingFilter, setBuildingFilter] = useState('ALL');
 
   const filteredTickets = tickets.filter((t) => {
+    // Exclude cancelled tickets from Admin dispatch queue
+    if (t.status === 'CANCELLED') return false;
+
     const matchesSearch =
       t.ticketNumber.toLowerCase().includes(search.toLowerCase()) ||
       t.reporter.firstName.toLowerCase().includes(search.toLowerCase()) ||
@@ -67,16 +70,14 @@ export const TicketDispatchTable: React.FC<TicketDispatchTableProps> = ({
               onChange={(e) => setBuildingFilter(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-slate-700 font-medium outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="ALL">ทุกอาคาร (CP-01, 02, 03)</option>
-              <option value="CP-01">CP-01</option>
-              <option value="CP-02">CP-02</option>
-              <option value="CP-03">CP-03</option>
+              <option value="ALL">อาคารทั้งหมด (SC-09)</option>
+              <option value="SC-09">SC-09 อาคารวิทยวิภาส</option>
             </select>
           </div>
 
           <div>
             <select className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-slate-700 font-medium outline-none focus:ring-2 focus:ring-blue-500">
-              <option>รอดำเนินการ / มอบหมาย (5)</option>
+              <option>รอดำเนินการ / มอบหมาย</option>
               <option>กำลังปฏิบัติงาน</option>
               <option>เสร็จสิ้นแล้ว</option>
             </select>
@@ -110,7 +111,7 @@ export const TicketDispatchTable: React.FC<TicketDispatchTableProps> = ({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
           <h3 className="text-sm font-extrabold text-slate-900">
-            ตารางรายการคำร้องแจ้งซ่อมใหม่
+            ตารางรายการคำร้องแจ้งซ่อมใหม่ (SC-09 อาคารวิทยวิภาส)
           </h3>
           <span className="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
             {filteredTickets.length} รายการรอดำเนินการ
@@ -132,7 +133,7 @@ export const TicketDispatchTable: React.FC<TicketDispatchTableProps> = ({
               <th className="py-2.5 px-3">ผู้แจ้ง &amp; สังกัด</th>
               <th className="py-2.5 px-3">สถานที่</th>
               <th className="py-2.5 px-3">ครุภัณฑ์ / อาการขัดข้อง</th>
-              <th className="py-2.5 px-3 text-center">ระดับความเร่งด่วน</th>
+              <th className="py-2.5 px-3 text-center">Tags / ความสำคัญ</th>
               <th className="py-2.5 px-3 text-center">จัดการ</th>
             </tr>
           </thead>
@@ -153,7 +154,7 @@ export const TicketDispatchTable: React.FC<TicketDispatchTableProps> = ({
                       <span>{t.ticketNumber}</span>
                     </div>
                     <div className="text-[10px] text-slate-400 mt-0.5 font-medium">
-                      18 พ.ค. 09:30 น.
+                      {new Date(t.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                     </div>
                   </td>
 
@@ -183,15 +184,32 @@ export const TicketDispatchTable: React.FC<TicketDispatchTableProps> = ({
                   </td>
 
                   <td className="py-3 px-3 text-center whitespace-nowrap">
-                    {t.urgency === 'CRITICAL' ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-red-100 text-red-800 border border-red-200">
-                        เร่งด่วนสูงสุด (High)
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-700">
-                        ปกติ (Normal)
-                      </span>
-                    )}
+                    <div className="flex flex-wrap gap-1 justify-center">
+                      {t.tags && t.tags.length > 0 ? (
+                        t.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                              tag === 'งานเร่งด่วน'
+                                ? 'bg-red-50 text-red-700 border border-red-200'
+                                : tag === 'งานเร่ง'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : tag === 'งานจำเป็น'
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                : tag === 'งานที่ต้องรออุปกรณ์'
+                                ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                                : 'bg-slate-100 text-slate-600 border border-slate-200'
+                            }`}
+                          >
+                            {tag}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">
+                          งานทั่วไป
+                        </span>
+                      )}
+                    </div>
                   </td>
 
                   <td className="py-3 px-3 text-center whitespace-nowrap">

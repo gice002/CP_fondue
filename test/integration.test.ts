@@ -41,7 +41,6 @@ async function runTestSuite() {
       locationDetail: 'โต๊ะคอมพิวเตอร์แถวที่ 2',
       category: 'ระบบคอมพิวเตอร์และเครือข่าย',
       description: 'ทดสอบระบบแจ้งซ่อมอัตโนมัติผ่าน Prisma ORM',
-      urgency: 'URGENT',
       attachmentUrls: ['https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600'],
       reporterId: 'usr_reporter_01',
     });
@@ -69,32 +68,129 @@ async function runTestSuite() {
     // -----------------------------------------------------------------
     // TEST 4: Assign Technician (BR4, UC-9)
     // -----------------------------------------------------------------
-    console.log('\n--- TEST GROUP 2: Ticket Lifecycle Transitions ---');
+    // -----------------------------------------------------------------
+    // TEST 4: Queue-based Multiple Assignment (Req 1.1)
+    // -----------------------------------------------------------------
+    console.log('\n--- TEST GROUP 2: Queue-based Multi-Assignment & Single Active Task ---');
+
+    // Ensure technician 02 has completed any existing in-progress tasks before test
+    await prisma.ticket.updateMany({
+      where: { assignedTechnicianId: 'usr_tech_02', currentStatus: 'IN_PROGRESS' },
+      data: { currentStatus: 'COMPLETED' },
+    });
+
+    // Create 3 tickets for technician queue testing
+    const ticketA = await TicketService.createTicket({
+      locationId: 'loc_01',
+      description: 'งาน A สำหรับทดสอบคิวช่าง',
+      reporterId: 'usr_reporter_01',
+    });
+    const ticketB = await TicketService.createTicket({
+      locationId: 'loc_02',
+      description: 'งาน B สำหรับทดสอบคิวช่าง',
+      reporterId: 'usr_reporter_01',
+    });
+    const ticketC = await TicketService.createTicket({
+      locationId: 'loc_03',
+      description: 'งาน C สำหรับทดสอบคิวช่าง',
+      reporterId: 'usr_reporter_01',
+    });
+
+    // 1. Assign all 3 tickets to the same technician (usr_tech_02)
+    const assignA = await TicketService.assignTicket(ticketA.id, 'usr_tech_02', ['งานเร่งด่วน']);
+    const assignB = await TicketService.assignTicket(ticketB.id, 'usr_tech_02', ['งานเร่ง']);
+    const assignC = await TicketService.assignTicket(ticketC.id, 'usr_tech_02', ['งานทั่วไป']);
+
+    assert(assignA?.status === 'ASSIGNED' && assignA.assignedTechnician?.id === 'usr_tech_02', 'Admin assigned Ticket A to tech 02 successfully');
+    assert(assignB?.status === 'ASSIGNED' && assignB.assignedTechnician?.id === 'usr_tech_02', 'Admin assigned Ticket B to tech 02 successfully');
+    assert(assignC?.status === 'ASSIGNED' && assignC.assignedTechnician?.id === 'usr_tech_02', 'Admin assigned Ticket C to tech 02 successfully (unlimited queue)');
+
+    // 2. Verify all 3 appear in tech's queue from DB
+    const techTickets = await TicketService.getTickets({ technicianId: 'usr_tech_02' });
+    const queuedIds = techTickets.map((t) => t.id);
+    assert(queuedIds.includes(ticketA.id) && queuedIds.includes(ticketB.id) && queuedIds.includes(ticketC.id), 'All 3 tickets exist in technician queue from PostgreSQL');
+
+    // 3. Technician accepts Ticket A
+    const acceptedA = await TicketService.acceptTicket(ticketA.id, 'usr_tech_02');
+    assert(acceptedA?.status === 'IN_PROGRESS', 'Technician successfully accepted Ticket A into IN_PROGRESS');
+
+    // 4. While Ticket A is IN_PROGRESS, attempt to accept Ticket B or C -> MUST BE REJECTED
+    let acceptBRejected = false;
+    try {
+      await TicketService.acceptTicket(ticketB.id, 'usr_tech_02');
+    } catch (err: any) {
+      acceptBRejected = true;
+      assert(err.message.includes('คุณมีงานที่กำลังดำเนินการอยู่'), 'Error message warns about existing ongoing task');
+    }
+    assert(acceptBRejected, 'Accepting Ticket B while Ticket A is IN_PROGRESS is strictly rejected by Backend');
+
+    // 5. Verify Ticket B status is still ASSIGNED and unchanged
+    const ticketBCheck = await TicketService.getTicketById(ticketB.id);
+    assert(ticketBCheck?.status === 'ASSIGNED', 'Ticket B status remains ASSIGNED and undisturbed');
+
+    // 6. Concurrency test: simulate two concurrent accept calls
+    let concurrentRejections = 0;
+    const concurrentResults = await Promise.allSettled([
+      TicketService.acceptTicket(ticketB.id, 'usr_tech_02'),
+      TicketService.acceptTicket(ticketC.id, 'usr_tech_02'),
+    ]);
+    concurrentResults.forEach((r) => {
+      if (r.status === 'rejected') concurrentRejections++;
+    });
+    assert(concurrentRejections === 2, 'Concurrent accept requests while task active are safely rejected');
+
+    // 7. Close Ticket A -> Technician is now free to accept next task
+    const closedA = await TicketService.closeTicket(
+      ticketA.id,
+      'ปิดงาน A เรียบร้อย',
+      ['https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600'],
+      'usr_tech_02'
+    );
+    assert(closedA?.status === 'COMPLETED', 'Ticket A successfully COMPLETED');
+
+    // 8. Now technician can accept Ticket B
+    const acceptedB = await TicketService.acceptTicket(ticketB.id, 'usr_tech_02');
+    assert(acceptedB?.status === 'IN_PROGRESS', 'Technician successfully accepted Ticket B after closing Ticket A');
+
+    // 9. Ticket C remains in queue
+    const ticketCCheck = await TicketService.getTicketById(ticketC.id);
+    assert(ticketCCheck?.status === 'ASSIGNED', 'Ticket C still in queue waiting');
+
+    // 10. Admin can still assign additional ticket even while tech has an active task and queue
+    const ticketD = await TicketService.createTicket({
+      locationId: 'loc_04',
+      description: 'งาน D มอบหมายเพิ่มขณะช่างกำลังทำงาน B',
+      reporterId: 'usr_reporter_01',
+    });
+    const assignD = await TicketService.assignTicket(ticketD.id, 'usr_tech_02', ['งานจำเป็น']);
+    assert(assignD?.status === 'ASSIGNED', 'Admin can assign additional ticket D while tech is busy');
+
+    // Clean up extra queue test tickets
+    await TicketService.closeTicket(ticketB.id, 'ปิดงาน B', [], 'usr_tech_02');
+    await prisma.ticket.delete({ where: { id: ticketA.id } });
+    await prisma.ticket.delete({ where: { id: ticketB.id } });
+    await prisma.ticket.delete({ where: { id: ticketC.id } });
+    await prisma.ticket.delete({ where: { id: ticketD.id } });
+
+    // Continue with original single lifecycle flow for newTicket
     const assignedTicket = await TicketService.assignTicket(
       newTicket.id,
-      'usr_tech_01',
-      'CRITICAL',
+      'usr_tech_02',
+      ['งานเร่งด่วน'],
       '2026-10-15T14:00:00Z',
-      'จนท. มอบหมายงานด่วนให้ช่างอนุชา'
+      'จนท. มอบหมายงานด่วนให้ช่างสมศักดิ์'
     );
     assert(assignedTicket !== null, 'Ticket assigned successfully');
     assert(assignedTicket?.status === 'ASSIGNED', 'Ticket status updated to ASSIGNED');
-    assert(assignedTicket?.assignedTechnician?.id === 'usr_tech_01', 'Assigned technician foreign key persisted');
 
-    // -----------------------------------------------------------------
-    // TEST 5: Accept Job (BR5, BR6)
-    // -----------------------------------------------------------------
-    const acceptedTicket = await TicketService.acceptTicket(newTicket.id, 'usr_tech_01');
+    const acceptedTicket = await TicketService.acceptTicket(newTicket.id, 'usr_tech_02');
     assert(acceptedTicket !== null && acceptedTicket.status === 'IN_PROGRESS', 'Technician accept status is IN_PROGRESS');
 
-    // -----------------------------------------------------------------
-    // TEST 6: Close Job with Repair Notes & Proof Photo (BR8, BR9)
-    // -----------------------------------------------------------------
     const closedTicket = await TicketService.closeTicket(
       newTicket.id,
       'ซ่อมแซมและเปลี่ยนชิ้นส่วนเรียบร้อยแล้ว ทดสอบใช้งานได้ปกติ',
       ['https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600'],
-      'usr_tech_01'
+      'usr_tech_02'
     );
     assert(closedTicket !== null && closedTicket.status === 'COMPLETED', 'Ticket closed status is COMPLETED');
     assert(closedTicket?.completedAt !== undefined, 'completedAt timestamp is recorded in database');

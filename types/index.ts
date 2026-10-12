@@ -15,6 +15,24 @@ export type RequisitionStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export type AttachmentPhase = 'BEFORE_REPAIR' | 'AFTER_REPAIR';
 
+export const STANDARD_TAGS = [
+  'งานเร่งด่วน',
+  'งานเร่ง',
+  'งานจำเป็น',
+  'งานทั่วไป',
+  'งานที่ต้องรออุปกรณ์',
+] as const;
+
+export type StandardTag = (typeof STANDARD_TAGS)[number];
+
+export const TAG_PRIORITY_ORDER: Record<string, number> = {
+  'งานเร่งด่วน': 1,
+  'งานเร่ง': 2,
+  'งานจำเป็น': 3,
+  'งานทั่วไป': 4,
+  'งานที่ต้องรออุปกรณ์': 5,
+};
+
 export interface User {
   id: string;
   firstName: string;
@@ -191,3 +209,36 @@ export interface ExecutiveStats {
   totalPartsCost: number;
   totalRequisitions: number;
 }
+
+// ----------------------------------------------------
+// Asset Management Types
+// ----------------------------------------------------
+export interface AssetStatus {
+  id: number;
+  name: string;
+}
+
+export interface AssetStatusHistory {
+  id: number;
+  assetId: number;
+  changedById: string;
+  oldStatus: string;
+  newStatus: string;
+  changedAt: string;
+  changedBy?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+export interface Asset {
+  id: number;
+  assetCode: string;
+  name: string;
+  statusId: number;
+  status?: AssetStatus;
+  histories?: AssetStatusHistory[];
+}
+

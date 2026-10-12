@@ -139,28 +139,28 @@ async function main() {
   const locations = [
     {
       id: 'loc_01',
-      building: 'CP-01 อาคารวิทยวิภาส',
+      building: 'SC-09 อาคารวิทยวิภาส',
       floor: 'ชั้น 1',
       roomNumber: '101',
       roomName: 'ห้องสำนักงานคณบดีและธุรการ',
     },
     {
       id: 'loc_02',
-      building: 'CP-01 อาคารวิทยวิภาส',
+      building: 'SC-09 อาคารวิทยวิภาส',
       floor: 'ชั้น 2',
       roomNumber: '202',
       roomName: 'ห้องบรรยาย Smart Classroom 202',
     },
     {
       id: 'loc_03',
-      building: 'CP-01 อาคารวิทยวิภาส',
+      building: 'SC-09 อาคารวิทยวิภาส',
       floor: 'ชั้น 3',
       roomNumber: '304',
       roomName: 'Lab High-Performance Computing',
     },
     {
       id: 'loc_04',
-      building: 'CP-02 อาคารศูนย์สารสนเทศ',
+      building: 'SC-09 อาคารวิทยวิภาส',
       floor: 'ชั้น 4',
       roomNumber: '405',
       roomName: 'Network Operation Center & Server Room',
@@ -172,6 +172,23 @@ async function main() {
       where: { id: loc.id },
       update: loc,
       create: loc,
+    });
+  }
+
+  // 4.1 Standard Tags
+  const standardTags = [
+    { id: 'tag_01', tagName: 'งานเร่งด่วน' },
+    { id: 'tag_02', tagName: 'งานเร่ง' },
+    { id: 'tag_03', tagName: 'งานจำเป็น' },
+    { id: 'tag_04', tagName: 'งานทั่วไป' },
+    { id: 'tag_05', tagName: 'งานที่ต้องรออุปกรณ์' },
+  ];
+
+  for (const tg of standardTags) {
+    await prisma.tag.upsert({
+      where: { tagName: tg.tagName },
+      update: {},
+      create: tg,
     });
   }
 
@@ -465,6 +482,33 @@ async function main() {
     });
 
     console.log('Seeded sample tickets:', [tkt1.ticketNumber, tkt2.ticketNumber, tkt3.ticketNumber]);
+  }
+
+  // 10. Seed Asset Statuses & Sample Assets (Requirement: Asset Management)
+  const defaultAssetStatuses = ['AVAILABLE', 'IN_USE', 'UNDER_MAINTENANCE', 'RETIRED'];
+  for (const statusName of defaultAssetStatuses) {
+    await prisma.assetStatus.upsert({
+      where: { name: statusName },
+      update: {},
+      create: { name: statusName },
+    });
+  }
+
+  const assetStatusAvailable = await prisma.assetStatus.findUnique({ where: { name: 'AVAILABLE' } });
+  const assetStatusMaintenance = await prisma.assetStatus.findUnique({ where: { name: 'UNDER_MAINTENANCE' } });
+
+  const initialAssets = [
+    { assetCode: 'AST-SC09-001', name: 'Dell Precision Tower 3660', statusId: assetStatusAvailable?.id || 1 },
+    { assetCode: 'AST-SC09-002', name: 'Core Network Switch Cisco 9300', statusId: assetStatusMaintenance?.id || 2 },
+    { assetCode: 'AST-SC09-003', name: 'Smart Podium Touch Display 24"', statusId: assetStatusAvailable?.id || 1 },
+  ];
+
+  for (const ast of initialAssets) {
+    await prisma.asset.upsert({
+      where: { assetCode: ast.assetCode },
+      update: { name: ast.name, statusId: ast.statusId },
+      create: ast,
+    });
   }
 
   console.log('Seed completed successfully!');

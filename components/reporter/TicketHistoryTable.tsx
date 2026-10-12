@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Eye } from 'lucide-react';
+import { Search, Eye, XCircle } from 'lucide-react';
 import { Ticket } from '@/types';
 
 interface TicketHistoryTableProps {
   tickets: Ticket[];
   onSelectTicket?: (ticket: Ticket) => void;
+  onCancelTicket?: (ticket: Ticket) => void;
 }
 
 export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
   tickets,
   onSelectTicket,
+  onCancelTicket,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -139,21 +141,30 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
                 </td>
                 <td className="py-3 px-3 max-w-xs">
                   <p className="font-medium text-slate-700 line-clamp-1">{t.description}</p>
-                  <span
-                    className={`inline-block text-[10px] font-medium mt-0.5 ${
-                      t.urgency === 'CRITICAL'
-                        ? 'text-rose-600'
-                        : t.urgency === 'URGENT'
-                        ? 'text-amber-600'
-                        : 'text-slate-400'
-                    }`}
-                  >
-                    {t.urgency === 'CRITICAL'
-                      ? 'ฉุกเฉิน'
-                      : t.urgency === 'URGENT'
-                      ? 'เร่งด่วน'
-                      : 'ปกติ'}
-                  </span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {t.tags && t.tags.length > 0 ? (
+                      t.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                            tag === 'งานเร่งด่วน'
+                              ? 'bg-red-50 text-red-700 border border-red-200'
+                              : tag === 'งานเร่ง'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                              : tag === 'งานจำเป็น'
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : tag === 'งานที่ต้องรออุปกรณ์'
+                              ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                              : 'bg-slate-100 text-slate-600 border border-slate-200'
+                          }`}
+                        >
+                          {tag}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-[10px] text-slate-400">งานทั่วไป</span>
+                    )}
+                  </div>
                 </td>
                 <td className="py-3 px-3 text-center text-slate-600 font-medium whitespace-nowrap">
                   {t.createdAt.slice(0, 10)}
@@ -165,17 +176,24 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
                   <div className="flex items-center justify-center space-x-1.5">
                     <button
                       onClick={() => onSelectTicket && onSelectTicket(t)}
-                      className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                      title="ดูรายละเอียด"
+                      className="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition"
+                      title="ดูรายละเอียดคำร้องนี้ในแถบด้านบน"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>ดูรายละเอียด</span>
                     </button>
-                    {t.status === 'PENDING_DISPATCH' && (
+
+                    {(t.status === 'PENDING_DISPATCH' || t.status === 'ASSIGNED') && onCancelTicket && (
                       <button
-                        onClick={() => alert(`ขอยกเลิกคำร้อง ${t.ticketNumber} (UC-5)`)}
-                        className="px-2 py-1 text-[10px] font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200 transition"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onCancelTicket(t);
+                        }}
+                        className="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition"
+                        title="ยกเลิกคำร้องนี้"
                       >
-                        ยกเลิก
+                        <XCircle className="w-3.5 h-3.5" />
+                        <span>ยกเลิก</span>
                       </button>
                     )}
                   </div>

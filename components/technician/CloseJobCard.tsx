@@ -30,6 +30,10 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
   const [isClosed, setIsClosed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  React.useEffect(() => {
+    setIsClosed(false);
+  }, [ticket?.id]);
+
   // If no ticket, or ticket not in progress, don't show close card
   if (!ticket || ticket.status !== 'IN_PROGRESS') {
     return null;

@@ -1,16 +1,55 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, CheckSquare, Image as ImageIcon } from 'lucide-react';
+import { FileText, CheckSquare, Image as ImageIcon, XCircle } from 'lucide-react';
 import { Ticket } from '@/types';
 
 interface TicketVerificationCardProps {
   ticket: Ticket;
+  onCancelled?: () => void;
 }
 
-export const TicketVerificationCard: React.FC<TicketVerificationCardProps> = ({ ticket }) => {
+export const TicketVerificationCard: React.FC<TicketVerificationCardProps> = ({
+  ticket,
+  onCancelled,
+}) => {
   const [chkOwnership, setChkOwnership] = useState(true);
   const [chkDuplicate, setChkDuplicate] = useState(true);
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const handleCancel = async () => {
+    const reason = prompt(
+      `คุณต้องการยกเลิกคำร้อง ${ticket.ticketNumber} ใช่หรือไม่? กรุณาระบุเหตุผล:`,
+      'ตรวจสอบไม่ผ่าน / แจ้งซ้ำซ้อนหรืออยู่นอกความรับผิดชอบ'
+    );
+    if (reason === null) return;
+
+    setIsCancelling(true);
+    try {
+      const res = await fetch(`/api/tickets/${ticket.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': 'ADMIN_DISPATCH',
+        },
+        body: JSON.stringify({
+          action: 'CANCEL',
+          reason: reason || 'ตรวจสอบไม่ผ่านเกณฑ์',
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`ยกเลิกคำร้อง ${ticket.ticketNumber} สำเร็จ`);
+        if (onCancelled) onCancelled();
+      } else {
+        alert(data.error || 'Failed to cancel ticket');
+      }
+    } catch (e) {
+      alert('เกิดข้อผิดพลาดในการยกเลิกคำร้อง');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5">
@@ -153,6 +192,24 @@ export const TicketVerificationCard: React.FC<TicketVerificationCardProps> = ({ 
           />
           <span className="font-medium">ไม่พบประวัติการแจ้งซ้ำซ้อนใน 24 ชั่วโมงที่ผ่านมา</span>
         </label>
+
+        {/* Action to cancel/reject ticket */}
+        {(ticket.status === 'PENDING_DISPATCH' || ticket.status === 'ASSIGNED') && (
+          <div className="pt-2 border-t border-blue-200/70 flex items-center justify-between">
+            <span className="text-[11px] text-slate-500">
+              กรณีพบปัญหาซ้ำซ้อน หรือไม่อยู่ในเงื่อนไข:
+            </span>
+            <button
+              type="button"
+              disabled={isCancelling}
+              onClick={handleCancel}
+              className="px-2.5 py-1 rounded-lg border border-rose-200 text-rose-700 bg-white hover:bg-rose-50 text-xs font-semibold flex items-center space-x-1 transition disabled:opacity-50"
+            >
+              <XCircle className="w-3.5 h-3.5" />
+              <span>{isCancelling ? 'กำลังยกเลิก...' : 'ยกเลิกคำร้อง (ปฏิเสธ)'}</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

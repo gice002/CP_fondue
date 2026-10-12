@@ -51,7 +51,7 @@ export default function TechnicianPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans">
       <Navbar
         currentRole="TECHNICIAN"
         userName="นายอนุชา พงษ์ศิริ"

@@ -2,14 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  MapPin,
   Wifi,
   Package,
   Plus,
   Trash2,
   Send,
   CheckCircle2,
-  Clock,
 } from 'lucide-react';
 import { SparePart } from '@/types';
 
@@ -22,7 +20,7 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
   ticketId = 'tkt_0042',
   onSubmitted,
 }) => {
-  const [isCheckedIn, setIsCheckedIn] = useState(true);
+  const [isCheckedIn] = useState(true);
   const [availableParts, setAvailableParts] = useState<SparePart[]>([]);
   const [selectedPartId, setSelectedPartId] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -109,31 +107,31 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
         <div>
-          <h3 className="text-base font-extrabold text-slate-900">
-            บันทึกเข้าหน้างาน &amp; ส่งคำขอเบิกอุปกรณ์ (UC-10)
+          <h3 className="text-sm font-bold text-slate-900">
+            บันทึกเข้าหน้างานและขอเบิกอุปกรณ์ (On-site &amp; Requisition)
           </h3>
         </div>
-        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-50 text-cyan-800 border border-cyan-200">
-          สถานะ: กำลังปฏิบัติงาน (In Progress)
+        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+          กำลังปฏิบัติงาน
         </span>
       </div>
 
       {/* Part 1: Check-in On-site */}
-      <div className="mb-5 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-        <div className="flex items-center justify-between mb-2">
+      <div className="mb-5 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/70">
+        <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center space-x-2">
-            <Wifi className="w-4 h-4 text-emerald-600" />
-            <span className="text-xs font-extrabold text-slate-900">
-              ระบบตรวจสอบตำแหน่งหน้างาน (On-site Wi-Fi Check-in)
+            <Wifi className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="text-xs font-semibold text-slate-800">
+              ตรวจสอบตำแหน่งหน้างาน (On-site Check-in)
             </span>
           </div>
           {isCheckedIn ? (
-            <span className="flex items-center space-x-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-              <CheckCircle2 className="w-3 h-3" />
+            <span className="flex items-center space-x-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full ring-1 ring-inset ring-emerald-600/20">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
               <span>ยืนยันพิกัดแล้ว</span>
             </span>
           ) : (
@@ -141,16 +139,16 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
           )}
         </div>
         <p className="text-[11px] text-slate-500">
-          เชื่อมต่อ Wi-Fi CoP-Secure @ อาคาร CP-01 ตรวจพบพิกัดตรงกับสถานที่แจ้งซ่อม
+          เชื่อมต่อ Wi-Fi CoP-Secure @ อาคาร CP-01 พิกัดตรงกับสถานที่แจ้งซ่อม
         </p>
       </div>
 
       {/* Part 2: Material Requisition Form */}
       <div>
         <div className="flex items-center space-x-2 mb-3">
-          <Package className="w-4 h-4 text-blue-600" />
-          <h4 className="text-xs font-extrabold text-slate-900">
-            รายการเบิกอะไหล่/เครื่องมือซ่อม (UC-10)
+          <Package className="w-4 h-4 text-slate-500" />
+          <h4 className="text-xs font-semibold text-slate-900">
+            รายการเบิกอะไหล่และอุปกรณ์
           </h4>
         </div>
 
@@ -247,7 +245,7 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
 
         {/* Submit Requisition Button */}
         {isSubmitted ? (
-          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center text-xs font-bold text-emerald-800 flex items-center justify-center space-x-1.5">
+          <div className="p-3 rounded-xl bg-emerald-50 text-center text-xs font-medium text-emerald-800 flex items-center justify-center space-x-1.5 ring-1 ring-inset ring-emerald-600/20">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>ส่งคำขอเบิกไปยังเจ้าหน้าที่เรียบร้อยแล้ว (รอการอนุมัติ)</span>
           </div>
@@ -256,10 +254,10 @@ export const CheckInRequisitionCard: React.FC<CheckInRequisitionCardProps> = ({
             type="button"
             disabled={isSubmitting || requestedItems.length === 0}
             onClick={handleSubmitRequisition}
-            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
+            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
           >
-            <Send className="w-4 h-4" />
-            <span>{isSubmitting ? 'กำลังส่งคำขอ...' : 'ส่งคำขอเบิกอะไหล่ (UC-10)'}</span>
+            <Send className="w-3.5 h-3.5" />
+            <span>{isSubmitting ? 'กำลังส่งคำขอ...' : 'ส่งคำขอเบิกอะไหล่'}</span>
           </button>
         )}
       </div>

@@ -37,7 +37,7 @@ export default function ExecutivePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans">
       <Navbar
         currentRole="EXECUTIVE"
         userName={`${MOCK_USERS.executive.firstName} ${MOCK_USERS.executive.lastName}`}

@@ -138,22 +138,22 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
       {/* Header */}
-      <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+      <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white">
         <div>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block">
-            UC-1: แบบฟอร์มแจ้งเหตุซ่อมแซม
+          <span className="text-[11px] font-medium uppercase tracking-wider text-slate-400 block">
+            ยื่นคำร้องแจ้งซ่อม (Create Request)
           </span>
-          <h2 className="text-lg font-extrabold text-slate-900">แจ้งคำร้องใหม่</h2>
-          <p className="text-xs text-slate-500">
-            กรอกข้อมูลครุภัณฑ์และปัญหาให้ชัดเจนตามเงื่อนไข (BR2, BR3)
+          <h2 className="text-base font-bold text-slate-900 mt-0.5">แบบฟอร์มแจ้งเหตุขัดข้อง</h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            กรอกข้อมูลสถานที่และอาการชำรุดเพื่อจัดส่งให้ทีมช่าง
           </p>
         </div>
         <div className="text-right">
-          <span className="text-[10px] text-slate-400 block">เลขที่คำร้อง (อัตโนมัติ BR3)</span>
-          <span className="text-xs font-mono font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md border border-blue-200">
-            {generatedTicketNo || 'REQ-202505-0042'}
+          <span className="text-[10px] text-slate-400 block">รหัสคำร้อง</span>
+          <span className="text-xs font-mono font-semibold bg-slate-100 text-slate-800 px-2.5 py-1 rounded-md">
+            {generatedTicketNo || 'REQ-AUTO'}
           </span>
         </div>
       </div>
@@ -394,47 +394,47 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
 
         {/* Section 5: Urgency Level */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-800 block">
-            5. ระดับความเร่งด่วน (Urgency Level)
+          <label className="text-xs font-semibold text-slate-800 block">
+            5. ระดับความเร่งด่วน (Urgency)
           </label>
           <div className="grid grid-cols-3 gap-2.5">
             <button
               type="button"
               onClick={() => setUrgency('NORMAL')}
-              className={`p-3 rounded-xl border text-center transition ${
+              className={`p-3 rounded-xl border text-center transition-all ${
                 urgency === 'NORMAL'
-                  ? 'border-blue-500 bg-blue-50 text-blue-900 font-bold shadow-xs'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                  ? 'border-slate-900 bg-slate-900 text-white font-semibold shadow-xs'
+                  : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
               }`}
             >
-              <div className="text-xs font-bold mb-0.5">ปานกลาง (Normal)</div>
-              <div className="text-[10px] text-slate-500">ซ่อมภายใน 3 วัน</div>
+              <div className="text-xs font-semibold mb-0.5">ทั่วไป (Normal)</div>
+              <div className={`text-[10px] ${urgency === 'NORMAL' ? 'text-slate-300' : 'text-slate-400'}`}>ภายใน 3 วัน</div>
             </button>
 
             <button
               type="button"
               onClick={() => setUrgency('URGENT')}
-              className={`p-3 rounded-xl border text-center transition ${
+              className={`p-3 rounded-xl border text-center transition-all ${
                 urgency === 'URGENT'
-                  ? 'border-blue-600 bg-blue-100/70 text-blue-950 font-bold shadow-xs ring-1 ring-blue-500'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                  ? 'border-amber-600 bg-amber-500 text-white font-semibold shadow-xs'
+                  : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
               }`}
             >
-              <div className="text-xs font-bold mb-0.5 text-blue-700">เร่งด่วน (Urgent)</div>
-              <div className="text-[10px] text-slate-600">ซ่อมภายใน 24 ชม.</div>
+              <div className="text-xs font-semibold mb-0.5">เร่งด่วน (Urgent)</div>
+              <div className={`text-[10px] ${urgency === 'URGENT' ? 'text-amber-100' : 'text-slate-400'}`}>ภายใน 24 ชม.</div>
             </button>
 
             <button
               type="button"
               onClick={() => setUrgency('CRITICAL')}
-              className={`p-3 rounded-xl border text-center transition ${
+              className={`p-3 rounded-xl border text-center transition-all ${
                 urgency === 'CRITICAL'
-                  ? 'border-red-500 bg-red-50 text-red-900 font-bold shadow-xs'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                  ? 'border-rose-600 bg-rose-600 text-white font-semibold shadow-xs'
+                  : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
               }`}
             >
-              <div className="text-xs font-bold mb-0.5 text-red-600">ฉุกเฉิน (Critical)</div>
-              <div className="text-[10px] text-slate-500">เข้าตรวจทันที &lt; 2 ชม.</div>
+              <div className="text-xs font-semibold mb-0.5">ฉุกเฉิน (Critical)</div>
+              <div className={`text-[10px] ${urgency === 'CRITICAL' ? 'text-rose-100' : 'text-slate-400'}`}>ทันที &lt; 2 ชม.</div>
             </button>
           </div>
         </div>
@@ -444,16 +444,16 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-bold text-xs shadow-md shadow-blue-500/25 transition disabled:opacity-50"
+            className="flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-98 text-white font-medium text-xs shadow-xs transition disabled:opacity-50"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'กำลังส่งคำร้อง...' : 'ส่งคำร้องแจ้งซ่อม (BR2)'}</span>
+            <span>{isSubmitting ? 'กำลังส่งคำร้อง...' : 'ส่งคำร้องแจ้งซ่อม'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => alert('บันทึกแบบร่างสำเร็จ')}
-            className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium text-xs flex items-center space-x-1.5 transition"
+            className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center space-x-1.5 transition"
           >
             <Save className="w-3.5 h-3.5" />
             <span>บันทึกแบบร่าง</span>

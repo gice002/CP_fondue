@@ -50,7 +50,7 @@ export default function AdminPage() {
   const activeCount = tickets.filter((t) => t.status === 'IN_PROGRESS' || t.status === 'ASSIGNED').length;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans">
       <Navbar
         currentRole="ADMIN_DISPATCH"
         userName="จิราพร สว่างเนตร"

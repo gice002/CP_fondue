@@ -1,5 +1,5 @@
 import React from 'react';
-import { RotateCw, CheckCircle2, ChevronRight, BarChart2 } from 'lucide-react';
+import { RotateCw, CheckCircle2, ChevronRight } from 'lucide-react';
 import { ExecutiveStats } from '@/types';
 
 interface AnalyticsChartsProps {
@@ -10,7 +10,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ stats }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
       {/* 1. Category Breakdown Donut */}
-      <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 flex flex-col justify-between">
+      <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-sm font-extrabold text-slate-900">

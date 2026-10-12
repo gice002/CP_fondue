@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Upload,
   Check,
-  Image as ImageIcon,
   X,
 } from 'lucide-react';
 import { Ticket } from '@/types';
@@ -101,12 +100,12 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
 
   if (isClosed) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 text-center">
-        <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-3">
-          <CheckCircle2 className="w-6 h-6" />
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 text-center mb-6">
+        <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-600/20 mx-auto flex items-center justify-center mb-3">
+          <CheckCircle2 className="w-5 h-5" />
         </div>
-        <h3 className="font-extrabold text-base text-slate-900">
-          ปิดงานซ่อม {ticket.ticketNumber} เรียบร้อยแล้ว (BR8, BR9)
+        <h3 className="font-bold text-sm text-slate-900">
+          ปิดงานซ่อม #{ticket.ticketNumber} เรียบร้อยแล้ว
         </h3>
         <p className="text-xs text-slate-500 mt-1">
           ระบบบันทึกสถานะเป็น &quot;ดำเนินการเสร็จสิ้น&quot; และส่งแจ้งเตือนประเมินความพึงพอใจแล้ว
@@ -116,17 +115,17 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 mb-6">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 mb-6">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
         <div className="flex items-center space-x-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-          <h3 className="text-base font-extrabold text-slate-900">
-            บันทึกผลและปิดงานซ่อม
+          <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+          <h3 className="text-sm font-bold text-slate-900">
+            บันทึกผลและปิดงานซ่อม (Close Job)
           </h3>
         </div>
-        <span className="font-mono text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
-          {ticket.ticketNumber}
+        <span className="font-mono text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md">
+          #{ticket.ticketNumber}
         </span>
       </div>
 
@@ -134,27 +133,27 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
         {/* Repair Notes Input (BR8) */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs font-bold text-slate-800">
-              บันทึกผลการซ่อมและวิธีแก้ไข (Repair Notes)
+            <label className="text-xs font-semibold text-slate-700">
+              บันทึกผลการซ่อมและวิธีแก้ไข
             </label>
-            <span className="text-[10px] text-red-500 font-bold">* บังคับ (BR8)</span>
+            <span className="text-[10px] text-rose-500 font-medium">* บังคับ</span>
           </div>
           <textarea
             rows={3}
             value={repairNotes}
             onChange={(e) => setRepairNotes(e.target.value)}
             placeholder="ระบุสาเหตุของปัญหา รายการที่ซ่อมแซม ผลการทดสอบการใช้งาน..."
-            className="w-full text-xs bg-slate-50/50 border border-slate-200 rounded-xl p-3 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-hidden transition resize-none leading-relaxed"
+            className="w-full text-xs bg-slate-50/50 border border-slate-200 rounded-xl p-3 focus:bg-white focus:ring-1 focus:ring-slate-900 focus:border-slate-900 outline-hidden transition resize-none leading-relaxed"
           />
         </div>
 
         {/* Upload Proof Photos (BR8) */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-bold text-slate-800">
-              แนบรูปถ่ายหลักฐานยืนยันหลังซ่อมเสร็จ (After Proof)
+            <label className="text-xs font-semibold text-slate-700">
+              แนบรูปถ่ายหลักฐานยืนยันหลังซ่อมเสร็จ
             </label>
-            <span className="text-[10px] text-slate-500">
+            <span className="text-[10px] text-slate-400">
               แนบแล้ว {proofUrls.length} ภาพ
             </span>
           </div>
@@ -166,7 +165,7 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
                 <button
                   type="button"
                   onClick={() => setProofUrls(proofUrls.filter((_, idx) => idx !== i))}
-                  className="absolute top-1 right-1 p-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full transition"
+                  className="absolute top-1 right-1 p-1 bg-slate-900/80 hover:bg-slate-900 text-white rounded-full transition"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -186,9 +185,9 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
             type="button"
             disabled={isUploading}
             onClick={() => fileInputRef.current?.click()}
-            className="w-full py-2 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl text-xs font-bold text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/40 flex items-center justify-center space-x-1.5 transition cursor-pointer disabled:opacity-50"
+            className="w-full py-2.5 border border-dashed border-slate-300 hover:border-slate-500 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center justify-center space-x-1.5 transition cursor-pointer disabled:opacity-50"
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="w-3.5 h-3.5" />
             <span>{isUploading ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปภาพยืนยันหลังซ่อม'}</span>
           </button>
         </div>
@@ -197,10 +196,10 @@ export const CloseJobCard: React.FC<CloseJobCardProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
+          className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center justify-center space-x-2 shadow-xs transition disabled:opacity-50"
         >
-          <Check className="w-4 h-4" />
-          <span>{isSubmitting ? 'กำลังบันทึกและปิดงาน...' : 'ยืนยันและปิดงานซ่อม (BR9)'}</span>
+          <Check className="w-3.5 h-3.5" />
+          <span>{isSubmitting ? 'กำลังบันทึกและปิดงาน...' : 'ยืนยันและปิดงานซ่อม'}</span>
         </button>
       </form>
     </div>

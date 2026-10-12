@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, FileSpreadsheet, AlertTriangle } from 'lucide-react';
+import { Package, FileSpreadsheet } from 'lucide-react';
 import { ExecutiveStats } from '@/types';
 
 interface RequisitionSummaryCardProps {
@@ -14,7 +14,7 @@ export const RequisitionSummaryCard: React.FC<RequisitionSummaryCardProps> = ({
   totalRequisitions,
 }) => {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 flex flex-col justify-between">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-100">
           <div>

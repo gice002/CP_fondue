@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Eye, XCircle, Star, Filter } from 'lucide-react';
+import { Search, Eye } from 'lucide-react';
 import { Ticket } from '@/types';
 
 interface TicketHistoryTableProps {
@@ -32,14 +32,14 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
   const getStatusBadge = (ticket: Ticket) => {
     if (ticket.status === 'IN_PROGRESS') {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800">
-          ● กำลังเข้าซ่อม
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-900 text-white">
+          กำลังเข้าซ่อม
         </span>
       );
     }
     if (ticket.status === 'PENDING_DISPATCH') {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20">
           รอดำเนินการ
         </span>
       );
@@ -47,41 +47,41 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
     if (ticket.status === 'COMPLETED') {
       if (ticket.evaluation) {
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
             ประเมินแล้ว ({ticket.evaluation.rating}★)
           </span>
         );
       }
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-          ซ่อมเสร็จแล้ว
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+          เสร็จสิ้น
         </span>
       );
     }
     if (ticket.status === 'CANCELLED') {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500">
           ยกเลิกแล้ว
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800">
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700">
         มอบหมายแล้ว
       </span>
     );
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
         <div>
-          <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block">
-            UC-4: ตรวจสอบประวัติคำร้องย้อนหลัง
+          <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
+            ประวัติการแจ้งซ่อม (History)
           </span>
-          <h3 className="text-base font-extrabold text-slate-900">
-            รายการคำร้องของฉันทั้งหมด
+          <h3 className="text-base font-bold text-slate-900 mt-0.5">
+            รายการคำร้องทั้งหมด
           </h3>
         </div>
 
@@ -93,8 +93,8 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="ค้นหารหัส/ห้อง..."
-              className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="ค้นหารหัส หรือห้อง..."
+              className="w-full text-xs bg-slate-50 border border-slate-200/80 rounded-xl pl-8 pr-3 py-2 focus:bg-white focus:ring-1 focus:ring-slate-900 focus:border-slate-900 outline-none transition"
             />
           </div>
 
@@ -102,7 +102,7 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-slate-700 font-medium"
+            className="text-xs bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 focus:bg-white focus:ring-1 focus:ring-slate-900 focus:border-slate-900 outline-none text-slate-700 font-medium transition"
           >
             <option value="ALL">ทุกสถานะ</option>
             <option value="IN_PROGRESS">กำลังเข้าซ่อม</option>
@@ -116,10 +116,10 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50/70 text-slate-500 font-semibold">
+            <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-500 font-medium">
               <th className="py-2.5 px-3">รหัสคำร้อง</th>
-              <th className="py-2.5 px-3">สถานที่ / ห้อง</th>
-              <th className="py-2.5 px-3">รายการปัญหาที่แจ้ง</th>
+              <th className="py-2.5 px-3">สถานที่</th>
+              <th className="py-2.5 px-3">รายการปัญหา</th>
               <th className="py-2.5 px-3 text-center">วันที่แจ้ง</th>
               <th className="py-2.5 px-3 text-center">สถานะ</th>
               <th className="py-2.5 px-3 text-center">ดำเนินการ</th>
@@ -127,25 +127,25 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
           </thead>
           <tbody className="divide-y divide-slate-100">
             {filteredTickets.map((t) => (
-              <tr key={t.id} className="hover:bg-slate-50/80 transition">
-                <td className="py-3 px-3 font-mono font-bold text-blue-600">
+              <tr key={t.id} className="hover:bg-slate-50/60 transition">
+                <td className="py-3 px-3 font-mono font-medium text-slate-900">
                   {t.ticketNumber}
                 </td>
                 <td className="py-3 px-3">
-                  <div className="font-bold text-slate-800">{t.location.building}</div>
+                  <div className="font-semibold text-slate-800">{t.location.building}</div>
                   <div className="text-[11px] text-slate-500">
                     {t.location.floor} • {t.location.roomName}
                   </div>
                 </td>
                 <td className="py-3 px-3 max-w-xs">
-                  <p className="font-medium text-slate-800 line-clamp-1">{t.description}</p>
+                  <p className="font-medium text-slate-700 line-clamp-1">{t.description}</p>
                   <span
-                    className={`inline-block text-[10px] font-bold mt-0.5 ${
+                    className={`inline-block text-[10px] font-medium mt-0.5 ${
                       t.urgency === 'CRITICAL'
-                        ? 'text-red-600'
+                        ? 'text-rose-600'
                         : t.urgency === 'URGENT'
-                        ? 'text-orange-600'
-                        : 'text-slate-500'
+                        ? 'text-amber-600'
+                        : 'text-slate-400'
                     }`}
                   >
                     {t.urgency === 'CRITICAL'

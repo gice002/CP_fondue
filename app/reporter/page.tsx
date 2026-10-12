@@ -42,7 +42,7 @@ export default function ReporterPage() {
   const completedTicketForEval = tickets.find((t) => t.status === 'COMPLETED');
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans">
       <Navbar currentRole="REPORTER" />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Package, CheckCircle2, AlertCircle, Check, X } from 'lucide-react';
+import { Package, Check, X } from 'lucide-react';
 import { SparePartRequest } from '@/types';
 
 interface PartApprovalCardProps {
@@ -98,32 +98,32 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
 
   if (!currentReq) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 text-center text-xs text-slate-400">
-        <Package className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 text-center text-xs text-slate-400">
+        <Package className="w-6 h-6 text-slate-300 mx-auto mb-2" />
         ไม่มีคำขอเบิกอะไหล่ที่รอการอนุมัติในขณะนี้
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
         <div>
-          <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block">
-            UC-10: คำขอเบิกพัสดุและอุปกรณ์
+          <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
+            คำขอเบิกอุปกรณ์ (Material Requisition)
           </span>
-          <h3 className="text-base font-extrabold text-slate-900">
-            พิจารณาอนุมัติการเบิก ({currentReq.requestNumber})
+          <h3 className="text-sm font-bold text-slate-900 mt-0.5">
+            พิจารณาอนุมัติการเบิก #{currentReq.requestNumber}
           </h3>
         </div>
         <span
-          className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+          className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
             status === 'APPROVED'
-              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+              ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20'
               : status === 'REJECTED'
-              ? 'bg-red-50 text-red-800 border border-red-200'
-              : 'bg-amber-50 text-amber-800 border border-amber-200'
+              ? 'bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20'
+              : 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20'
           }`}
         >
           {status === 'APPROVED'
@@ -136,14 +136,14 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
 
       {/* Requisition Details */}
       <div className="space-y-3 mb-4 text-xs">
-        <div className="p-3 bg-slate-50 rounded-xl space-y-1.5 border border-slate-200/70">
+        <div className="p-3 bg-slate-50/70 rounded-xl space-y-1.5 border border-slate-200/70">
           <div className="flex justify-between">
-            <span className="text-slate-500">อ้างอิงคำร้องซ่อม:</span>
-            <span className="font-mono font-bold text-slate-900">{currentReq.ticketNumber}</span>
+            <span className="text-slate-500">อ้างอิงคำร้อง:</span>
+            <span className="font-mono font-medium text-slate-900">#{currentReq.ticketNumber}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-500">ช่างผู้ขอเบิก:</span>
-            <span className="font-bold text-slate-900">
+            <span className="font-semibold text-slate-900">
               {currentReq.requestedBy.firstName} {currentReq.requestedBy.lastName}
             </span>
           </div>
@@ -156,18 +156,18 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
         </div>
 
         {/* Items List */}
-        <div className="space-y-1">
-          <span className="text-[11px] font-bold text-slate-500">รายการอะไหล่ที่ขอเบิก:</span>
+        <div className="space-y-1.5">
+          <span className="text-[11px] font-medium text-slate-400 block">รายการอะไหล่ที่ขอเบิก:</span>
           {currentReq.items.map((item, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-2.5 bg-slate-50/60 rounded-lg border border-slate-100"
+              className="flex items-center justify-between p-2.5 bg-slate-50/50 rounded-xl border border-slate-100"
             >
               <div>
-                <span className="font-bold text-slate-900 block">{item.partName}</span>
-                <span className="text-[10px] font-mono text-slate-500">{item.partCode}</span>
+                <span className="font-semibold text-slate-800 block">{item.partName}</span>
+                <span className="text-[10px] font-mono text-slate-400">{item.partCode}</span>
               </div>
-              <span className="font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+              <span className="font-mono text-xs font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">
                 {item.quantity} {item.unit}
               </span>
             </div>
@@ -182,24 +182,24 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
             type="button"
             disabled={isProcessing}
             onClick={handleReject}
-            className="py-2.5 px-3 rounded-xl border border-red-200 text-red-700 hover:bg-red-50 font-bold text-xs flex items-center justify-center space-x-1 transition disabled:opacity-50"
+            className="py-2.5 px-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs flex items-center justify-center space-x-1 transition disabled:opacity-50"
           >
-            <X className="w-4 h-4" />
-            <span>ไม่อนุมัติ (Reject)</span>
+            <X className="w-3.5 h-3.5" />
+            <span>ปฏิเสธ</span>
           </button>
           <button
             type="button"
             disabled={isProcessing}
             onClick={handleApprove}
-            className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center space-x-1 shadow-xs transition disabled:opacity-50"
+            className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center justify-center space-x-1 shadow-xs transition disabled:opacity-50"
           >
-            <Check className="w-4 h-4" />
-            <span>อนุมัติเบิก (Approve)</span>
+            <Check className="w-3.5 h-3.5" />
+            <span>อนุมัติเบิกพัสดุ</span>
           </button>
         </div>
       ) : (
         <div className="p-3 bg-slate-50 rounded-xl text-center text-xs text-slate-500">
-          รายการนี้ได้รับการดำเนินการเรียบร้อยแล้ว
+          คำขอนี้ได้รับการดำเนินการแล้ว
         </div>
       )}
     </div>

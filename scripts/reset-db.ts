@@ -19,14 +19,24 @@ async function main() {
 
   // 2. Reset equipment statuses
   console.log('2. Resetting equipment statuses to default...');
+  let eqStatusNormal = await prisma.equipmentStatus.findUnique({ where: { name: 'ใช้งานได้ปกติ' } });
+  if (!eqStatusNormal) {
+    eqStatusNormal = await prisma.equipmentStatus.create({ data: { name: 'ใช้งานได้ปกติ' } });
+  }
+
+  let eqStatusDamaged = await prisma.equipmentStatus.findUnique({ where: { name: 'ชำรุดรอซ่อม' } });
+  if (!eqStatusDamaged) {
+    eqStatusDamaged = await prisma.equipmentStatus.create({ data: { name: 'ชำรุดรอซ่อม' } });
+  }
+
   await prisma.equipment.updateMany({
-    data: { equipmentStatus: 'ปกติ' },
+    data: { statusId: eqStatusNormal.id },
   });
 
   // Mark equipments for assigned/in-progress tickets as 'ชำรุดรอซ่อม'
   await prisma.equipment.updateMany({
-    where: { id: { in: ['eq_01', 'eq_02', 'eq_03'] } },
-    data: { equipmentStatus: 'ชำรุดรอซ่อม' },
+    where: { equipmentCode: { in: ['KKU-CP-67-0891', 'KKU-CP-66-0120', 'KKU-CP-65-0315'] } },
+    data: { statusId: eqStatusDamaged.id },
   });
 
   // 3. Reset spare parts inventory quantities
@@ -80,7 +90,7 @@ async function main() {
       urgency: 'URGENT',
       reporterUserId: 'usr_reporter_01',
       locationId: 'loc_03',
-      equipmentId: 'eq_01',
+      equipmentCode: 'KKU-CP-67-0891',
       categoryId: 'cat_01',
       attachments: {
         create: [
@@ -122,10 +132,9 @@ async function main() {
       reporterUserId: 'usr_reporter_01',
       assignedTechnicianId: 'usr_tech_01',
       locationId: 'loc_04',
-      equipmentId: 'eq_02',
+      equipmentCode: 'KKU-CP-66-0120',
       categoryId: 'cat_01',
       adminNotes: 'มอบหมายช่างอนุชา ตรวจสอบพอร์ตสวิตช์ด่วน',
-      targetSlaDate: new Date(Date.now() + 4 * 3600 * 1000),
       attachments: {
         create: [
           {
@@ -172,10 +181,9 @@ async function main() {
       reporterUserId: 'usr_reporter_01',
       assignedTechnicianId: 'usr_tech_02',
       locationId: 'loc_02',
-      equipmentId: 'eq_03',
+      equipmentCode: 'KKU-CP-65-0315',
       categoryId: 'cat_02',
       adminNotes: 'แอร์มีน้ำรั่วส่งช่างสมศักดิ์เข้าตรวจสอบหน้างาน',
-      targetSlaDate: new Date(Date.now() + 8 * 3600 * 1000),
       attachments: {
         create: [
           {
@@ -228,7 +236,7 @@ async function main() {
       reporterUserId: 'usr_reporter_01',
       assignedTechnicianId: 'usr_tech_03',
       locationId: 'loc_01',
-      equipmentId: 'eq_04',
+      equipmentCode: 'KKU-CP-66-0442',
       categoryId: 'cat_03',
       repairNotes: 'เปลี่ยนสายสัญญาณ HDMI เส้นใหม่ 5 เมตร และตั้งค่า Color Matrix บนโปรเจกเตอร์เรียบร้อย',
       completedAt: new Date(),

@@ -78,7 +78,37 @@ export function verifySessionToken(token: string): SessionPayload | null {
  * Header spoofing (x-user-id, x-user-role) is intentionally disallowed in production.
  */
 export async function getAuthSession(req?: NextRequest): Promise<AuthSession> {
-  // 1. Verify signed session cookie
+  // In development / test mode: prioritize portal context (referer / cp_dev_role) for smooth multi-role preview
+  if (process.env.NODE_ENV !== 'production') {
+    // 1. Check referer url (e.g. /admin, /technician, /executive, /reporter)
+    const referer = req?.headers.get('referer') || '';
+    let portalRole: RoleCode | null = null;
+    if (referer.includes('/admin')) portalRole = 'ADMIN_DISPATCH';
+    else if (referer.includes('/technician')) portalRole = 'TECHNICIAN';
+    else if (referer.includes('/executive')) portalRole = 'EXECUTIVE';
+    else if (referer.includes('/reporter')) portalRole = 'REPORTER';
+
+    // 2. Check explicit dev-role cookie
+    const devRoleCookie = req?.cookies.get('cp_dev_role')?.value as RoleCode | undefined;
+    const targetRole = portalRole || devRoleCookie;
+
+    if (targetRole) {
+      const portalUser = await prisma.user.findFirst({
+        where: { role: targetRole, deletedAt: null },
+      });
+      if (portalUser) {
+        return {
+          userId: portalUser.id,
+          email: portalUser.email,
+          role: targetRole,
+          firstName: portalUser.firstName,
+          lastName: portalUser.lastName,
+        };
+      }
+    }
+  }
+
+  // 3. Verify signed session cookie (production / explicit login)
   const cookieValue = req?.cookies.get(SESSION_COOKIE_NAME)?.value;
   if (cookieValue) {
     const sessionPayload = verifySessionToken(cookieValue);
@@ -98,26 +128,8 @@ export async function getAuthSession(req?: NextRequest): Promise<AuthSession> {
     }
   }
 
-  // 2. In non-production only: Allow dev cookie or resolve role-based dev seed user
+  // 4. Default fallback in development: reporter user in database
   if (process.env.NODE_ENV !== 'production') {
-    // Check if a dev role was requested via dev-role cookie
-    const devRoleCookie = req?.cookies.get('cp_dev_role')?.value as RoleCode | undefined;
-    if (devRoleCookie) {
-      const user = await prisma.user.findFirst({
-        where: { role: devRoleCookie, deletedAt: null },
-      });
-      if (user) {
-        return {
-          userId: user.id,
-          email: user.email,
-          role: devRoleCookie,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        };
-      }
-    }
-
-    // Default development fallback: reporter user in database
     const defaultReporter = await prisma.user.findFirst({
       where: { role: 'REPORTER', deletedAt: null },
     });
@@ -140,7 +152,7 @@ export async function getAuthSession(req?: NextRequest): Promise<AuthSession> {
     };
   }
 
-  // 3. In production: If no valid session cookie, fail closed
+  // 5. In production: If no valid session cookie, fail closed
   throw new Error('UNAUTHORIZED: กรุณาเข้าสู่ระบบก่อนดำเนินการ');
 }
 

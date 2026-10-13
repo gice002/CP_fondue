@@ -8,20 +8,24 @@ import { TicketDispatchTable } from '@/components/admin/TicketDispatchTable';
 import { TicketVerificationCard } from '@/components/admin/TicketVerificationCard';
 import { AssignTechnicianDrawer } from '@/components/admin/AssignTechnicianDrawer';
 import { PartApprovalCard } from '@/components/admin/PartApprovalCard';
-import { WalkInModal } from '@/components/admin/WalkInModal';
-import { Ticket } from '@/types';
+import { ApprovedRequisitionsTable } from '@/components/admin/ApprovedRequisitionsTable';
+import { TicketForm } from '@/components/reporter/TicketForm';
+import { Ticket, SparePartRequest } from '@/types';
 
 export default function AdminPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [requisitions, setRequisitions] = useState<SparePartRequest[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [isWalkInOpen, setIsWalkInOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchTickets = async () => {
+  const fetchAdminData = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/tickets');
-      const data = await res.json();
+      const [resTickets, resReqs] = await Promise.all([
+        fetch('/api/tickets', { cache: 'no-store' }),
+        fetch('/api/spare-parts/requisitions', { cache: 'no-store' }),
+      ]);
+      const data = await resTickets.json();
       if (data.success && data.data.length > 0) {
         setTickets(data.data);
         const nonCancelled = data.data.filter((t: Ticket) => t.status !== 'CANCELLED');
@@ -37,19 +41,28 @@ export default function AdminPage() {
         setTickets([]);
         setSelectedTicket(null);
       }
+
+      const reqData = await resReqs.json();
+      if (reqData.success && Array.isArray(reqData.data)) {
+        setRequisitions(reqData.data);
+      } else {
+        setRequisitions([]);
+      }
     } catch (e) {
-      console.error('Failed to fetch admin tickets:', e);
+      console.error('Failed to fetch admin data:', e);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTickets();
+    fetchAdminData();
   }, []);
 
   const pendingCount = tickets.filter((t) => t.status === 'PENDING_DISPATCH').length;
   const activeCount = tickets.filter((t) => t.status === 'IN_PROGRESS' || t.status === 'ASSIGNED').length;
+  const completedCount = tickets.filter((t) => t.status === 'COMPLETED').length;
+  const pendingRequisitionCount = requisitions.filter((r) => r.status === 'PENDING').length;
 
   const [activeSubView, setActiveSubView] = useState('dispatch');
 
@@ -68,98 +81,75 @@ export default function AdminPage() {
         <header className="hidden lg:flex items-center justify-between px-8 py-3.5 bg-white border-b border-slate-200/90 shadow-2xs">
           <div>
             <h1 className="text-base font-extrabold text-slate-900 tracking-tight">
-              {activeSubView === 'operations'
-                ? 'งานบริหารพัสดุและเคาน์เตอร์บริการ'
+              {activeSubView === 'inventory'
+                ? 'งานพัสดุและเคาน์เตอร์เบิกจ่าย'
+                : activeSubView === 'report'
+                ? 'แบบฟอร์มแจ้งซ่อม / แจ้งเหตุขัดข้อง'
                 : 'โต๊ะคัดกรองและจ่ายงานช่าง (Dispatch Desk)'}
             </h1>
             <p className="text-xs text-slate-500 font-medium">
               SC-09 อาคารวิทยวิภาส • วิทยาลัยการคอมพิวเตอร์ มข.
             </p>
           </div>
-
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => setIsWalkInOpen(true)}
-              className="px-3.5 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition"
-            >
-              + เปิดใบงานฉุกเฉิน (Walk-in)
-            </button>
-          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
-          {/* 4 Stat Cards */}
-          <AdminStatCards
-            pendingCount={pendingCount}
-            activeCount={activeCount}
-            requisitionCount={1}
-            slaRate={98.2}
-          />
-
           {/* SubView 1: Dispatch Desk */}
           {activeSubView === 'dispatch' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-6">
-              {/* Left Column: Tickets Queue Table & Detailed Verification */}
-              <div className="lg:col-span-7 space-y-6">
-                <TicketDispatchTable
-                  tickets={tickets}
-                  selectedTicketId={selectedTicket?.id || ''}
-                  onSelectTicket={(t) => setSelectedTicket(t)}
-                />
+            <>
+              <AdminStatCards
+                pendingCount={pendingCount}
+                activeCount={activeCount}
+                requisitionCount={pendingRequisitionCount}
+                completedCount={completedCount}
+              />
 
-                {selectedTicket && (
-                  <TicketVerificationCard
-                    ticket={selectedTicket}
-                    onCancelled={() => fetchTickets()}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-6">
+                {/* Left Column: Tickets Queue Table & Detailed Verification */}
+                <div className="lg:col-span-7 space-y-6">
+                  <TicketDispatchTable
+                    tickets={tickets}
+                    selectedTicketId={selectedTicket?.id || ''}
+                    onSelectTicket={(t) => setSelectedTicket(t)}
                   />
-                )}
-              </div>
 
-              {/* Right Column: Dispatch Drawer */}
-              <div className="lg:col-span-5 space-y-6">
-                {selectedTicket && (
-                  <AssignTechnicianDrawer
-                    ticket={selectedTicket}
-                    onAssigned={() => fetchTickets()}
-                  />
-                )}
+                  {selectedTicket && (
+                    <TicketVerificationCard
+                      ticket={selectedTicket}
+                      onCancelled={() => fetchAdminData()}
+                    />
+                  )}
+                </div>
+
+                {/* Right Column: Dispatch Drawer */}
+                <div className="lg:col-span-5 space-y-6">
+                  {selectedTicket && (
+                    <AssignTechnicianDrawer
+                      ticket={selectedTicket}
+                      onAssigned={() => fetchAdminData()}
+                    />
+                  )}
+                </div>
               </div>
+            </>
+          )}
+
+          {/* SubView 2: Inventory & Store Operations */}
+          {activeSubView === 'inventory' && (
+            <div className="max-w-5xl mx-auto space-y-6">
+              <PartApprovalCard onActionComplete={() => fetchAdminData()} />
+              <ApprovedRequisitionsTable requisitions={requisitions} />
             </div>
           )}
 
-          {/* SubView 2: Store Operations & Walk-ins */}
-          {activeSubView === 'operations' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-6">
-              <div className="lg:col-span-8 space-y-6">
-                <PartApprovalCard onActionComplete={() => fetchTickets()} />
-              </div>
-
-              <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5">
-                <h3 className="font-extrabold text-sm text-slate-900 mb-2">
-                  เปิดใบงานหน้าเคาน์เตอร์ (Walk-in Desk)
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed mb-4 font-normal">
-                  สำหรับกรณีอาจารย์ บุคลากร หรือนักศึกษาเดินทางมาติดต่อแจ้งซ่อมหน้าเคาน์เตอร์ธุรการ SC-09 โดยตรง
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setIsWalkInOpen(true)}
-                  className="w-full py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition"
-                >
-                  + สร้างใบงานฉุกเฉินทันที
-                </button>
-              </div>
+          {/* SubView 3: Report Ticket (Same as Reporter) */}
+          {activeSubView === 'report' && (
+            <div className="max-w-3xl mx-auto">
+              <TicketForm onSuccess={() => fetchAdminData()} />
             </div>
           )}
         </main>
       </div>
-
-      <WalkInModal
-        isOpen={isWalkInOpen}
-        onClose={() => setIsWalkInOpen(false)}
-        onCreated={() => fetchTickets()}
-      />
     </div>
   );
 }

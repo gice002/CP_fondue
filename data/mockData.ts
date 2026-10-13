@@ -308,7 +308,6 @@ export const MOCK_TICKETS: Ticket[] = [
     description: 'สวิตช์บอร์ดพอร์ตหลวม RJ-45 ช่อง 12-16 ไม่จ่ายสัญญาณ อินเทอร์เน็ตพอร์ตเสียบชำรุด ทำให้เครื่องคอมพิวเตอร์แถวที่ 3 ในห้องแล็บเชื่อมต่อเครือข่าย KKU-Net ไม่ได้ มีการเรียนการสอนช่วงบ่าย',
     urgency: 'CRITICAL',
     status: 'PENDING_DISPATCH',
-    targetSlaDate: '2026-05-18T14:00:00Z',
     attachments: [
       {
         id: 'att_01',
@@ -439,7 +438,6 @@ export const MOCK_TICKETS: Ticket[] = [
     description: 'เครื่องปรับอากาศรั่ว น้ำหยดลงโต๊ะทำงานอาจารย์ แอร์ไม่เย็นและมีน้ำไหลซึม',
     urgency: 'URGENT',
     status: 'IN_PROGRESS',
-    targetSlaDate: '2026-05-18T14:00:00Z',
     adminNotes: 'ช่างรีบเข้าตรวจสอบก่อนเอกสารวิชาการเสียหาย',
     repairNotes: 'กำลังล้างท่อน้ำทิ้งและเติมน้ำยาแอร์ R-32',
     attachments: [
@@ -508,7 +506,6 @@ export const MOCK_TICKETS: Ticket[] = [
     description: 'เครื่องแม่ข่ายและคอมพิวเตอร์แถว B ถึง D ใช้งานเครือข่ายอินเทอร์เน็ตไม่ได้ ไฟสถานะพอร์ต Switch ประจำตู้ Rack ผนังห้อง 405 กระพริบสีส้มรัว และหัวต่อ RJ-45 ที่ผนังหลุดหลวม กรุณาตรวจสอบก่อนคาบเรียนปฏิบัติการ 16:30 น.',
     urgency: 'CRITICAL',
     status: 'ASSIGNED',
-    targetSlaDate: '2026-05-18T16:00:00Z',
     adminNotes: 'โปรดนำหัว RJ-45 และคีมย้ำสาย Cat6 สำรองไปด้วย',
     attachments: [
       {

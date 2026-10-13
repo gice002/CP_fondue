@@ -43,7 +43,10 @@ export default function ReporterPage() {
     ? tickets.find((t) => t.id === selectedTicketId) || defaultActiveTicket
     : defaultActiveTicket || tickets[0];
 
-  const completedTicketForEval = tickets.find((t) => t.status === 'COMPLETED');
+  // Prioritize a completed ticket that has NOT been evaluated yet so the user can submit an evaluation
+  const completedTicketForEval =
+    tickets.find((t) => t.status === 'COMPLETED' && !t.evaluation) ||
+    tickets.find((t) => t.status === 'COMPLETED');
 
   const handleCancelTicket = async (t: Ticket) => {
     const confirmCancel = confirm(`คุณต้องการขอยกเลิกคำร้อง ${t.ticketNumber} ใช่หรือไม่?`);

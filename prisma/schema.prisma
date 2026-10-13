@@ -51,6 +51,9 @@ model User {
   // ได้รับมอบหมายงานซ่อม (1:N ใบแจ้งซ่อม - BR4, BR5, BR6)
   assignedTickets Ticket[] @relation("TechnicianAssignedTickets")
 
+  // มอบหมายงานช่างร่วม (N:M ใบแจ้งซ่อม - BR4 หลายคน)
+  ticketAssignments TicketTechnicianMap[] @relation("TechnicianAssignedMaps")
+
   // เก็บ (1:N ประวัติการแก้ไขข้อมูลเชิงลึก)
   auditLogs AuditLog[]
 
@@ -130,24 +133,38 @@ model Location {
 }
 
 // ----------------------------------------------------
-// 5. ครุภัณฑ์ (Equipment)
+// 5. สถานะครุภัณฑ์ (EquipmentStatus)
+// ----------------------------------------------------
+model EquipmentStatus {
+  // [PK] รหัสสถานะครุภัณฑ์
+  id         String      @id @default(cuid()) @map("equipment_status_id")
+  // ชื่อสถานะ
+  name       String      @unique @map("name")
+  // ครุภัณฑ์ที่มีสถานะนี้ (1:N)
+  equipments Equipment[]
+
+  @@map("equipment_statuses") // ตาราง: สถานะครุภัณฑ์
+}
+
+// ----------------------------------------------------
+// 6. ครุภัณฑ์ (Equipment)
 // ----------------------------------------------------
 model Equipment {
-  // [PK] ลำดับครุภัณฑ์ในระบบ (Underlined PK in diagram.txt)
-  id              String @id @default(cuid()) @map("sequence_in_system")
-  // รหัสครุภัณฑ์
-  equipmentCode   String @unique @map("equipment_code")
+  // [PK] รหัสครุภัณฑ์
+  equipmentCode String          @id @map("equipment_code")
   // ชื่อครุภัณฑ์
-  equipmentName   String @map("equipment_name")
-  // สถานะครุภัณฑ์
-  equipmentStatus String @map("equipment_status")
+  equipmentName String          @map("equipment_name")
+
+  // Relationships: มี (N:1 สถานะครุภัณฑ์)
+  statusId      String?         @map("status_id")
+  status        EquipmentStatus? @relation(fields: [statusId], references: [id])
 
   // Relationships: มี (N:1 สถานที่)
-  locationId String   @map("location_id")
-  location   Location @relation(fields: [locationId], references: [id])
+  locationId    String          @map("location_id")
+  location      Location        @relation(fields: [locationId], references: [id])
 
   // มี (1:N ใบแจ้งซ่อม)
-  tickets Ticket[]
+  tickets       Ticket[]
 
   @@map("equipments") // ตาราง: ครุภัณฑ์
 }
@@ -204,8 +221,6 @@ model Ticket {
   adminNotes         String?   @map("admin_notes")
   // บันทึกสรุปผลการซ่อมของช่าง (BR8, BR9: Repair Notes)
   repairNotes        String?   @map("repair_notes")
-  // กำหนดเวลา SLA
-  targetSlaDate      DateTime? @map("target_sla_date")
   // เวลาที่ซ่อมเสร็จสิ้น (BR9)
   completedAt        DateTime? @map("completed_at")
   // เวลาที่สร้างใบแจ้งซ่อม
@@ -229,8 +244,8 @@ model Ticket {
   category   ProblemCategory @relation(fields: [categoryId], references: [id])
 
   // มี (N:1 ครุภัณฑ์ - Nullable กรณีแจ้งซ่อมสถานที่)
-  equipmentId String?    @map("equipment_id")
-  equipment   Equipment? @relation(fields: [equipmentId], references: [id])
+  equipmentCode String?    @map("equipment_code")
+  equipment   Equipment? @relation(fields: [equipmentCode], references: [equipmentCode])
 
   // สถานที่ที่เกิดเหตุโดยตรง (BR2)
   locationId String?   @map("location_id")
@@ -254,6 +269,9 @@ model Ticket {
 
   // ติดแท็กให้ใบแจ้งซ่อม (N:M แท็ก)
   tags TicketTagMap[]
+
+  // ช่างร่วมปฏิบัติงาน (N:M ช่างหลายคน)
+  assignedTechnicians TicketTechnicianMap[]
 
   // 1:M ใบเบิกอะไหล่ (UC-10)
   partRequisitions SparePartRequisition[]
@@ -382,6 +400,21 @@ model TicketTagMap {
 
   @@id([ticketId, tagId])
   @@map("ticket_tag_maps") // ตาราง: ติดแท็กให้ใบแจ้งซ่อม
+}
+
+// ----------------------------------------------------
+// 14.1 มอบหมายงานช่างร่วม (Associative Entity: TicketTechnicianMap)
+// ----------------------------------------------------
+model TicketTechnicianMap {
+  ticketId     String   @map("ticket_id")
+  technicianId String   @map("technician_id")
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  technician   User     @relation("TechnicianAssignedMaps", fields: [technicianId], references: [id], onDelete: Cascade)
+  assignedAt   DateTime @default(now()) @map("assigned_at")
+
+  @@id([ticketId, technicianId])
+  @@index([technicianId], name: "idx_ticket_technician_maps_technician_id")
+  @@map("ticket_technician_maps") // ตาราง: ช่างผู้รับผิดชอบงาน
 }
 
 // ----------------------------------------------------

@@ -11,7 +11,12 @@ interface NewJobCardProps {
   onAccepted?: () => void;
 }
 
-export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, hasOngoingTask = false, onAccepted }) => {
+export const NewJobCard: React.FC<NewJobCardProps> = ({
+  ticket,
+  technicianId,
+  hasOngoingTask = false,
+  onAccepted,
+}) => {
   const [isAccepted, setIsAccepted] = useState(ticket?.status === 'IN_PROGRESS');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -37,7 +42,7 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, hasOngoingTask =
       return;
     }
 
-    const techIdToAccept = ticket.assignedTechnician?.id || 'usr_tech_01';
+    const techIdToAccept = technicianId || ticket.assignedTechnician?.id || 'usr_tech_01';
 
     setIsSubmitting(true);
     setErrorMessage('');
@@ -150,6 +155,22 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({ ticket, hasOngoingTask =
             &quot;{ticket.description}&quot;
           </div>
         </div>
+
+        {/* Co-technicians team if multiple */}
+        {ticket.assignedTechnicians && ticket.assignedTechnicians.length > 1 && (
+          <div className="p-2.5 rounded-xl bg-blue-50/60 border border-blue-200/80 text-xs">
+            <span className="font-semibold text-blue-900 block mb-1">
+              ทีมช่างร่วมรับผิดชอบ ({ticket.assignedTechnicians.length} คน):
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {ticket.assignedTechnicians.map((t) => (
+                <span key={t.id} className="inline-flex items-center px-2 py-0.5 rounded-md bg-white border border-blue-200 text-[11px] text-slate-700 font-medium">
+                  {t.firstName} {t.lastName}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Acceptance Policy Box */}
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-xs flex items-start space-x-2">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Star, ThumbsUp, Wrench } from 'lucide-react';
+import { Star, ThumbsUp, CheckCircle2 } from 'lucide-react';
 import { Ticket } from '@/types';
+import { InfoTooltip } from '@/components/common/InfoTooltip';
 
 interface TechnicianHistoryListProps {
   technicianId?: string;
@@ -19,7 +20,7 @@ export const TechnicianHistoryList: React.FC<TechnicianHistoryListProps> = ({
         const query = technicianId
           ? `/api/tickets?technicianId=${technicianId}&status=COMPLETED`
           : `/api/tickets?status=COMPLETED`;
-        const res = await fetch(query);
+        const res = await fetch(query, { cache: 'no-store' });
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           setCompletedTickets(data.data.slice(0, 5));
@@ -47,10 +48,13 @@ export const TechnicianHistoryList: React.FC<TechnicianHistoryListProps> = ({
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-        <h3 className="text-base font-extrabold text-slate-900 tracking-tight">
-          ประวัติงานซ่อมที่สำเร็จ (Past Completed)
-        </h3>
-        <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/70">
+        <div className="flex items-center space-x-1.5">
+          <h3 className="text-base font-extrabold text-slate-900 tracking-tight">
+            ประวัติงานซ่อมที่สำเร็จ (Past Completed)
+          </h3>
+          <InfoTooltip text="ประวัติใบงานที่ช่างได้ทำการซ่อมเสร็จสิ้นและปิดงานแล้ว พร้อมผลการประเมินความพึงพอใจจากผู้แจ้งซ่อม" />
+        </div>
+        <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
           {completedTickets.length} งานล่าสุด
         </span>
       </div>
@@ -63,10 +67,13 @@ export const TechnicianHistoryList: React.FC<TechnicianHistoryListProps> = ({
           completedTickets.map((item) => (
             <div
               key={item.id}
-              className="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/60 hover:bg-slate-50 transition"
+              className="p-3.5 rounded-xl border border-emerald-200/90 bg-emerald-50/60 hover:bg-emerald-50 transition"
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="font-mono font-bold text-blue-700 text-xs">#{item.ticketNumber}</span>
+                <span className="font-mono font-bold text-emerald-800 text-xs flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  #{item.ticketNumber}
+                </span>
                 <span className="text-[11px] font-bold text-amber-600 flex items-center space-x-1">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   <span>

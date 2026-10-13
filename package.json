@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "node --experimental-strip-types prisma/seed.ts",
-    "test": "tsx test/integration.test.ts"
+    "test": "tsx test/integration.test.ts",
+    "db:clear": "tsx scripts/clear-tickets.ts",
+    "db:reset": "tsx scripts/reset-db.ts"
   },
   "prisma": {
     "seed": "node --experimental-strip-types prisma/seed.ts"

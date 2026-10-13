@@ -14,6 +14,7 @@ import {
   Laptop,
   ChevronDown,
 } from 'lucide-react';
+import { InfoTooltip } from '@/components/common/InfoTooltip';
 
 interface TicketFormProps {
   onSuccess?: () => void;
@@ -27,8 +28,16 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
   );
 
   const [category, setCategory] = useState('ระบบคอมพิวเตอร์และเครือข่าย');
-  const [assetId, setAssetId] = useState('KKU-CP-67-0891');
-  const [isAssetVerified, setIsAssetVerified] = useState(true);
+  const [assetId, setAssetId] = useState('');
+  const [selectedEquipmentCode, setSelectedEquipmentCode] = useState('');
+  const [roomEquipments, setRoomEquipments] = useState<Array<{
+    equipmentCode: string;
+    equipmentName: string;
+    statusId?: string;
+    status?: { id: string; name: string };
+  }>>([]);
+  const [isLoadingEquipments, setIsLoadingEquipments] = useState(false);
+  const [isAssetVerified, setIsAssetVerified] = useState(false);
 
   const [description, setDescription] = useState(
     'เปิดสวิตช์เครื่องแล้วไม่มีไฟเข้าพาวเวอร์ซัพพลาย พัดลมด้านหลังไม่หมุน และมีกลิ่นไหม้ใหม่อ่อน ๆ ตอนแรกคิดว่าปลั๊กไฟหลวมแต่ตรวจสอบสายไฟ AC เสียบแน่นดีแล้วก็ยังไม่ทำงาน'
@@ -62,10 +71,62 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
       .catch((err) => console.error('Error fetching locations:', err));
   }, []);
 
-  const handleAssetCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setAssetId(val);
-    setIsAssetVerified(val.includes('KKU-CP') || val.length > 5);
+  // Fetch equipments filtered by the selected room / location
+  useEffect(() => {
+    if (!selectedLocationId) {
+      setRoomEquipments([]);
+      setSelectedEquipmentCode('');
+      setAssetId('');
+      setIsAssetVerified(false);
+      return;
+    }
+
+    setIsLoadingEquipments(true);
+    fetch(`/api/equipments?locationId=${selectedLocationId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setRoomEquipments(data.data);
+          if (data.data.length > 0) {
+            // Auto-select first equipment in the room
+            setSelectedEquipmentCode(data.data[0].equipmentCode);
+            setAssetId(data.data[0].equipmentCode);
+            setIsAssetVerified(true);
+          } else {
+            setSelectedEquipmentCode('');
+            setAssetId('');
+            setIsAssetVerified(false);
+          }
+        } else {
+          setRoomEquipments([]);
+          setSelectedEquipmentCode('');
+          setAssetId('');
+          setIsAssetVerified(false);
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching room equipments:', err);
+        setRoomEquipments([]);
+        setSelectedEquipmentCode('');
+        setAssetId('');
+        setIsAssetVerified(false);
+      })
+      .finally(() => setIsLoadingEquipments(false));
+  }, [selectedLocationId]);
+
+  const handleEquipmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const eqCode = e.target.value;
+    setSelectedEquipmentCode(eqCode);
+    if (!eqCode) {
+      setAssetId('');
+      setIsAssetVerified(false);
+    } else {
+      const eq = roomEquipments.find((item) => item.equipmentCode === eqCode);
+      if (eq) {
+        setAssetId(eq.equipmentCode);
+        setIsAssetVerified(true);
+      }
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,7 +187,8 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
           locationId: selectedLocationId || 'loc_03',
           locationDetail,
           category,
-          assetCode: assetId,
+          equipmentCode: selectedEquipmentCode || undefined,
+          assetCode: selectedEquipmentCode || undefined,
           description,
           attachmentUrls: images,
         }),
@@ -234,8 +296,10 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
             </div>
 
             <div>
-              <label htmlFor="room-select" className="text-sm font-medium text-gray-700 block mb-1.5">
-                เลขที่ห้อง / ห้องปฏิบัติการ <span className="text-red-500">*</span>
+              <label htmlFor="room-select" className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
+                <span>เลขที่ห้อง / ห้องปฏิบัติการ</span>
+                <span className="text-red-500">*</span>
+                <InfoTooltip text="เลือกห้องที่พบปัญหา ระบบจะกรองรายการครุภัณฑ์และอุปกรณ์ที่ติดตั้งอยู่ในห้องนั้นมาให้เลือกโดยอัตโนมัติ" />
               </label>
               <div className="relative">
                 <select
@@ -298,7 +362,9 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label htmlFor="category-select" className="text-sm font-medium text-gray-700 block mb-1.5">หมวดหมู่อุปกรณ์</label>
+              <label htmlFor="category-select" className="text-sm font-medium text-gray-700 block mb-1.5">
+                หมวดหมู่อุปกรณ์
+              </label>
               <div className="relative">
                 <select
                   id="category-select"
@@ -317,37 +383,69 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess }) => {
             </div>
 
             <div>
-              <label htmlFor="asset-id" className="text-sm font-medium text-gray-700 block mb-1.5">
-                รหัสครุภัณฑ์ (CoP Asset ID)
-              </label>
-              <div className="relative">
-                <input
-                  id="asset-id"
-                  type="text"
-                  value={assetId}
-                  onChange={handleAssetCodeChange}
-                  placeholder="เช่น KKU-CP-67-0891"
-                  className="w-full text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-10 font-mono font-medium placeholder:text-gray-400 hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition shadow-xs"
-                />
-                {isAssetVerified && (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 absolute right-3 top-1/2 -translate-y-1/2" />
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="equipment-select" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                  <span>เลือกครุภัณฑ์ในห้องนี้</span>
+                  <span className="text-xs text-blue-600 font-semibold">({roomEquipments.length} รายการ)</span>
+                  <InfoTooltip text="เลือกครุภัณฑ์เฉพาะตัวที่ชำรุด หรือหากแจ้งซ่อมสถานที่ ระบบไฟ หรือประตู ให้เลือก 'ไม่ระบุครุภัณฑ์'" />
+                </label>
+                {isLoadingEquipments && (
+                  <span className="text-[11px] text-slate-400 animate-pulse">กำลังโหลด...</span>
                 )}
+              </div>
+              <div className="relative">
+                <select
+                  id="equipment-select"
+                  value={selectedEquipmentCode}
+                  onChange={handleEquipmentChange}
+                  disabled={isLoadingEquipments}
+                  className="w-full appearance-none text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-10 font-medium hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition shadow-xs disabled:bg-slate-100"
+                >
+                  <option value="">-- ไม่ระบุครุภัณฑ์ (แจ้งซ่อมอาคารสถานที่ / ปัญหาทั่วไป) --</option>
+                  {roomEquipments.map((eq) => (
+                    <option key={eq.equipmentCode} value={eq.equipmentCode}>
+                      {eq.equipmentCode} : {eq.equipmentName}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               </div>
             </div>
           </div>
 
           {/* Verified Asset Spec Card */}
-          {isAssetVerified && (
-            <div className="p-3 rounded-lg bg-blue-50/60 border border-blue-200/80 flex items-center justify-between text-xs">
-              <div className="flex items-center space-x-2">
-                <span className="font-semibold text-blue-900">Spec:</span>
-                <span className="text-slate-700">Workstation Dell Precision 3660 (SN: 8JK92L3)</span>
-              </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                อยู่ในระยะประกัน
-              </span>
+          {selectedEquipmentCode && roomEquipments.find((eq) => eq.equipmentCode === selectedEquipmentCode) ? (
+            (() => {
+              const selectedEquipment = roomEquipments.find((eq) => eq.equipmentCode === selectedEquipmentCode)!;
+              return (
+                <div className="p-3 rounded-lg bg-blue-50/60 border border-blue-200/80 flex items-center justify-between text-xs">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-semibold text-blue-900">ครุภัณฑ์ที่เลือก:</span>
+                      <span className="text-slate-800 font-medium">{selectedEquipment.equipmentName}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-[11px] text-slate-500">
+                      <span>รหัส: <code className="font-mono text-blue-700 font-semibold">{selectedEquipment.equipmentCode}</code></span>
+                      <span>•</span>
+                      <span>สถานะปัจจุบัน: <strong className="text-slate-700">{selectedEquipment.status?.name || 'ใช้งานได้ปกติ'}</strong></span>
+                    </div>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                    selectedEquipment.status?.name === 'ชำรุดรอซ่อม'
+                      ? 'bg-amber-100 text-amber-800 ring-1 ring-amber-300'
+                      : 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300'
+                  }`}>
+                    {selectedEquipment.status?.name || 'ใช้งานได้ปกติ'}
+                  </span>
+                </div>
+              );
+            })()
+          ) : !selectedEquipmentCode ? (
+            <div className="p-2.5 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-500 flex items-center space-x-2">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span>แจ้งซ่อมหมวดสถานที่ทั่วไป (ไม่มีรหัสครุภัณฑ์ผูกกับคำร้องนี้)</span>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Section 3: Problem Description */}

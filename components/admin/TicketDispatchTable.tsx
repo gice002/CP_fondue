@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, SlidersHorizontal, RotateCcw, Eye, Radio, Check } from 'lucide-react';
+import { Search, SlidersHorizontal, RotateCcw, Eye, Radio, Check, CheckCircle2 } from 'lucide-react';
 import { Ticket } from '@/types';
+import { InfoTooltip } from '@/components/common/InfoTooltip';
 
 interface TicketDispatchTableProps {
   tickets: Ticket[];
@@ -33,6 +34,15 @@ export const TicketDispatchTable: React.FC<TicketDispatchTableProps> = ({
     const matchesBld = buildingFilter === 'ALL' || t.location.building.includes(buildingFilter);
 
     return matchesSearch && matchesCat && matchesBld;
+  });
+
+  // Pull completed tickets to the bottom of the list
+  const sortedTickets = [...filteredTickets].sort((a, b) => {
+    const aCompleted = a.status === 'COMPLETED';
+    const bCompleted = b.status === 'COMPLETED';
+    if (aCompleted && !bCompleted) return 1;
+    if (!aCompleted && bCompleted) return -1;
+    return 0;
   });
 
   return (
@@ -130,32 +140,74 @@ export const TicketDispatchTable: React.FC<TicketDispatchTableProps> = ({
           <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs shadow-2xs">
             <tr className="border-b border-slate-200 text-slate-600 font-bold">
               <th className="py-2.5 px-3">รหัส / วันที่</th>
+              <th className="py-2.5 px-3">
+                <span className="inline-flex items-center gap-1">
+                  สถานะ
+                  <InfoTooltip text="สถานะคำร้อง: รอคัดกรอง (ยังไม่ได้จ่ายงาน), มอบหมายแล้ว (ระบุช่างแล้ว), กำลังซ่อม (ช่างกดรับงาน), เสร็จสิ้น (ปิดงานเรียบร้อย)" />
+                </span>
+              </th>
               <th className="py-2.5 px-3">ผู้แจ้ง &amp; สังกัด</th>
               <th className="py-2.5 px-3">สถานที่</th>
               <th className="py-2.5 px-3">ครุภัณฑ์ / อาการขัดข้อง</th>
-              <th className="py-2.5 px-3 text-center">Tags / ความสำคัญ</th>
+              <th className="py-2.5 px-3 text-center">
+                <span className="inline-flex items-center gap-1 justify-center">
+                  Tags / ความสำคัญ
+                  <InfoTooltip text="ระบบจัดเรียงลำดับงานตามแท็ก: งานเร่งด่วน > งานเร่ง > งานจำเป็น > งานทั่วไป > งานที่ต้องรออุปกรณ์" />
+                </span>
+              </th>
               <th className="py-2.5 px-3 text-center">จัดการ</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
-            {filteredTickets.map((t) => {
+            {sortedTickets.map((t) => {
               const isSelected = t.id === selectedTicketId;
+              const isCompleted = t.status === 'COMPLETED';
+
               return (
                 <tr
                   key={t.id}
                   onClick={() => onSelectTicket(t)}
                   className={`cursor-pointer transition ${
-                    isSelected ? 'bg-blue-50/80 ring-1 ring-blue-300' : 'hover:bg-slate-50'
+                    isCompleted
+                      ? isSelected
+                        ? 'bg-emerald-100/90 ring-2 ring-emerald-500 border-l-4 border-l-emerald-600'
+                        : 'bg-emerald-50/70 hover:bg-emerald-100/60 border-l-4 border-l-emerald-400'
+                      : isSelected
+                      ? 'bg-blue-50/80 ring-1 ring-blue-300'
+                      : 'hover:bg-slate-50'
                   }`}
                 >
                   <td className="py-3 px-3">
-                    <div className="font-mono font-black text-blue-600 flex items-center space-x-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                    <div className={`font-mono font-black flex items-center space-x-1 ${isCompleted ? 'text-emerald-700' : 'text-blue-600'}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${isCompleted ? 'bg-emerald-500' : 'bg-blue-500'}`}></span>
                       <span>{t.ticketNumber}</span>
                     </div>
                     <div className="text-[10px] text-slate-400 mt-0.5 font-medium">
                       {new Date(t.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                     </div>
+                  </td>
+
+                  <td className="py-3 px-3 whitespace-nowrap">
+                    {t.status === 'COMPLETED' ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <span>เสร็จสิ้นแล้ว</span>
+                      </span>
+                    ) : t.status === 'IN_PROGRESS' ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span>กำลังซ่อม</span>
+                      </span>
+                    ) : t.status === 'ASSIGNED' ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                        <span>มอบหมายแล้ว</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                        <span>รอคัดกรอง</span>
+                      </span>
+                    )}
                   </td>
 
                   <td className="py-3 px-3">

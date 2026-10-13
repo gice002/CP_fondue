@@ -225,41 +225,98 @@ async function main() {
     });
   }
 
-  // 7. Equipments
+  // 7. Equipment Statuses
+  const eqStatusDamaged = await prisma.equipmentStatus.upsert({
+    where: { name: 'ชำรุดรอซ่อม' },
+    update: {},
+    create: { id: 'eq_status_damaged', name: 'ชำรุดรอซ่อม' },
+  });
+
+  const eqStatusNormal = await prisma.equipmentStatus.upsert({
+    where: { name: 'ใช้งานได้ปกติ' },
+    update: {},
+    create: { id: 'eq_status_normal', name: 'ใช้งานได้ปกติ' },
+  });
+
+  // Equipments
   const equipments = [
     {
-      id: 'eq_01',
       equipmentCode: 'KKU-CP-67-0891',
       equipmentName: 'Desktop Workstation HP Z4 G4',
-      equipmentStatus: 'ชำรุดรอซ่อม',
+      statusId: eqStatusDamaged.id,
       locationId: 'loc_03',
     },
     {
-      id: 'eq_02',
       equipmentCode: 'KKU-CP-66-0120',
       equipmentName: 'Cisco Catalyst 9200 48-Port PoE+',
-      equipmentStatus: 'ชำรุดรอซ่อม',
+      statusId: eqStatusDamaged.id,
       locationId: 'loc_04',
     },
     {
-      id: 'eq_03',
       equipmentCode: 'KKU-CP-65-0315',
       equipmentName: 'เครื่องปรับอากาศ Daikin Inverter 36000 BTU',
-      equipmentStatus: 'ชำรุดรอซ่อม',
+      statusId: eqStatusDamaged.id,
       locationId: 'loc_02',
     },
     {
-      id: 'eq_04',
       equipmentCode: 'KKU-CP-66-0442',
       equipmentName: 'Projector Epson Laser EB-L520U',
-      equipmentStatus: 'ปกติ',
+      statusId: eqStatusNormal.id,
       locationId: 'loc_01',
+    },
+    {
+      equipmentCode: 'KKU-CP-67-0105',
+      equipmentName: 'เครื่องพิมพ์เลเซอร์ HP LaserJet Enterprise M608dn',
+      statusId: eqStatusNormal.id,
+      locationId: 'loc_01',
+    },
+    {
+      equipmentCode: 'KKU-CP-66-0112',
+      equipmentName: 'เครื่องปรับอากาศ Mitsubishi Heavy Duty 24000 BTU',
+      statusId: eqStatusNormal.id,
+      locationId: 'loc_01',
+    },
+    {
+      equipmentCode: 'KKU-CP-66-0210',
+      equipmentName: 'จอสัมผัสอัจฉริยะ Maxhub Interactive Display 86 นิ้ว',
+      statusId: eqStatusNormal.id,
+      locationId: 'loc_02',
+    },
+    {
+      equipmentCode: 'KKU-CP-67-0222',
+      equipmentName: 'ชุดไมโครโฟนไร้สาย Shure BLX288/PG58 Dual Wireless',
+      statusId: eqStatusNormal.id,
+      locationId: 'loc_02',
+    },
+    {
+      equipmentCode: 'KKU-CP-67-0892',
+      equipmentName: 'Desktop Workstation Dell Precision 3660',
+      statusId: eqStatusNormal.id,
+      locationId: 'loc_03',
+    },
+    {
+      equipmentCode: 'KKU-CP-66-0350',
+      equipmentName: 'เครื่องปรับอากาศ Carrier Inverter 40000 BTU',
+      statusId: eqStatusNormal.id,
+      locationId: 'loc_03',
+    },
+    {
+      equipmentCode: 'KKU-CP-65-0455',
+      equipmentName: 'เครื่องสำรองไฟ APC Smart-UPS RT 10kVA On-Line',
+      statusId: eqStatusNormal.id,
+      locationId: 'loc_04',
+    },
+    {
+      equipmentCode: 'KKU-CP-66-0121',
+      equipmentName: 'เซิร์ฟเวอร์ Dell PowerEdge R750 Rack Server',
+      statusId: eqStatusNormal.id,
+      locationId: 'loc_04',
     },
   ];
 
   for (const eq of equipments) {
     await prisma.equipment.upsert({
-      where: { id: eq.id },
+      where: { equipmentCode: eq.equipmentCode },
       update: eq,
       create: eq,
     });
@@ -345,10 +402,9 @@ async function main() {
         reporterUserId: 'usr_reporter_01',
         assignedTechnicianId: 'usr_tech_01',
         locationId: 'loc_04',
-        equipmentId: 'eq_02',
+        equipmentCode: 'KKU-CP-66-0120',
         categoryId: 'cat_01',
         adminNotes: 'มอบหมายช่างอนุชา ตรวจสอบพอร์ตสวิตช์ด่วน',
-        targetSlaDate: new Date(Date.now() + 4 * 3600 * 1000),
         attachments: {
           create: [
             {
@@ -389,10 +445,9 @@ async function main() {
         reporterUserId: 'usr_reporter_01',
         assignedTechnicianId: 'usr_tech_02',
         locationId: 'loc_02',
-        equipmentId: 'eq_03',
+        equipmentCode: 'KKU-CP-65-0315',
         categoryId: 'cat_02',
         adminNotes: 'แอร์มีน้ำรั่วส่งช่างสมศักดิ์เข้าตรวจสอบหน้างาน',
-        targetSlaDate: new Date(Date.now() + 8 * 3600 * 1000),
         statusHistories: {
           create: [
             {
@@ -428,7 +483,7 @@ async function main() {
         reporterUserId: 'usr_reporter_01',
         assignedTechnicianId: 'usr_tech_03',
         locationId: 'loc_01',
-        equipmentId: 'eq_04',
+        equipmentCode: 'KKU-CP-66-0442',
         categoryId: 'cat_03',
         repairNotes: 'เปลี่ยนสายสัญญาณ HDMI เส้นใหม่ 5 เมตร และตั้งค่า Color Matrix บนโปรเจกเตอร์เรียบร้อย',
         completedAt: new Date(),
@@ -470,13 +525,6 @@ async function main() {
               ticketNotes: 'ปิดงานซ่อมเรียบร้อย (BR8, BR9)',
             },
           ],
-        },
-        evaluation: {
-          create: {
-            ratingScore: 5,
-            feedback: 'ช่างเข้ามาตรวจเร็วมากตามเวลากำหนด ตรวจเช็คสายสัญญาณ HDMI สำรองให้ด้วย ประทับใจการบริการครับ',
-            evaluatorUserId: 'usr_reporter_01',
-          },
         },
       },
     });

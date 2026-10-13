@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Send, Clock, AlertTriangle, CheckCircle2, UserX, XCircle, AlertCircle } from 'lucide-react';
 import { Ticket, STANDARD_TAGS, StandardTag } from '@/types';
+import { InfoTooltip } from '@/components/common/InfoTooltip';
 
 interface AssignTechnicianDrawerProps {
   ticket: Ticket;
@@ -13,11 +14,15 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
   ticket,
   onAssigned,
 }) => {
-  const [selectedTechId, setSelectedTechId] = useState(ticket.assignedTechnician?.id || '');
+  const [selectedTechIds, setSelectedTechIds] = useState<string[]>(() => {
+    if (ticket.assignedTechnicians && ticket.assignedTechnicians.length > 0) {
+      return ticket.assignedTechnicians.map((t) => t.id);
+    }
+    return ticket.assignedTechnician?.id ? [ticket.assignedTechnician.id] : [];
+  });
   const [selectedTags, setSelectedTags] = useState<StandardTag[]>(
     ticket.tags && ticket.tags.length > 0 ? (ticket.tags as StandardTag[]) : ['งานทั่วไป']
   );
-  const [slaTargetTime, setSlaTargetTime] = useState('18 พ.ค. 14:00 น.');
   const [notes, setNotes] = useState(
     'โปรดนำหัว RJ-45 และคีมย้ำสาย Cat6 สำรองไปด้วย พอร์ตเบอร์ 12-16 หลวม'
   );
@@ -33,10 +38,13 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
       ticket.tags && ticket.tags.length > 0 ? (ticket.tags as StandardTag[]) : ['งานทั่วไป']
     );
     setAssignedSuccess(false);
-    if (ticket.assignedTechnician?.id) {
-      setSelectedTechId(ticket.assignedTechnician.id);
+
+    if (ticket.assignedTechnicians && ticket.assignedTechnicians.length > 0) {
+      setSelectedTechIds(ticket.assignedTechnicians.map((t) => t.id));
+    } else if (ticket.assignedTechnician?.id) {
+      setSelectedTechIds([ticket.assignedTechnician.id]);
     }
-  }, [ticket.id, ticket.tags, ticket.assignedTechnician]);
+  }, [ticket.id, ticket.tags, ticket.assignedTechnician, ticket.assignedTechnicians]);
 
   React.useEffect(() => {
     async function loadTechs() {
@@ -61,10 +69,13 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
             isExecuting: (t.inProgressCount || 0) > 0,
           }));
           setTechnicians(list);
-          setSelectedTechId((current) => {
-            if (ticket.assignedTechnician?.id) return ticket.assignedTechnician.id;
-            if (current && list.some((l: any) => l.id === current)) return current;
-            return list[0].id;
+          setSelectedTechIds((current) => {
+            if (current.length > 0) return current;
+            if (ticket.assignedTechnicians && ticket.assignedTechnicians.length > 0) {
+              return ticket.assignedTechnicians.map((t) => t.id);
+            }
+            if (ticket.assignedTechnician?.id) return [ticket.assignedTechnician.id];
+            return [list[0].id];
           });
         }
       } catch (e) {
@@ -73,6 +84,20 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
     }
     loadTechs();
   }, [ticket.id]);
+
+  const toggleTech = (techId: string) => {
+    setSelectedTechIds((prev) => {
+      if (prev.includes(techId)) {
+        if (prev.length === 1) {
+          alert('ต้องเลือกช่างอย่างน้อย 1 คน');
+          return prev;
+        }
+        return prev.filter((id) => id !== techId);
+      } else {
+        return [...prev, techId];
+      }
+    });
+  };
 
   const toggleTag = (tag: StandardTag) => {
     if (selectedTags.includes(tag)) {
@@ -88,9 +113,8 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
 
   const handleAssign = async (e: React.FormEvent) => {
     e.preventDefault();
-    const techIdToUse = selectedTechId || (technicians.length > 0 ? technicians[0].id : '');
-    if (!techIdToUse) {
-      alert('กรุณาเลือกช่างผู้รับผิดชอบ');
+    if (selectedTechIds.length === 0) {
+      alert('กรุณาเลือกช่างผู้รับผิดชอบอย่างน้อย 1 คน');
       return;
     }
 
@@ -101,9 +125,9 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'ASSIGN',
-          technicianId: techIdToUse,
+          technicianIds: selectedTechIds,
+          technicianId: selectedTechIds[0],
           tags: selectedTags,
-          targetSlaDate: '2026-05-18T14:00:00Z',
           adminNotes: notes,
         }),
       });
@@ -200,7 +224,7 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
             มอบหมายงานช่าง (Technician Dispatch)
           </span>
           <h3 className="text-sm font-bold text-slate-900 mt-0.5">
-            กำหนดช่างผู้รับผิดชอบและเป้าหมาย SLA
+            กำหนดช่างผู้รับผิดชอบ
           </h3>
         </div>
       </div>
@@ -231,8 +255,10 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
           {/* Technician Selection */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-800">
-                เลือกช่างผู้รับผิดชอบ (สามารถมอบหมายงานเข้าคิวได้ไม่จำกัด)
+              <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                <span>เลือกช่างผู้รับผิดชอบ</span>
+                <span className="text-blue-600 font-bold">(เลือกได้หลายคน: เลือกแล้ว {selectedTechIds.length} คน)</span>
+                <InfoTooltip text="สามารถเลือกช่างร่วมปฏิบัติงานได้หลายคน โดยช่างคนแรกที่เลือกจะถือเป็นช่างผู้รับผิดชอบหลัก (Lead Technician)" />
               </label>
               <span className="text-[11px] text-slate-400 font-normal">
                 {technicians.length} นายในระบบ
@@ -241,31 +267,37 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
 
             <div className="space-y-2">
               {technicians.map((tech) => {
-                const isSelected = selectedTechId === tech.id;
+                const isSelected = selectedTechIds.includes(tech.id);
+                const isLead = isSelected && selectedTechIds[0] === tech.id;
                 return (
                   <div
                     key={tech.id}
-                    onClick={() => setSelectedTechId(tech.id)}
+                    onClick={() => toggleTech(tech.id)}
                     className={`p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${
                       isSelected
-                        ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900'
+                        ? 'border-blue-600 bg-blue-50/50 ring-1 ring-blue-600 shadow-2xs'
                         : 'border-slate-200 hover:bg-slate-50/50'
                     }`}
                   >
                     <div className="flex items-center space-x-2.5">
                       <input
-                        type="radio"
+                        type="checkbox"
                         name="technician"
                         checked={isSelected}
-                        onChange={() => setSelectedTechId(tech.id)}
-                        className="w-3.5 h-3.5 text-slate-900 focus:ring-slate-900"
+                        onChange={() => toggleTech(tech.id)}
+                        className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
                       />
                       <div>
                         <div className="text-xs font-semibold text-slate-900 flex items-center space-x-1.5">
                           <span>{tech.name}</span>
+                          {isLead && selectedTechIds.length > 1 && (
+                            <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.2 rounded border border-blue-200">
+                              ช่างหลัก
+                            </span>
+                          )}
                           {tech.isExecuting && (
                             <span className="text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
-                              กำลังลงพื้นที่ปฏิบัติงาน
+                              กำลังลงพื้นที่
                             </span>
                           )}
                         </div>
@@ -294,8 +326,9 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
           {/* Tags Selection (Replacing Urgency) */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-800">
-                กำหนด Tags ลำดับความสำคัญและประเภทงาน (เลือกได้หลาย Tag)
+              <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                <span>กำหนด Tags ลำดับความสำคัญและประเภทงาน</span>
+                <InfoTooltip text="Tags ใช้จัดลำดับความสำคัญในคิวงานของช่าง โดย Tag 'ด่วนที่สุด' และ 'กระทบวงกว้าง' จะถูกดันขึ้นด้านบนสุดของคิวงานช่างโดยอัตโนมัติ" />
               </label>
               <span className="text-[10px] text-slate-400">เรียงตามลำดับความสำคัญ</span>
             </div>
@@ -328,22 +361,6 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
             </div>
           </div>
 
-          {/* SLA target time */}
-          <div className="text-xs">
-            <label className="text-[11px] font-medium text-slate-500 block mb-1">
-              เป้าหมายเวลา SLA
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={slaTargetTime}
-                onChange={(e) => setSlaTargetTime(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 pr-8 font-medium focus:bg-white focus:ring-1 focus:ring-slate-900 focus:border-slate-900 outline-none transition"
-              />
-              <Clock className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-3" />
-            </div>
-          </div>
-
           {/* Notes to Technician */}
           <div>
             <label className="text-xs font-semibold text-slate-800 block mb-1">
@@ -359,12 +376,12 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
           </div>
 
           {/* Escalation Policy Banner */}
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-[11px] flex items-start space-x-2">
-            <AlertTriangle className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+          <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-200 text-slate-600 text-[11px] flex items-start space-x-2">
+            <AlertTriangle className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-slate-800">นโยบาย 1 ช่าง 1 งาน:</span>
-              <p className="text-slate-500 mt-0.5">
-                ช่าง 1 คนสามารถรับผิดชอบงานที่อยู่ระหว่างดำเนินการได้ครั้งละ 1 งานเท่านั้น เพื่อรักษา SLA และความรวดเร็ว
+              <span className="font-semibold text-blue-900">การมอบหมายงานช่างร่วม (Multi-Technicians):</span>
+              <p className="text-slate-600 mt-0.5">
+                งาน 1 งานสามารถมอบหมายให้ช่างร่วมรับผิดชอบได้หลายคน โดยงานจะปรากฏในคิวของช่างทุกคนที่ได้รับมอบหมาย
               </p>
             </div>
           </div>

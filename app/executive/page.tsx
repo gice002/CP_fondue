@@ -48,16 +48,16 @@ export default function ExecutivePage() {
         <header className="hidden lg:flex items-center justify-between px-8 py-3.5 bg-white border-b border-slate-200/90 shadow-2xs">
           <div>
             <h1 className="text-base font-extrabold text-slate-900 tracking-tight">
-              ศูนย์สรุปผลและรายงานผู้บริหาร (Executive Suite)
+              แดชบอร์ดภาพรวมและรายงานสถิติ (Dashboard)
             </h1>
             <p className="text-xs text-slate-500 font-medium">
-              SC-09 อาคารวิทยวิภาส • รายงานคุณภาพ SLA &amp; เกณฑ์ EdPEx
+              SC-09 อาคารวิทยวิภาส • วิทยาลัยการคอมพิวเตอร์ มหาวิทยาลัยขอนแก่น
             </p>
           </div>
 
           <button
             type="button"
-            onClick={() => alert('ส่งออกรายงานสรุปผลคุณภาพ EdPEx ประจำเดือนเรียบร้อยแล้ว')}
+            onClick={() => alert('ส่งออกรายงานสรุปผลประจำเดือนเรียบร้อยแล้ว')}
             className="px-3.5 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition"
           >
             ส่งออกรายงาน EdPEx

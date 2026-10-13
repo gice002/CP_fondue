@@ -50,15 +50,15 @@ export async function PATCH(
       // Require ADMIN_DISPATCH role
       assertAuthorized(session, ['ADMIN_DISPATCH']);
 
-      if (!body.technicianId) {
-        return NextResponse.json({ success: false, error: 'กรุณาระบุช่างผู้รับผิดชอบ' }, { status: 400 });
+      const technicianIds = body.technicianIds || (body.technicianId ? [body.technicianId] : []);
+      if (!technicianIds || technicianIds.length === 0) {
+        return NextResponse.json({ success: false, error: 'กรุณาระบุช่างผู้รับผิดชอบอย่างน้อย 1 คน' }, { status: 400 });
       }
 
       updatedTicket = await TicketService.assignTicket(
         id,
-        body.technicianId,
+        technicianIds,
         body.tags,
-        body.targetSlaDate,
         body.adminNotes,
         session.userId
       );

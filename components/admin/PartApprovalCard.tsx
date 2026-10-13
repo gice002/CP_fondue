@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Package, Check, X } from 'lucide-react';
+import { Package, Check, X, RefreshCw } from 'lucide-react';
 import { SparePartRequest } from '@/types';
+import { InfoTooltip } from '@/components/common/InfoTooltip';
 
 interface PartApprovalCardProps {
   requisition?: SparePartRequest;
@@ -14,30 +15,38 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
   onActionComplete,
 }) => {
   const [currentReq, setCurrentReq] = useState<SparePartRequest | null>(propReq || null);
+  const [pendingList, setPendingList] = useState<SparePartRequest[]>([]);
   const [status, setStatus] = useState<'PENDING' | 'APPROVED' | 'REJECTED'>(
     propReq?.status || 'PENDING'
   );
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const fetchPendingRequisitions = async () => {
+    try {
+      const res = await fetch('/api/spare-parts/requisitions?status=PENDING', {
+        cache: 'no-store',
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setPendingList(data.data);
+        if (data.data.length > 0) {
+          setCurrentReq(data.data[0]);
+          setStatus(data.data[0].status);
+        } else {
+          setCurrentReq(null);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     if (propReq) {
       setCurrentReq(propReq);
       setStatus(propReq.status);
     } else {
-      // Fetch latest pending requisition from real database
-      async function fetchLatestPending() {
-        try {
-          const res = await fetch('/api/spare-parts/requisitions?status=PENDING');
-          const data = await res.json();
-          if (data.success && data.data.length > 0) {
-            setCurrentReq(data.data[0]);
-            setStatus(data.data[0].status);
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      fetchLatestPending();
+      fetchPendingRequisitions();
     }
   }, [propReq]);
 
@@ -57,6 +66,10 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
       if (data.success) {
         setStatus('APPROVED');
         if (onActionComplete) onActionComplete();
+        // Delay slightly before loading next pending requisition
+        setTimeout(() => {
+          fetchPendingRequisitions();
+        }, 800);
       } else {
         alert(data.error || 'เกิดข้อผิดพลาดในการอนุมัติเบิกอะไหล่');
       }
@@ -85,6 +98,9 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
       if (data.success) {
         setStatus('REJECTED');
         if (onActionComplete) onActionComplete();
+        setTimeout(() => {
+          fetchPendingRequisitions();
+        }, 800);
       } else {
         alert(data.error || 'เกิดข้อผิดพลาดในการปฏิเสธคำขอ');
       }
@@ -110,11 +126,19 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
         <div>
-          <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
-            คำขอเบิกอุปกรณ์ (Material Requisition)
-          </span>
+          <div className="flex items-center space-x-1.5">
+            <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
+              คำขอเบิกอุปกรณ์ (Material Requisition)
+            </span>
+            <InfoTooltip text="คำขอเบิกพัสดุจากช่างเทคนิคที่หน้างาน เมื่อกด 'อนุมัติเบิกพัสดุ' ระบบจะตัดยอดคงเหลือในคลังพัสดุอัตโนมัติ และบันทึกประวัติลงตารางการเบิกจ่าย" />
+          </div>
           <h3 className="text-sm font-bold text-slate-900 mt-0.5">
             พิจารณาอนุมัติการเบิก #{currentReq.requestNumber}
+            {pendingList.length > 1 && (
+              <span className="ml-2 text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                (มีค้างอีก {pendingList.length - 1} รายการ)
+              </span>
+            )}
           </h3>
         </div>
         <span

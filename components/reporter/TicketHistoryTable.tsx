@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Eye, XCircle } from 'lucide-react';
+import { Search, Eye, XCircle, CheckCircle2 } from 'lucide-react';
 import { Ticket } from '@/types';
+import { InfoTooltip } from '@/components/common/InfoTooltip';
 
 interface TicketHistoryTableProps {
   tickets: Ticket[];
@@ -31,44 +32,57 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
     return matchesSearch;
   });
 
+  // Pull completed tickets to the bottom
+  const sortedTickets = [...filteredTickets].sort((a, b) => {
+    const aDone = a.status === 'COMPLETED';
+    const bDone = b.status === 'COMPLETED';
+    if (aDone && !bDone) return 1;
+    if (!aDone && bDone) return -1;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   const getStatusBadge = (ticket: Ticket) => {
     if (ticket.status === 'IN_PROGRESS') {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-900 text-white">
-          กำลังเข้าซ่อม
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          <span>กำลังเข้าซ่อม</span>
         </span>
       );
     }
     if (ticket.status === 'PENDING_DISPATCH') {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20">
-          รอดำเนินการ
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+          <span>รอดำเนินการ</span>
         </span>
       );
     }
     if (ticket.status === 'COMPLETED') {
       if (ticket.evaluation) {
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-            ประเมินแล้ว ({ticket.evaluation.rating}★)
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+            <span>ประเมินแล้ว ({ticket.evaluation.rating}★)</span>
           </span>
         );
       }
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-          เสร็จสิ้น
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+          <span>ซ่อมเสร็จสิ้น</span>
         </span>
       );
     }
     if (ticket.status === 'CANCELLED') {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500">
           ยกเลิกแล้ว
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
         มอบหมายแล้ว
       </span>
     );
@@ -128,44 +142,54 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
-            {filteredTickets.map((t) => (
-              <tr key={t.id} className="hover:bg-slate-50/60 transition">
-                <td className="py-3 px-3 font-mono font-medium text-slate-900">
-                  {t.ticketNumber}
-                </td>
-                <td className="py-3 px-3">
-                  <div className="font-semibold text-slate-800">{t.location.building}</div>
-                  <div className="text-[11px] text-slate-500">
-                    {t.location.floor} • {t.location.roomName}
-                  </div>
-                </td>
-                <td className="py-3 px-3 max-w-xs">
-                  <p className="font-medium text-slate-700 line-clamp-1">{t.description}</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {t.tags && t.tags.length > 0 ? (
-                      t.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                            tag === 'งานเร่งด่วน'
-                              ? 'bg-red-50 text-red-700 border border-red-200'
-                              : tag === 'งานเร่ง'
-                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : tag === 'งานจำเป็น'
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                              : tag === 'งานที่ต้องรออุปกรณ์'
-                              ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                              : 'bg-slate-100 text-slate-600 border border-slate-200'
-                          }`}
-                        >
-                          {tag}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-[10px] text-slate-400">งานทั่วไป</span>
-                    )}
-                  </div>
-                </td>
+            {sortedTickets.map((t) => {
+              const isCompleted = t.status === 'COMPLETED';
+
+              return (
+                <tr
+                  key={t.id}
+                  className={`transition ${
+                    isCompleted
+                      ? 'bg-emerald-50/70 hover:bg-emerald-100/60 border-l-4 border-l-emerald-500 text-emerald-950'
+                      : 'hover:bg-slate-50/60'
+                  }`}
+                >
+                  <td className={`py-3 px-3 font-mono font-medium ${isCompleted ? 'text-emerald-800 font-bold' : 'text-slate-900'}`}>
+                    {t.ticketNumber}
+                  </td>
+                  <td className="py-3 px-3">
+                    <div className="font-semibold text-slate-800">{t.location.building}</div>
+                    <div className="text-[11px] text-slate-500">
+                      {t.location.floor} • {t.location.roomName}
+                    </div>
+                  </td>
+                  <td className="py-3 px-3 max-w-xs">
+                    <p className="font-medium text-slate-700 line-clamp-1">{t.description}</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {t.tags && t.tags.length > 0 ? (
+                        t.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                              tag === 'งานเร่งด่วน'
+                                ? 'bg-red-50 text-red-700 border border-red-200'
+                                : tag === 'งานเร่ง'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : tag === 'งานจำเป็น'
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                : tag === 'งานที่ต้องรออุปกรณ์'
+                                ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                                : 'bg-slate-100 text-slate-600 border border-slate-200'
+                            }`}
+                          >
+                            {tag}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-[10px] text-slate-400">งานทั่วไป</span>
+                      )}
+                    </div>
+                  </td>
                 <td className="py-3 px-3 text-center text-slate-600 font-medium whitespace-nowrap">
                   {t.createdAt.slice(0, 10)}
                 </td>
@@ -199,8 +223,9 @@ export const TicketHistoryTable: React.FC<TicketHistoryTableProps> = ({
                   </div>
                 </td>
               </tr>
-            ))}
-          </tbody>
+            );
+          })}
+        </tbody>
         </table>
       </div>
 

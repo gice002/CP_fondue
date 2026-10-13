@@ -82,19 +82,44 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
   const isStep2Done = ticket.status === 'ASSIGNED' || ticket.status === 'IN_PROGRESS';
   const isStep3Active = ticket.status === 'IN_PROGRESS';
 
+  const isCompleted = ticket.status === 'COMPLETED';
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 mb-6">
+    <div
+      className={`rounded-2xl shadow-xs p-6 mb-6 transition ${
+        isCompleted
+          ? 'bg-emerald-50/50 border-2 border-emerald-300 ring-2 ring-emerald-500/20'
+          : 'bg-white border border-slate-200/80'
+      }`}
+    >
+      {isCompleted && (
+        <div className="mb-4 p-3 bg-emerald-100/80 border border-emerald-300 rounded-xl flex items-center space-x-2 text-xs text-emerald-900 font-bold">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>งานซ่อมนี้ดำเนินการเสร็จสิ้นเรียบร้อยแล้ว (สามารถประเมินความพึงพอใจในส่วนด้านล่างได้ทันที)</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-semibold text-slate-900">
+            <span
+              className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                isCompleted
+                  ? 'bg-emerald-200 text-emerald-900'
+                  : ticket.status === 'IN_PROGRESS'
+                  ? 'bg-amber-100 text-amber-800'
+                  : ticket.status === 'ASSIGNED'
+                  ? 'bg-blue-100 text-blue-800'
+                  : 'bg-slate-100 text-slate-800'
+              }`}
+            >
               {ticket.status === 'IN_PROGRESS'
                 ? 'กำลังเข้าซ่อม (In-Progress)'
                 : ticket.status === 'ASSIGNED'
                 ? 'มอบหมายช่างแล้ว (Assigned)'
                 : ticket.status === 'COMPLETED'
-                ? 'ซ่อมเสร็จสิ้น (Completed)'
+                ? 'ซ่อมเสร็จสิ้น (Completed) ✓'
                 : ticket.status === 'CANCELLED'
                 ? 'ยกเลิกคำร้องแล้ว (Cancelled)'
                 : 'รอการคัดกรอง (Pending)'}
@@ -210,8 +235,43 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
         </div>
       </div>
 
-      {/* Assigned Technician Card */}
-      {ticket.assignedTechnician && (
+      {/* Assigned Technician(s) Card */}
+      {ticket.assignedTechnicians && ticket.assignedTechnicians.length > 0 ? (
+        <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/70 mb-4 space-y-2.5">
+          <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+            ช่างผู้รับผิดชอบ ({ticket.assignedTechnicians.length} คน):
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {ticket.assignedTechnicians.map((tech, idx) => (
+              <div key={tech.id} className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200/80">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+                    {tech.firstName.slice(0, 2)}
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-slate-900 flex items-center space-x-1">
+                      <span>{tech.firstName} {tech.lastName}</span>
+                      {idx === 0 && <span className="text-[9px] bg-blue-100 text-blue-700 px-1 py-0.2 rounded font-semibold">หัวหน้างาน</span>}
+                    </div>
+                    <div className="text-[10px] text-slate-500">
+                      {tech.phoneNumber || '081-445-9988'} • {tech.departmentName || 'ฝ่ายช่างซ่อมบำรุง'}
+                    </div>
+                  </div>
+                </div>
+                {tech.phoneNumber && (
+                  <a
+                    href={`tel:${tech.phoneNumber}`}
+                    className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition"
+                    title={`โทรหา ${tech.firstName}`}
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : ticket.assignedTechnician ? (
         <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs">
@@ -241,6 +301,52 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
               <Phone className="w-3.5 h-3.5" />
               <span>โทรติดต่อช่าง</span>
             </a>
+          )}
+        </div>
+      ) : null}
+
+      {/* Technician Repair Notes & Proof Photos (เมื่อช่างส่งภาพผลงาน/ปิดงาน) */}
+      {ticket.attachments && ticket.attachments.length > 0 && (
+        <div className="mb-4 p-4 rounded-xl bg-slate-50/70 border border-slate-200/70">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-xs font-bold text-slate-900">
+              ภาพถ่ายประกอบงานซ่อม (รูปภาพก่อน/หลังซ่อม)
+            </span>
+            <span className="text-[10px] text-slate-500 font-medium">
+              ทั้งหมด {ticket.attachments.length} รูป
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            {ticket.attachments.map((att, idx) => (
+              <a
+                key={att.id || idx}
+                href={att.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative block aspect-video rounded-lg overflow-hidden border border-slate-200 bg-slate-100 hover:opacity-95 transition"
+              >
+                <img
+                  src={att.fileUrl}
+                  alt={att.caption || `ภาพประกอบ ${idx + 1}`}
+                  className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
+                />
+                <span className={`absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                  att.phase === 'AFTER_REPAIR'
+                    ? 'bg-emerald-600/90 text-white'
+                    : 'bg-slate-900/80 text-white'
+                }`}>
+                  {att.phase === 'AFTER_REPAIR' ? 'หลังซ่อม (ผลงานช่าง)' : 'ก่อนซ่อม (ผู้แจ้ง)'}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {ticket.repairNotes && (
+            <div className="mt-3 p-2.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-700">
+              <span className="font-bold text-slate-900 block mb-0.5">บันทึกสรุปผลการซ่อมของช่าง:</span>
+              <p className="text-slate-600">{ticket.repairNotes}</p>
+            </div>
           )}
         </div>
       )}

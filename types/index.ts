@@ -60,6 +60,8 @@ export interface Equipment {
   serialNumber?: string;
   specDetails?: string;
   categoryName: string;
+  statusId?: string;
+  statusName?: string;
   warrantyStatus: 'IN_WARRANTY' | 'OUT_OF_WARRANTY';
   locationId: string;
 }
@@ -97,7 +99,8 @@ export interface Ticket {
   id: string;
   ticketNumber: string; // e.g. "REQ-202505-0042"
   reporter: User;
-  assignedTechnician?: User;
+  assignedTechnician?: User; // Lead / primary technician
+  assignedTechnicians?: User[]; // All assigned technicians (BR4 multi-technicians support)
   location: Location;
   locationDetail?: string; // จุดสังเกตเฉพาะจุดภายในห้อง
   equipment?: Equipment;
@@ -105,7 +108,6 @@ export interface Ticket {
   description: string;
   urgency: TicketUrgency;
   status: TicketStatus;
-  targetSlaDate?: string;
   adminNotes?: string;
   repairNotes?: string;
   attachments: TicketAttachment[];

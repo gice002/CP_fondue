@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { Ticket, TicketStatus, TicketUrgency, Evaluation, TAG_PRIORITY_ORDER } from '@/types';
+import { Ticket, User, TicketStatus, TicketUrgency, Evaluation, TAG_PRIORITY_ORDER } from '@/types';
 import { AuditService } from './auditService';
 
 export interface PaginatedTicketsResult {
@@ -13,6 +13,25 @@ export interface PaginatedTicketsResult {
 }
 
 export class TicketService {
+  /**
+   * Reusable standard include definition for Prisma ticket queries
+   */
+  public static readonly ticketIncludes = {
+    reporter: { include: { department: true } },
+    assignedTechnician: { include: { department: true } },
+    assignedTechnicians: { include: { technician: { include: { department: true } } } },
+    location: true,
+    equipment: { include: { location: true, status: true } },
+    category: true,
+    attachments: true,
+    tags: { include: { tag: true } },
+    statusHistories: {
+      orderBy: { changedAt: 'asc' as const },
+      include: { changedByUser: true },
+    },
+    evaluation: true,
+  };
+
   /**
    * Safe mapping from Prisma database record to domain Ticket interface
    */
@@ -35,7 +54,7 @@ export class TicketService {
           roleCode: 'REPORTER' as const,
         };
 
-    const techUser = t.assignedTechnician
+    const primaryTech = t.assignedTechnician
       ? {
           id: t.assignedTechnician.id,
           firstName: t.assignedTechnician.firstName,
@@ -46,6 +65,28 @@ export class TicketService {
           departmentName: t.assignedTechnician.department?.departmentName || 'ทีมซ่อมบำรุง',
         }
       : undefined;
+
+    const allTechs: User[] = (t.assignedTechnicians || [])
+      .map((item: any) => {
+        const u = item.technician || item;
+        if (!u || !u.id) return null;
+        return {
+          id: u.id,
+          firstName: u.firstName,
+          lastName: u.lastName,
+          email: u.email,
+          phoneNumber: u.phoneNumber ?? undefined,
+          roleCode: (u.role as any) || 'TECHNICIAN',
+          departmentName: u.department?.departmentName || 'ทีมซ่อมบำรุง',
+        };
+      })
+      .filter((u: any): u is User => Boolean(u));
+
+    if (primaryTech && !allTechs.some((u) => u.id === primaryTech.id)) {
+      allTechs.unshift(primaryTech);
+    }
+
+    const techUser = primaryTech || (allTechs.length > 0 ? allTechs[0] : undefined);
 
     // Resolve location (strictly in SC-09 อาคารวิทยวิภาส)
     const loc = t.location || t.equipment?.location || {
@@ -66,11 +107,13 @@ export class TicketService {
 
     const equipmentObj = t.equipment
       ? {
-          id: t.equipment.id,
+          id: t.equipment.equipmentCode,
           assetCode: t.equipment.equipmentCode,
           name: t.equipment.equipmentName,
           specDetails: undefined,
           categoryName: t.category?.categoryName || 'ครุภัณฑ์',
+          statusId: t.equipment.statusId || undefined,
+          statusName: t.equipment.status?.name || undefined,
           warrantyStatus: 'IN_WARRANTY' as const,
           locationId: t.equipment.locationId,
         }
@@ -98,6 +141,7 @@ export class TicketService {
       ticketNumber: t.ticketNumber || `REQ-${t.id.slice(-6).toUpperCase()}`,
       reporter: reporterUser,
       assignedTechnician: techUser,
+      assignedTechnicians: allTechs.length > 0 ? allTechs : (techUser ? [techUser] : []),
       location: locationObj,
       locationDetail: t.locationDetail ?? undefined,
       equipment: equipmentObj,
@@ -105,7 +149,6 @@ export class TicketService {
       description: t.problemDescription,
       urgency: (t.urgency as TicketUrgency) || 'NORMAL',
       status: (t.currentStatus as TicketStatus) || 'PENDING_DISPATCH',
-      targetSlaDate: t.targetSlaDate ? t.targetSlaDate.toISOString() : undefined,
       adminNotes: t.adminNotes ?? undefined,
       repairNotes: t.repairNotes ?? undefined,
       attachments: (t.attachments || []).map((a: any) => ({
@@ -166,36 +209,43 @@ export class TicketService {
     technicianId?: string;
     search?: string;
   }) {
-    const whereClause: any = {};
+    const andConditions: any[] = [];
 
     if (filter?.status) {
-      whereClause.currentStatus = filter.status;
+      andConditions.push({ currentStatus: filter.status });
     } else if (filter?.excludeStatus) {
       const excluded = filter.excludeStatus.split(',').map((s) => s.trim());
-      whereClause.currentStatus = { notIn: excluded };
+      andConditions.push({ currentStatus: { notIn: excluded } });
     }
 
     if (filter?.reporterId) {
-      whereClause.reporterUserId = filter.reporterId;
+      andConditions.push({ reporterUserId: filter.reporterId });
     }
 
     if (filter?.technicianId) {
-      whereClause.assignedTechnicianId = filter.technicianId;
+      andConditions.push({
+        OR: [
+          { assignedTechnicianId: filter.technicianId },
+          { assignedTechnicians: { some: { technicianId: filter.technicianId } } },
+        ],
+      });
     }
 
     if (filter?.search) {
       const q = filter.search.trim();
-      whereClause.OR = [
-        { ticketNumber: { contains: q, mode: 'insensitive' } },
-        { problemDescription: { contains: q, mode: 'insensitive' } },
-        { reporter: { firstName: { contains: q, mode: 'insensitive' } } },
-        { reporter: { lastName: { contains: q, mode: 'insensitive' } } },
-        { location: { roomName: { contains: q, mode: 'insensitive' } } },
-        { equipment: { equipmentCode: { contains: q, mode: 'insensitive' } } },
-      ];
+      andConditions.push({
+        OR: [
+          { ticketNumber: { contains: q, mode: 'insensitive' } },
+          { problemDescription: { contains: q, mode: 'insensitive' } },
+          { reporter: { firstName: { contains: q, mode: 'insensitive' } } },
+          { reporter: { lastName: { contains: q, mode: 'insensitive' } } },
+          { location: { roomName: { contains: q, mode: 'insensitive' } } },
+          { equipment: { equipmentCode: { contains: q, mode: 'insensitive' } } },
+        ],
+      });
     }
 
-    return whereClause;
+    return andConditions.length > 0 ? { AND: andConditions } : {};
   }
 
   /**
@@ -212,20 +262,7 @@ export class TicketService {
 
     const dbTickets = await prisma.ticket.findMany({
       where: whereClause,
-      include: {
-        reporter: { include: { department: true } },
-        assignedTechnician: { include: { department: true } },
-        location: true,
-        equipment: { include: { location: true } },
-        category: true,
-        attachments: true,
-        tags: { include: { tag: true } },
-        statusHistories: {
-          orderBy: { changedAt: 'asc' },
-          include: { changedByUser: true },
-        },
-        evaluation: true,
-      },
+      include: TicketService.ticketIncludes,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -254,20 +291,7 @@ export class TicketService {
       prisma.ticket.count({ where: whereClause }),
       prisma.ticket.findMany({
         where: whereClause,
-        include: {
-          reporter: { include: { department: true } },
-          assignedTechnician: { include: { department: true } },
-          location: true,
-          equipment: { include: { location: true } },
-          category: true,
-          attachments: true,
-          tags: { include: { tag: true } },
-          statusHistories: {
-            orderBy: { changedAt: 'asc' },
-            include: { changedByUser: true },
-          },
-          evaluation: true,
-        },
+        include: TicketService.ticketIncludes,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
@@ -296,20 +320,7 @@ export class TicketService {
       where: {
         OR: [{ id }, { ticketNumber: id }],
       },
-      include: {
-        reporter: { include: { department: true } },
-        assignedTechnician: { include: { department: true } },
-        location: true,
-        equipment: { include: { location: true } },
-        category: true,
-        attachments: true,
-        tags: { include: { tag: true } },
-        statusHistories: {
-          orderBy: { changedAt: 'asc' },
-          include: { changedByUser: true },
-        },
-        evaluation: true,
-      },
+      include: TicketService.ticketIncludes,
     });
 
     if (!dbTicket) return null;
@@ -324,6 +335,7 @@ export class TicketService {
     locationId: string;
     locationDetail?: string;
     category?: string;
+    equipmentCode?: string;
     equipmentId?: string;
     assetCode?: string;
     description: string;
@@ -358,12 +370,16 @@ export class TicketService {
     }
 
     // Resolve equipment if provided
-    let equipmentId = dto.equipmentId;
-    if (!equipmentId && dto.assetCode) {
+    let equipmentCode = dto.equipmentCode || dto.equipmentId || dto.assetCode;
+    if (equipmentCode) {
       const eq = await prisma.equipment.findFirst({
-        where: { equipmentCode: dto.assetCode },
+        where: { equipmentCode },
       });
-      if (eq) equipmentId = eq.id;
+      if (eq) {
+        equipmentCode = eq.equipmentCode;
+      } else {
+        equipmentCode = undefined;
+      }
     }
 
     // Resolve location strictly within SC-09 อาคารวิทยวิภาส
@@ -391,13 +407,6 @@ export class TicketService {
       attempts++;
       try {
         const createdTicket = await prisma.$transaction(async (tx) => {
-          // Serialize monthly sequence numbering using PostgreSQL transaction-level advisory lock
-          try {
-            await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`ticket_seq_${yearMonth}`}))`;
-          } catch {
-            // Advisory lock fallback if unsupported
-          }
-
           // Query the maximum existing sequence for this month
           const latestTicket = await tx.ticket.findFirst({
             where: {
@@ -428,7 +437,7 @@ export class TicketService {
               reporterUserId: reporterUserId!,
               categoryId: categoryRecord!.id,
               locationId,
-              equipmentId: equipmentId || null,
+              equipmentCode: equipmentCode || null,
               attachments: {
                 create: (dto.attachmentUrls || []).map((url, i) => ({
                   filePath: url,
@@ -479,21 +488,11 @@ export class TicketService {
 
           return tx.ticket.findUnique({
             where: { id: ticket.id },
-            include: {
-              reporter: { include: { department: true } },
-              assignedTechnician: { include: { department: true } },
-              location: true,
-              equipment: { include: { location: true } },
-              category: true,
-              attachments: true,
-              tags: { include: { tag: true } },
-              statusHistories: {
-                orderBy: { changedAt: 'asc' },
-                include: { changedByUser: true },
-              },
-              evaluation: true,
-            },
+            include: TicketService.ticketIncludes,
           });
+        }, {
+          maxWait: 10000,
+          timeout: 20000,
         });
 
         return this.mapDbTicketToDomain(createdTicket);
@@ -510,14 +509,13 @@ export class TicketService {
   }
 
   /**
-   * Dispatch & assign ticket to a technician in PostgreSQL
+   * Dispatch & assign ticket to one or more technicians in PostgreSQL
    * Enforces strict state machine transitions (cannot reassign completed or cancelled tickets)
    */
   static async assignTicket(
     ticketId: string,
-    technicianId: string,
+    technicianId: string | string[],
     tags?: string[],
-    targetSlaDate?: string,
     adminNotes?: string,
     adminUserId: string = 'usr_admin_01'
   ): Promise<Ticket | null> {
@@ -531,8 +529,16 @@ export class TicketService {
       throw new Error(`ไม่สามารถมอบหมายงานที่เสร็จสิ้นหรือถูกยกเลิกแล้วได้ (สถานะปัจจุบัน: ${existing.currentStatus})`);
     }
 
-    const tech = await prisma.user.findUnique({ where: { id: technicianId } });
-    if (!tech) throw new Error(`ไม่พบข้อมูลช่างรหัส: ${technicianId}`);
+    const techIds = (Array.isArray(technicianId) ? technicianId : [technicianId]).filter(Boolean);
+    if (techIds.length === 0) throw new Error('กรุณาระบุช่างผู้รับผิดชอบอย่างน้อย 1 คน');
+
+    const techs = await prisma.user.findMany({
+      where: { id: { in: techIds } },
+    });
+    if (techs.length === 0) throw new Error('ไม่พบข้อมูลช่างตามรหัสที่ระบุ');
+
+    const leadTechId = techIds[0];
+    const techNames = techs.map((u) => `${u.firstName} ${u.lastName}`).join(', ');
 
     const updated = await prisma.$transaction(async (tx) => {
       // Update tags if provided by Admin
@@ -553,35 +559,39 @@ export class TicketService {
       }
 
       // Update equipment status to "ชำรุดรอซ่อม" if equipment is associated
-      if (existing.equipmentId) {
+      if (existing.equipmentCode) {
+        let statusRec = await tx.equipmentStatus.findUnique({ where: { name: 'ชำรุดรอซ่อม' } });
+        if (!statusRec) {
+          statusRec = await tx.equipmentStatus.create({ data: { name: 'ชำรุดรอซ่อม' } });
+        }
         await tx.equipment.update({
-          where: { id: existing.equipmentId },
-          data: { equipmentStatus: 'ชำรุดรอซ่อม' },
+          where: { equipmentCode: existing.equipmentCode },
+          data: { statusId: statusRec.id },
+        });
+      }
+
+      // Update multi-technician assignments in TicketTechnicianMap
+      await tx.ticketTechnicianMap.deleteMany({
+        where: { ticketId: existing.id },
+      });
+
+      for (const tId of techIds) {
+        await tx.ticketTechnicianMap.create({
+          data: {
+            ticketId: existing.id,
+            technicianId: tId,
+          },
         });
       }
 
       const t = await tx.ticket.update({
         where: { id: existing.id },
         data: {
-          assignedTechnicianId: technicianId,
+          assignedTechnicianId: leadTechId,
           currentStatus: 'ASSIGNED',
-          targetSlaDate: targetSlaDate ? new Date(targetSlaDate) : existing.targetSlaDate,
           adminNotes: adminNotes || existing.adminNotes,
         },
-        include: {
-          reporter: { include: { department: true } },
-          assignedTechnician: { include: { department: true } },
-          location: true,
-          equipment: { include: { location: true } },
-          category: true,
-          attachments: true,
-          tags: { include: { tag: true } },
-          statusHistories: {
-            orderBy: { changedAt: 'asc' },
-            include: { changedByUser: true },
-          },
-          evaluation: true,
-        },
+        include: TicketService.ticketIncludes,
       });
 
       await tx.ticketStatusHistory.create({
@@ -590,7 +600,7 @@ export class TicketService {
           oldStatus: existing.currentStatus,
           newStatus: 'ASSIGNED',
           changedByUserId: adminUserId,
-          ticketNotes: adminNotes || `จนท. มอบหมายงานให้ช่าง ${tech.firstName} ${tech.lastName} (BR4)`,
+          ticketNotes: adminNotes || `จนท. มอบหมายงานให้ช่าง: ${techNames} (BR4)`,
         },
       });
 
@@ -598,13 +608,16 @@ export class TicketService {
         data: {
           tableName: 'tickets',
           commandUsed: 'UPDATE_ASSIGN',
-          oldData: JSON.stringify({ status: existing.currentStatus }),
-          newData: JSON.stringify({ status: 'ASSIGNED', assignedTo: tech.email, tags }),
+          oldData: JSON.stringify({ status: existing.currentStatus, assignedTechnicianId: existing.assignedTechnicianId }),
+          newData: JSON.stringify({ status: 'ASSIGNED', assignedTechnicianIds: techIds, tags }),
           userId: adminUserId,
         },
       });
 
       return t;
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     return this.mapDbTicketToDomain(updated);
@@ -633,26 +646,18 @@ export class TicketService {
       : 'ช่างเดิม';
 
     const updated = await prisma.$transaction(async (tx) => {
+      // Clear multi-technician assignments
+      await tx.ticketTechnicianMap.deleteMany({
+        where: { ticketId: existing.id },
+      });
+
       const t = await tx.ticket.update({
         where: { id: existing.id },
         data: {
           assignedTechnicianId: null,
           currentStatus: 'PENDING_DISPATCH',
         },
-        include: {
-          reporter: { include: { department: true } },
-          assignedTechnician: { include: { department: true } },
-          location: true,
-          equipment: { include: { location: true } },
-          category: true,
-          attachments: true,
-          tags: { include: { tag: true } },
-          statusHistories: {
-            orderBy: { changedAt: 'asc' },
-            include: { changedByUser: true },
-          },
-          evaluation: true,
-        },
+        include: TicketService.ticketIncludes,
       });
 
       await tx.ticketStatusHistory.create({
@@ -711,20 +716,7 @@ export class TicketService {
 
       const t = await tx.ticket.findUnique({
         where: { id: existing.id },
-        include: {
-          reporter: { include: { department: true } },
-          assignedTechnician: { include: { department: true } },
-          location: true,
-          equipment: { include: { location: true } },
-          category: true,
-          attachments: true,
-          tags: { include: { tag: true } },
-          statusHistories: {
-            orderBy: { changedAt: 'asc' },
-            include: { changedByUser: true },
-          },
-          evaluation: true,
-        },
+        include: TicketService.ticketIncludes,
       });
 
       await tx.auditLog.create({
@@ -755,9 +747,17 @@ export class TicketService {
     });
     if (!existing) return null;
 
-    // Must be assigned to this technician
-    if (existing.assignedTechnicianId && existing.assignedTechnicianId !== technicianId) {
-      throw new Error('ไม่สามารถรับงานนี้ได้ เนื่องจากถูกมอบหมายให้ช่างคนอื่น');
+    // Must be assigned to this technician (either lead technician or in ticketTechnicianMap)
+    const isAssigned =
+      existing.assignedTechnicianId === technicianId ||
+      Boolean(
+        await prisma.ticketTechnicianMap.findFirst({
+          where: { ticketId: existing.id, technicianId },
+        })
+      );
+
+    if (!isAssigned) {
+      throw new Error('ไม่สามารถรับงานนี้ได้ เนื่องจากท่านไม่ได้เป็นช่างที่ได้รับมอบหมายในงานนี้');
     }
 
     if (existing.currentStatus === 'IN_PROGRESS') {
@@ -775,7 +775,10 @@ export class TicketService {
       // 2. Concurrency-safe verification: check if technician already has any task in progress
       const ongoingTasks = await tx.ticket.findMany({
         where: {
-          assignedTechnicianId: technicianId,
+          OR: [
+            { assignedTechnicianId: technicianId },
+            { assignedTechnicians: { some: { technicianId } } },
+          ],
           currentStatus: 'IN_PROGRESS',
         },
         select: { id: true, ticketNumber: true },
@@ -792,22 +795,9 @@ export class TicketService {
         where: { id: existing.id },
         data: {
           currentStatus: 'IN_PROGRESS',
-          assignedTechnicianId: technicianId,
+          assignedTechnicianId: existing.assignedTechnicianId || technicianId,
         },
-        include: {
-          reporter: { include: { department: true } },
-          assignedTechnician: { include: { department: true } },
-          location: true,
-          equipment: { include: { location: true } },
-          category: true,
-          attachments: true,
-          tags: { include: { tag: true } },
-          statusHistories: {
-            orderBy: { changedAt: 'asc' },
-            include: { changedByUser: true },
-          },
-          evaluation: true,
-        },
+        include: TicketService.ticketIncludes,
       });
 
       await tx.ticketStatusHistory.create({
@@ -833,6 +823,8 @@ export class TicketService {
       return t;
     }, {
       isolationLevel: 'Serializable',
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     return this.mapDbTicketToDomain(updated);
@@ -881,20 +873,7 @@ export class TicketService {
           repairNotes,
           completedAt: new Date(),
         },
-        include: {
-          reporter: { include: { department: true } },
-          assignedTechnician: { include: { department: true } },
-          location: true,
-          equipment: { include: { location: true } },
-          category: true,
-          attachments: true,
-          tags: { include: { tag: true } },
-          statusHistories: {
-            orderBy: { changedAt: 'asc' },
-            include: { changedByUser: true },
-          },
-          evaluation: true,
-        },
+        include: TicketService.ticketIncludes,
       });
 
       // 3. Status history
@@ -920,14 +899,21 @@ export class TicketService {
       });
 
       // 5. Update equipment status back to "ใช้งานได้ปกติ" if attached
-      if (existing.equipmentId) {
+      if (existing.equipmentCode) {
+        let statusRec = await tx.equipmentStatus.findUnique({ where: { name: 'ใช้งานได้ปกติ' } });
+        if (!statusRec) {
+          statusRec = await tx.equipmentStatus.create({ data: { name: 'ใช้งานได้ปกติ' } });
+        }
         await tx.equipment.update({
-          where: { id: existing.equipmentId },
-          data: { equipmentStatus: 'ใช้งานได้ปกติ' },
+          where: { equipmentCode: existing.equipmentCode },
+          data: { statusId: statusRec.id },
         });
       }
 
       return t;
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     return this.mapDbTicketToDomain(updated);
@@ -972,20 +958,7 @@ export class TicketService {
           currentStatus: 'CANCELLED',
           cancelledAt: new Date(),
         },
-        include: {
-          reporter: { include: { department: true } },
-          assignedTechnician: { include: { department: true } },
-          location: true,
-          equipment: { include: { location: true } },
-          category: true,
-          attachments: true,
-          tags: { include: { tag: true } },
-          statusHistories: {
-            orderBy: { changedAt: 'asc' },
-            include: { changedByUser: true },
-          },
-          evaluation: true,
-        },
+        include: TicketService.ticketIncludes,
       });
 
       await tx.ticketStatusHistory.create({

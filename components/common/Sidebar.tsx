@@ -49,28 +49,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
       name: 'เจ้าหน้าที่ (Admin Desk)',
       href: '/admin',
       icon: ClipboardList,
-      badge: 'คัดกรอง & อนุมัติ',
+      badge: 'คัดกรอง & พัสดุ',
     },
     {
       role: 'TECHNICIAN' as RoleCode,
       name: 'ทีมช่างซ่อม (Technician)',
       href: '/technician',
       icon: Wrench,
-      badge: 'งานสนาม',
+      badge: 'งานช่าง',
     },
     {
       role: 'EXECUTIVE' as RoleCode,
-      name: 'ผู้บริหาร (Executive)',
+      name: 'แดชบอร์ดภาพรวม (Dashboard)',
       href: '/executive',
       icon: BarChart3,
-      badge: 'สถิติ SLA',
+      badge: 'สถิติภาพรวม',
     },
   ];
 
   // Specific sub-navigation items for ADMIN_DISPATCH
   const adminSubNav = [
     { id: 'dispatch', name: 'โต๊ะคัดกรองงานช่าง', icon: ClipboardList },
-    { id: 'operations', name: 'งานพัสดุและเคาน์เตอร์', icon: Package },
+    { id: 'inventory', name: 'งานพัสดุเคาน์เตอร์', icon: Package },
+    { id: 'report', name: 'แจ้งซ่อม / แจ้งเหตุ', icon: Laptop },
+  ];
+
+  // Specific sub-navigation items for TECHNICIAN
+  const technicianSubNav = [
+    { id: 'desk', name: 'โต๊ะปฏิบัติการช่าง', icon: Wrench },
+    { id: 'report', name: 'แจ้งซ่อม / แจ้งเหตุ', icon: Laptop },
   ];
 
   return (
@@ -150,10 +157,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {currentRole === 'REPORTER'
                   ? 'ผู้แจ้งเหตุ (Reporter)'
                   : currentRole === 'ADMIN_DISPATCH'
-                  ? 'เจ้าหน้าที่คัดกรอง (Admin)'
+                  ? 'เจ้าหน้าที่ (Admin)'
                   : currentRole === 'TECHNICIAN'
                   ? 'ทีมช่างซ่อม (Technician)'
-                  : 'ผู้บริหาร (Executive)'}
+                  : 'แดชบอร์ดภาพรวม (Dashboard)'}
               </span>
             </div>
           </div>
@@ -162,11 +169,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {currentRole === 'ADMIN_DISPATCH' && onSelectSubView && (
             <div className="space-y-1">
               <span className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
-                มุมมองงานคัดกรอง (Desk Views)
+                เมนูเจ้าหน้าที่ (Admin Views)
               </span>
               {adminSubNav.map((sub) => {
                 const Icon = sub.icon;
                 const isSelected = activeSubView === sub.id || (!activeSubView && sub.id === 'dispatch');
+                return (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    onClick={() => {
+                      onSelectSubView(sub.id);
+                      setMobileOpen(false);
+                    }}
+                    className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                      isSelected
+                        ? 'bg-blue-700 text-white shadow-xs'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{sub.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Special Sub-navigation for TECHNICIAN */}
+          {currentRole === 'TECHNICIAN' && onSelectSubView && (
+            <div className="space-y-1">
+              <span className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                เมนูช่าง (Technician Views)
+              </span>
+              {technicianSubNav.map((sub) => {
+                const Icon = sub.icon;
+                const isSelected = activeSubView === sub.id || (!activeSubView && sub.id === 'desk');
                 return (
                   <button
                     key={sub.id}
@@ -201,7 +239,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={() => {
+                    setMobileOpen(false);
+                    // Set active dev role cookie for seamless demo switching
+                    document.cookie = `cp_dev_role=${item.role}; path=/; max-age=86400; SameSite=Lax`;
+                  }}
                   className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition group ${
                     isActive
                       ? 'bg-blue-50 text-blue-800 border border-blue-200/80 shadow-2xs'

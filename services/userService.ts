@@ -26,14 +26,31 @@ export class UserService {
           },
           select: { id: true, currentStatus: true },
         },
+        ticketAssignments: {
+          include: {
+            ticket: {
+              select: { id: true, currentStatus: true },
+            },
+          },
+        },
       },
       orderBy: { firstName: 'asc' },
     });
 
     return techUsers.map((u) => {
-      const inProgressCount = u.assignedTickets.filter((t) => t.currentStatus === 'IN_PROGRESS').length;
-      const queuedCount = u.assignedTickets.filter((t) => t.currentStatus === 'ASSIGNED').length;
-      const activeTasks = u.assignedTickets.length;
+      const allActiveMap = new Map<string, string>();
+      for (const t of u.assignedTickets) {
+        allActiveMap.set(t.id, t.currentStatus);
+      }
+      for (const ta of u.ticketAssignments) {
+        if (ta.ticket && ['ASSIGNED', 'IN_PROGRESS'].includes(ta.ticket.currentStatus)) {
+          allActiveMap.set(ta.ticket.id, ta.ticket.currentStatus);
+        }
+      }
+      const statuses = Array.from(allActiveMap.values());
+      const inProgressCount = statuses.filter((s) => s === 'IN_PROGRESS').length;
+      const queuedCount = statuses.filter((s) => s === 'ASSIGNED').length;
+      const activeTasks = statuses.length;
       return {
         id: u.id,
         firstName: u.firstName,

@@ -10,23 +10,32 @@ import { EvaluationCard } from '@/components/reporter/EvaluationCard';
 import { TicketHistoryTable } from '@/components/reporter/TicketHistoryTable';
 import { MobileBottomNav, ReporterMobileTab } from '@/components/reporter/MobileBottomNav';
 import { Ticket } from '@/types';
-import { ClipboardList, PlusCircle, Clock, History, ArrowRight } from 'lucide-react';
+import { ClipboardList, PlusCircle, Clock, History, ArrowRight, AlertTriangle, RotateCw, Loader2 } from 'lucide-react';
 
 export default function ReporterPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [activeTab, setActiveTab] = useState<ReporterMobileTab>('create');
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const refreshTickets = async () => {
     try {
+      setIsLoading(true);
       const res = await fetch('/api/tickets');
       const data = await res.json();
       if (data.success) {
-        setTickets(data.data);
+        setTickets(data.data || []);
+        setFetchError(null);
+      } else {
+        setFetchError(data.error || 'ไม่สามารถโหลดข้อมูลคำร้องได้');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Failed to fetch tickets:', e);
+      setFetchError(e.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -34,13 +43,24 @@ export default function ReporterPage() {
     let isMounted = true;
     const loadTickets = async () => {
       try {
+        setIsLoading(true);
         const res = await fetch('/api/tickets');
         const data = await res.json();
-        if (data.success && isMounted) {
-          setTickets(data.data);
+        if (isMounted) {
+          if (data.success) {
+            setTickets(data.data || []);
+            setFetchError(null);
+          } else {
+            setFetchError(data.error || 'ไม่สามารถโหลดข้อมูลคำร้องได้');
+          }
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to fetch tickets:', e);
+        if (isMounted) {
+          setFetchError(e.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
     };
     loadTickets();

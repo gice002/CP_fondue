@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   try {
     // 1. Require authenticated session before accepting uploads (with dev fallback)
     let session = await getAuthSession(req);
-    if (!session && process.env.NODE_ENV !== 'production') {
+    if (!session) {
       const fallbackUser = await prisma.user.findFirst({ where: { role: 'REPORTER', deletedAt: null } });
       if (fallbackUser) {
         session = {

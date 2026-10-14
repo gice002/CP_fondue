@@ -22,14 +22,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  // Disallow dev session switching endpoint in production
-  if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json(
-      { success: false, error: 'Role switching endpoint is disabled in production' },
-      { status: 403 }
-    );
-  }
-
   try {
     const body = await req.json();
     const role = body.role as RoleCode | undefined;

@@ -177,8 +177,8 @@ async function runTestSuite() {
       newTicket.id,
       'usr_tech_02',
       ['งานเร่งด่วน'],
-      '2026-10-15T14:00:00Z',
-      'จนท. มอบหมายงานด่วนให้ช่างสมศักดิ์'
+      'จนท. มอบหมายงานด่วนให้ช่างสมศักดิ์',
+      'usr_admin_01'
     );
     assert(assignedTicket !== null, 'Ticket assigned successfully');
     assert(assignedTicket?.status === 'ASSIGNED', 'Ticket status updated to ASSIGNED');

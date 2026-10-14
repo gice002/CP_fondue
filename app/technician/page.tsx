@@ -358,6 +358,7 @@ export default function TechnicianPage() {
                   />
                   <CheckInRequisitionCard
                     ticketId={activeJob?.id}
+                    ticket={activeJob}
                     onSubmitted={fetchJobs}
                   />
                 </div>

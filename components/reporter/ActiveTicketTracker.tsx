@@ -86,25 +86,25 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
 
   return (
     <div
-      className={`rounded-2xl shadow-xs p-6 mb-6 transition ${
+      className={`rounded-2xl shadow-xs p-4 sm:p-6 mb-4 sm:mb-6 transition ${
         isCompleted
           ? 'bg-emerald-50/50 border-2 border-emerald-300 ring-2 ring-emerald-500/20'
           : 'bg-white border border-slate-200/80'
       }`}
     >
       {isCompleted && (
-        <div className="mb-4 p-3 bg-emerald-100/80 border border-emerald-300 rounded-xl flex items-center space-x-2 text-xs text-emerald-900 font-bold">
+        <div className="mb-3.5 p-2.5 sm:p-3 bg-emerald-100/80 border border-emerald-300 rounded-xl flex items-center space-x-2 text-[11.5px] sm:text-xs text-emerald-900 font-bold">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>งานซ่อมนี้ดำเนินการเสร็จสิ้นเรียบร้อยแล้ว (สามารถประเมินความพึงพอใจในส่วนด้านล่างได้ทันที)</span>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-3 mb-3.5 sm:mb-4">
         <div>
           <div className="flex items-center space-x-2">
             <span
-              className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+              className={`text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${
                 isCompleted
                   ? 'bg-emerald-200 text-emerald-900'
                   : ticket.status === 'IN_PROGRESS'
@@ -124,14 +124,14 @@ export const ActiveTicketTracker: React.FC<ActiveTicketTrackerProps> = ({
                 ? 'ยกเลิกคำร้องแล้ว (Cancelled)'
                 : 'รอการคัดกรอง (Pending)'}
             </span>
-            <span className="text-xs font-mono font-medium text-slate-500">
+            <span className="text-[11px] sm:text-xs font-mono font-medium text-slate-500">
               #{ticket.ticketNumber}
             </span>
           </div>
-          <h3 className="text-base font-bold text-slate-900 mt-1">
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 mt-1 leading-snug">
             {ticket.description}
           </h3>
-          <div className="flex items-center space-x-1.5 text-xs text-slate-500 mt-1">
+          <div className="flex items-center space-x-1.5 text-[11px] sm:text-xs text-slate-500 mt-1">
             <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span>
               {ticket.location.building} {ticket.location.floor} {ticket.location.roomName}

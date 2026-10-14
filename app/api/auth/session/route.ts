@@ -12,9 +12,10 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession(req);
     return NextResponse.json({ success: true, data: session });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unauthorized';
     return NextResponse.json(
-      { success: false, error: error.message || 'Unauthorized' },
+      { success: false, error: message },
       { status: 401 }
     );
   }
@@ -31,14 +32,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const role = body.role as RoleCode;
+    const role = body.role as RoleCode | undefined;
     const userId = body.userId as string | undefined;
+    const email = body.email as string | undefined;
 
     let targetUser = null;
 
     if (userId) {
       targetUser = await prisma.user.findUnique({
         where: { id: userId },
+      });
+    } else if (email) {
+      targetUser = await prisma.user.findFirst({
+        where: { email, deletedAt: null },
       });
     } else if (role) {
       targetUser = await prisma.user.findFirst({
@@ -48,7 +54,7 @@ export async function POST(req: NextRequest) {
 
     if (!targetUser) {
       return NextResponse.json(
-        { success: false, error: 'User not found for the requested role' },
+        { success: false, error: 'User not found for the requested credentials or role' },
         { status: 404 }
       );
     }
@@ -78,10 +84,18 @@ export async function POST(req: NextRequest) {
       maxAge: 7 * 24 * 60 * 60,
     });
 
+    res.cookies.set('cp_dev_role', targetUser.role, {
+      httpOnly: false,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60,
+    });
+
     return res;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to create session';
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to create session' },
+      { success: false, error: message },
       { status: 500 }
     );
   }

@@ -101,18 +101,18 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 mb-6">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-6 mb-4 sm:mb-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3.5 sm:mb-4">
         <div>
-          <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
+          <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
             ประเมินความพึงพอใจ (Satisfaction Survey)
           </span>
-          <h3 className="text-base font-bold text-slate-900 mt-0.5">
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 mt-0.5">
             ประเมินงานซ่อม #{ticket.ticketNumber}
           </h3>
         </div>
-        <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+        <span className="text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
           เสร็จสิ้นแล้ว
         </span>
       </div>

@@ -15,6 +15,7 @@ import {
   User as UserIcon,
   ShieldCheck,
   Package,
+  LogOut,
 } from 'lucide-react';
 import { RoleCode } from '@/types';
 
@@ -275,14 +276,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* User Profile Footer */}
         <div className="p-3 border-t border-slate-100 bg-slate-50/70">
-          <div className="flex items-center space-x-2.5 px-2 py-1">
-            <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs ring-1 ring-blue-200 shrink-0">
-              <UserIcon className="w-4 h-4 text-blue-700" />
+          <div className="flex items-center justify-between px-2 py-1">
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs ring-1 ring-blue-200 shrink-0">
+                <UserIcon className="w-4 h-4 text-blue-700" />
+              </div>
+              <div className="flex-1 min-w-0 leading-tight">
+                <div className="text-xs font-bold text-slate-800 truncate">{userName}</div>
+                <div className="text-[10px] text-slate-500 font-mono truncate">{userEmail}</div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0 leading-tight">
-              <div className="text-xs font-bold text-slate-800 truncate">{userName}</div>
-              <div className="text-[10px] text-slate-500 font-mono truncate">{userEmail}</div>
-            </div>
+
+            <Link
+              href="/"
+              onClick={() => {
+                document.cookie = 'cp_fondue_session=; path=/; max-age=0;';
+                document.cookie = 'cp_dev_role=; path=/; max-age=0;';
+              }}
+              title="ออกจากระบบ (Sign Out)"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+            </Link>
           </div>
           <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] text-slate-400 font-medium">
             <span>SC-09 อาคารวิทยวิภาส</span>

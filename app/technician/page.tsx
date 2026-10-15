@@ -8,9 +8,13 @@ import { CheckInRequisitionCard } from '@/components/technician/CheckInRequisiti
 import { CloseJobCard } from '@/components/technician/CloseJobCard';
 import { TechnicianHistoryList } from '@/components/technician/TechnicianHistoryList';
 import { Ticket } from '@/types';
-import { Inbox, CheckCircle2, Clock, Wrench } from 'lucide-react';
+import { Inbox, CheckCircle2, Clock, Wrench, Bell } from 'lucide-react';
 import { TicketForm } from '@/components/reporter/TicketForm';
 import { InfoTooltip } from '@/components/common/InfoTooltip';
+import { PageTransition, AnimatePresence, motion } from '@/components/common/MotionWrapper';
+import { TicketCardSkeleton } from '@/components/common/Skeleton';
+import { InAppPermissionModal, PermissionType } from '@/components/common/InAppPermissionModal';
+import { WebPermissionService } from '@/lib/permissionService';
 
 export default function TechnicianPage() {
   const [allTechTickets, setAllTechTickets] = useState<Ticket[]>([]);
@@ -26,6 +30,39 @@ export default function TechnicianPage() {
     'ฝ่ายงานช่างเครือข่ายและการสื่อสาร CP KKU'
   );
   const [activeSubView, setActiveSubView] = useState<'desk' | 'report'>('desk');
+
+  // In-App Notification Permission State
+  const [isNotifGranted, setIsNotifGranted] = useState(false);
+  const [permissionModal, setPermissionModal] = useState<{
+    isOpen: boolean;
+    type: PermissionType;
+    onAllow: () => void;
+  } | null>(null);
+
+  useEffect(() => {
+    const checkNotif = () => {
+      setIsNotifGranted(WebPermissionService.isGranted('notifications'));
+    };
+    checkNotif();
+    window.addEventListener('cp_permissions_changed', checkNotif);
+    return () => window.removeEventListener('cp_permissions_changed', checkNotif);
+  }, []);
+
+  const handleRequestNotificationPermission = () => {
+    if (WebPermissionService.isGranted('notifications')) {
+      setIsNotifGranted(true);
+    } else {
+      setPermissionModal({
+        isOpen: true,
+        type: 'notifications',
+        onAllow: () => {
+          WebPermissionService.grant('notifications');
+          setIsNotifGranted(true);
+          setPermissionModal(null);
+        },
+      });
+    }
+  };
 
   // Load available technicians for switcher
   useEffect(() => {
@@ -54,17 +91,19 @@ export default function TechnicianPage() {
     try {
       setIsLoading(true);
 
-      // Check session
-      try {
-        const sessionRes = await fetch('/api/auth/session', { cache: 'no-store' });
-        const sessionData = await sessionRes.json();
-        if (sessionData.success && sessionData.data?.userId && sessionData.data.role === 'TECHNICIAN') {
-          setCurrentTechId(sessionData.data.userId);
-          setCurrentTechName(`${sessionData.data.firstName} ${sessionData.data.lastName}`);
-          setCurrentTechEmail(sessionData.data.email);
+      // Check session only if in overview mode 'all'
+      if (selectedTechId === 'all') {
+        try {
+          const sessionRes = await fetch('/api/auth/session', { cache: 'no-store' });
+          const sessionData = await sessionRes.json();
+          if (sessionData.success && sessionData.data?.userId && sessionData.data.role === 'TECHNICIAN') {
+            setCurrentTechId(sessionData.data.userId);
+            setCurrentTechName(`${sessionData.data.firstName} ${sessionData.data.lastName}`);
+            setCurrentTechEmail(sessionData.data.email);
+          }
+        } catch {
+          // keep defaults
         }
-      } catch {
-        // keep defaults
       }
 
       // Query tickets according to selectedTechId
@@ -109,7 +148,7 @@ export default function TechnicianPage() {
     fetchJobs();
   }, [selectedTechId]);
 
-  const handleSelectTech = (techId: string) => {
+  const handleSelectTech = async (techId: string) => {
     setSelectedTechId(techId);
     if (techId !== 'all') {
       const found = techniciansList.find((t) => t.id === techId);
@@ -119,6 +158,18 @@ export default function TechnicianPage() {
         setCurrentTechEmail(found.email);
         setCurrentTechCode(found.code || 'TC-4091');
         setCurrentTechDepartment(found.specialty || 'ฝ่ายงานช่าง CP KKU');
+
+        // Synchronize server session to the selected technician
+        try {
+          await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: found.id, role: 'TECHNICIAN' }),
+          });
+          document.cookie = `cp_dev_role=TECHNICIAN; path=/; max-age=86400; SameSite=Lax`;
+        } catch (e) {
+          console.error('Failed to sync technician session:', e);
+        }
       }
     } else {
       setCurrentTechName('ภาพรวมคิวงานทีมช่าง (All)');
@@ -177,6 +228,20 @@ export default function TechnicianPage() {
           </div>
 
           <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={handleRequestNotificationPermission}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                isNotifGranted
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-2xs'
+                  : 'bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 shadow-2xs'
+              }`}
+              title="ขอสิทธิ์เปิดรับการแจ้งเตือนคำสั่งงานด่วน"
+            >
+              <Bell className={`w-3.5 h-3.5 ${isNotifGranted ? 'text-emerald-600' : 'text-amber-600'}`} />
+              <span>{isNotifGranted ? 'เปิดแจ้งเตือนแล้ว' : 'ขอสิทธิ์แจ้งเตือนงาน'}</span>
+            </button>
+
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200/80">
               <span
                 className={`w-2 h-2 rounded-full ${
@@ -189,13 +254,14 @@ export default function TechnicianPage() {
         </header>
 
         <main className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
-          {activeSubView === 'report' ? (
-            <div className="max-w-3xl mx-auto">
-              <TicketForm onSuccess={fetchJobs} />
-            </div>
-          ) : (
-            <>
-              <TechnicianHeader
+          <AnimatePresence mode="wait">
+            {activeSubView === 'report' ? (
+              <PageTransition key="report" className="max-w-3xl mx-auto">
+                <TicketForm onSuccess={fetchJobs} />
+              </PageTransition>
+            ) : (
+              <PageTransition key="desk">
+                <TechnicianHeader
                 urgentJobCode={
                   ongoingTask
                     ? ongoingTask.ticketNumber
@@ -253,8 +319,10 @@ export default function TechnicianPage() {
                       const isInProgress = t.status === 'IN_PROGRESS';
 
                       return (
-                        <div
+                        <motion.div
                           key={t.id}
+                          whileHover={{ y: -2, scale: 1.01 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => setSelectedTicketId(t.id)}
                           className={`p-3.5 rounded-xl border text-left cursor-pointer transition relative ${
                             isCompleted
@@ -328,7 +396,7 @@ export default function TechnicianPage() {
                               {t.tags?.[0] || 'งานทั่วไป'}
                             </span>
                           </div>
-                        </div>
+                        </motion.div>
                       );
                     })}
                   </div>
@@ -372,10 +440,21 @@ export default function TechnicianPage() {
                   <TechnicianHistoryList technicianId={currentTechId} />
                 </div>
               </div>
-            </>
+            </PageTransition>
           )}
-        </main>
+        </AnimatePresence>
+      </main>
       </div>
+
+      {/* In-App Permission Request Modal */}
+      {permissionModal && (
+        <InAppPermissionModal
+          isOpen={permissionModal.isOpen}
+          type={permissionModal.type}
+          onAllow={permissionModal.onAllow}
+          onDeny={() => setPermissionModal(null)}
+        />
+      )}
     </div>
   );
 }

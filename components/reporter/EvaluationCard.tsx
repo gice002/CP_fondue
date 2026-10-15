@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Star, Send, CheckCircle2 } from 'lucide-react';
 import { Ticket } from '@/types';
+import { triggerSparklesConfetti } from '@/lib/confetti';
 
 interface EvaluationCardProps {
   ticket?: Ticket;
@@ -71,6 +72,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
       const data = await res.json();
       if (data.success) {
         setIsSubmitted(true);
+        triggerSparklesConfetti();
         if (onEvaluated) onEvaluated();
       } else {
         alert(data.error || 'เกิดข้อผิดพลาดในการส่งแบบประเมิน');

@@ -22,6 +22,8 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { RoleCode } from '@/types';
+import { motion } from 'motion/react';
+import { triggerSparklesConfetti } from '@/lib/confetti';
 
 function saveDevRoleCookie(role: string) {
   if (typeof document !== 'undefined') {
@@ -124,6 +126,7 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
+      triggerSparklesConfetti();
       if (data.success) {
         router.push(targetHref);
       } else {
@@ -455,9 +458,12 @@ export default function LoginPage() {
                 const isLoading = activeLoadingRole === r.role;
 
                 return (
-                  <div
+                  <motion.div
                     key={r.role}
-                    className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200/90 hover:border-blue-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between group bg-slate-50/50 hover:bg-white"
+                    whileHover={{ y: -3, scale: 1.015 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 22 }}
+                    className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200/90 hover:border-blue-300 hover:shadow-md transition-shadow flex flex-col justify-between group bg-slate-50/50 hover:bg-white cursor-default"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2">
@@ -512,7 +518,7 @@ export default function LoginPage() {
                         </>
                       )}
                     </button>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>

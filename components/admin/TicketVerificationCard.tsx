@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, CheckSquare, Image as ImageIcon, XCircle } from 'lucide-react';
+import { FileText, CheckSquare, Image as ImageIcon, XCircle, ArrowRight } from 'lucide-react';
 import { Ticket } from '@/types';
 
 interface TicketVerificationCardProps {
   ticket: Ticket;
   onCancelled?: () => void;
+  onGoToAssign?: () => void;
 }
 
 export const TicketVerificationCard: React.FC<TicketVerificationCardProps> = ({
   ticket,
   onCancelled,
+  onGoToAssign,
 }) => {
   const [chkOwnership, setChkOwnership] = useState(true);
   const [chkDuplicate, setChkDuplicate] = useState(true);
@@ -203,7 +205,7 @@ export const TicketVerificationCard: React.FC<TicketVerificationCardProps> = ({
               type="button"
               disabled={isCancelling}
               onClick={handleCancel}
-              className="px-2.5 py-1 rounded-lg border border-rose-200 text-rose-700 bg-white hover:bg-rose-50 text-xs font-semibold flex items-center space-x-1 transition disabled:opacity-50"
+              className="px-2.5 py-1 rounded-lg border border-rose-200 text-rose-700 bg-white hover:bg-rose-50 text-xs font-semibold flex items-center space-x-1 transition disabled:opacity-50 cursor-pointer"
             >
               <XCircle className="w-3.5 h-3.5" />
               <span>{isCancelling ? 'กำลังยกเลิก...' : 'ยกเลิกคำร้อง (ปฏิเสธ)'}</span>
@@ -211,6 +213,20 @@ export const TicketVerificationCard: React.FC<TicketVerificationCardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Button to proceed to technician assignment */}
+      {onGoToAssign && (
+        <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+          <button
+            type="button"
+            onClick={onGoToAssign}
+            className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-xs transition flex items-center space-x-1.5 cursor-pointer"
+          >
+            <span>ไปมอบหมายงานช่างต่อ</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

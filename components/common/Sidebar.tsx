@@ -16,8 +16,10 @@ import {
   ShieldCheck,
   Package,
   LogOut,
+  RotateCcw,
 } from 'lucide-react';
 import { RoleCode } from '@/types';
+import { WebPermissionService } from '@/lib/permissionService';
 
 interface SidebarProps {
   currentRole: RoleCode;
@@ -36,6 +38,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+
+  const handleResetPermissions = () => {
+    WebPermissionService.clearAll();
+    setResetSuccess(true);
+    setTimeout(() => {
+      setResetSuccess(false);
+    }, 2500);
+  };
 
   const portals = [
     {
@@ -244,6 +255,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     setMobileOpen(false);
                     // Set active dev role cookie for seamless demo switching
                     document.cookie = `cp_dev_role=${item.role}; path=/; max-age=86400; SameSite=Lax`;
+                    fetch('/api/auth/session', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ role: item.role }),
+                    }).catch(() => {});
                   }}
                   className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition group ${
                     isActive
@@ -271,6 +287,43 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </Link>
               );
             })}
+          </div>
+
+          {/* QA & Testing: Reset In-App Permissions */}
+          <div className="pt-2 border-t border-slate-100">
+            <div className="px-3 pb-1 flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <span>ทดสอบระบบ (Dev / QA)</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleResetPermissions}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
+                resetSuccess
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs'
+                  : 'text-slate-600 hover:text-amber-700 hover:bg-amber-50/80 border border-transparent'
+              }`}
+              title="ล้างสิทธิ์ที่เคยอนุญาตไว้ทั้งหมด เพื่อทดสอบกล่องข้อความขอสิทธิ์ใหม่"
+            >
+              <div className="flex items-center space-x-2 min-w-0">
+                <RotateCcw
+                  className={`w-3.5 h-3.5 shrink-0 ${
+                    resetSuccess ? 'text-emerald-600 animate-spin' : 'text-slate-400'
+                  }`}
+                />
+                <span className="truncate">
+                  {resetSuccess ? 'ล้างสิทธิ์ทั้งหมดแล้ว!' : 'รีเซ็ตสิทธิ์ (เคลียร์สิทธิ์)'}
+                </span>
+              </div>
+              <span
+                className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                  resetSuccess
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                {resetSuccess ? 'DONE' : 'RESET'}
+              </span>
+            </button>
           </div>
         </div>
 

@@ -21,11 +21,14 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import { InfoTooltip } from '@/components/common/InfoTooltip';
+import { triggerSuccessConfetti } from '@/lib/confetti';
 import {
   analyzePhotoMock,
   MockAiScenario,
   VALID_CATEGORIES,
 } from '@/services/mockAiService';
+import { InAppPermissionModal, PermissionType } from '@/components/common/InAppPermissionModal';
+import { WebPermissionService } from '@/lib/permissionService';
 
 interface TicketFormProps {
   onSuccess?: () => void;
@@ -42,6 +45,13 @@ interface ConflictingField {
 export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) => {
   // Mobile step wizard state (1: Photo & Mock AI, 2: Location & Asset, 3: Description & Submit)
   const [currentStep, setCurrentStep] = useState<number>(1);
+
+  // In-App Web Permission Modal State
+  const [permissionModal, setPermissionModal] = useState<{
+    isOpen: boolean;
+    type: PermissionType;
+    onAllow: () => void;
+  } | null>(null);
   // -------------------------------------------------------------
   // Form State
   // -------------------------------------------------------------
@@ -230,6 +240,67 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
   };
 
   // -------------------------------------------------------------
+  // Web-based Permission Handlers (Zero Native Browser Alerts)
+  // -------------------------------------------------------------
+  const handleRequestCamera = () => {
+    if (WebPermissionService.isGranted('camera_photos')) {
+      cameraInputRef.current?.click();
+    } else {
+      setPermissionModal({
+        isOpen: true,
+        type: 'camera_photos',
+        onAllow: () => {
+          WebPermissionService.grant('camera_photos');
+          setPermissionModal(null);
+          setTimeout(() => {
+            cameraInputRef.current?.click();
+          }, 100);
+        },
+      });
+    }
+  };
+
+  const handleRequestGallery = () => {
+    if (WebPermissionService.isGranted('camera_photos')) {
+      fileInputRef.current?.click();
+    } else {
+      setPermissionModal({
+        isOpen: true,
+        type: 'camera_photos',
+        onAllow: () => {
+          WebPermissionService.grant('camera_photos');
+          setPermissionModal(null);
+          setTimeout(() => {
+            fileInputRef.current?.click();
+          }, 100);
+        },
+      });
+    }
+  };
+
+  const handleAutoDetectLocation = () => {
+    if (WebPermissionService.isGranted('location')) {
+      if (locations.length > 0) {
+        const sc09Room = locations.find((l) => l.roomNumber === '304') || locations[0];
+        setSelectedLocationId(sc09Room.id);
+      }
+    } else {
+      setPermissionModal({
+        isOpen: true,
+        type: 'location',
+        onAllow: () => {
+          WebPermissionService.grant('location');
+          setPermissionModal(null);
+          if (locations.length > 0) {
+            const sc09Room = locations.find((l) => l.roomNumber === '304') || locations[0];
+            setSelectedLocationId(sc09Room.id);
+          }
+        },
+      });
+    }
+  };
+
+  // -------------------------------------------------------------
   // Mock AI Analysis Handler
   // -------------------------------------------------------------
   const handleTriggerMockAi = async () => {
@@ -363,6 +434,7 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
       if (data.success) {
         setGeneratedTicketNo(data.data.ticketNumber);
         setSubmitSuccess(true);
+        triggerSuccessConfetti();
         if (onSuccess) onSuccess();
       } else {
         alert(data.error || 'Failed to submit ticket');
@@ -607,17 +679,17 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
                 <button
                   type="button"
                   disabled={isUploading}
-                  onClick={() => cameraInputRef.current?.click()}
+                  onClick={handleRequestCamera}
                   className="py-2 px-3 border border-blue-300 hover:border-blue-500 active:scale-95 rounded-xl flex items-center justify-center space-x-1.5 text-blue-700 bg-blue-50/70 hover:bg-blue-100/70 transition cursor-pointer disabled:opacity-50 text-xs font-bold shadow-2xs"
                 >
                   <Camera className="w-4 h-4 text-blue-600" />
-                  <span>ถ่ายภาพทันที</span>
+                  <span>ถ่ายภาพทันที (ขอสิทธิ์)</span>
                 </button>
 
                 <button
                   type="button"
                   disabled={isUploading}
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={handleRequestGallery}
                   className="py-2 px-3 border border-slate-300 hover:border-slate-400 active:scale-95 rounded-xl flex items-center justify-center space-x-1.5 text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer disabled:opacity-50 text-xs font-bold shadow-2xs"
                 >
                   {isUploading ? (
@@ -625,7 +697,7 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
                   ) : (
                     <ImageIcon className="w-4 h-4 text-slate-500" />
                   )}
-                  <span>{isUploading ? 'กำลังโหลด...' : 'เลือกจากคลัง'}</span>
+                  <span>{isUploading ? 'กำลังโหลด...' : 'เลือกจากคลัง (ขอสิทธิ์)'}</span>
                 </button>
               </div>
             )}
@@ -763,9 +835,20 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
                 </div>
                 <span>2. สถานที่เกิดเหตุ / ห้องเรียน</span>
               </div>
-              <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600 ring-1 ring-inset ring-red-600/20">
-                * จำเป็น
-              </span>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={handleAutoDetectLocation}
+                  className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition cursor-pointer"
+                  title="ขอสิทธิ์พิกัดตำแหน่งเพื่อระบุห้องอัตโนมัติ"
+                >
+                  <MapPin className="w-3 h-3 text-rose-600" />
+                  <span>ตรวจจับห้อง (GPS ขอสิทธิ์)</span>
+                </button>
+                <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600 ring-1 ring-inset ring-red-600/20">
+                  * จำเป็น
+                </span>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -1288,6 +1371,16 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
             </div>
           </div>
         </div>
+      )}
+
+      {/* In-App Permission Request Modal */}
+      {permissionModal && (
+        <InAppPermissionModal
+          isOpen={permissionModal.isOpen}
+          type={permissionModal.type}
+          onAllow={permissionModal.onAllow}
+          onDeny={() => setPermissionModal(null)}
+        />
       )}
     </div>
   );

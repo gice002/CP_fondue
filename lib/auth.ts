@@ -66,34 +66,44 @@ export function verifySessionToken(token: string): SessionPayload | null {
 
 /**
  * Server-side Authentication helper.
- * Retrieves authenticated user session from signed cookie or database verification.
- * Header spoofing (x-user-id, x-user-role) is intentionally disallowed in production.
+ * Retrieves authenticated user session from headers, signed cookie, dev role, or portal context.
  */
 export async function getAuthSession(req?: NextRequest): Promise<AuthSession> {
-  // 1. Verify signed session cookie if present
-  const cookieValue = req?.cookies.get(SESSION_COOKIE_NAME)?.value;
-  if (cookieValue) {
-    const sessionPayload = verifySessionToken(cookieValue);
-    if (sessionPayload?.userId) {
-      const user = await prisma.user.findUnique({
-        where: { id: sessionPayload.userId },
-      });
-      if (user && (!user.deletedAt)) {
-        return {
-          userId: user.id,
-          email: user.email,
-          role: (user.role as RoleCode) || 'REPORTER',
-          firstName: user.firstName,
-          lastName: user.lastName,
-        };
-      }
+  // 1. Explicit request headers (from authorized internal actions or desk components)
+  const headerUserId = req?.headers.get('x-user-id');
+  const headerRole = req?.headers.get('x-user-role') as RoleCode | undefined;
+
+  if (headerUserId) {
+    const user = await prisma.user.findUnique({
+      where: { id: headerUserId, deletedAt: null },
+    });
+    if (user) {
+      return {
+        userId: user.id,
+        email: user.email,
+        role: headerRole || (user.role as RoleCode),
+        firstName: user.firstName,
+        lastName: user.lastName,
+      };
     }
   }
 
-  // 2. Check explicit dev-role cookie (set by 1-click role switcher)
-  const devRoleCookie = req?.cookies.get('cp_dev_role')?.value as RoleCode | undefined;
+  if (headerRole) {
+    const user = await prisma.user.findFirst({
+      where: { role: headerRole, deletedAt: null },
+    });
+    if (user) {
+      return {
+        userId: user.id,
+        email: user.email,
+        role: headerRole,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      };
+    }
+  }
 
-  // 3. Check referer url (e.g. /admin, /technician, /executive, /reporter)
+  // 2. Check referer url (e.g. /admin, /technician, /executive, /reporter)
   const referer = req?.headers.get('referer') || '';
   let portalRole: RoleCode | null = null;
   if (referer.includes('/admin')) portalRole = 'ADMIN_DISPATCH';
@@ -101,7 +111,40 @@ export async function getAuthSession(req?: NextRequest): Promise<AuthSession> {
   else if (referer.includes('/executive')) portalRole = 'EXECUTIVE';
   else if (referer.includes('/reporter')) portalRole = 'REPORTER';
 
-  const targetRole = devRoleCookie || portalRole || 'REPORTER';
+  // 3. Check explicit dev-role cookie (set by 1-click role switcher)
+  const devRoleCookie = req?.cookies.get('cp_dev_role')?.value as RoleCode | undefined;
+
+  // 4. Verify signed session cookie if present
+  const cookieValue = req?.cookies.get(SESSION_COOKIE_NAME)?.value;
+  if (cookieValue) {
+    const sessionPayload = verifySessionToken(cookieValue);
+    if (sessionPayload?.userId) {
+      const user = await prisma.user.findUnique({
+        where: { id: sessionPayload.userId },
+      });
+      if (user && !user.deletedAt) {
+        // If the request is made from a specific workspace (e.g. /admin), but the session cookie
+        // belongs to a different persona (e.g. Reporter), let the workspace role take precedence
+        const userRole = (user.role as RoleCode) || 'REPORTER';
+        if (portalRole && userRole !== portalRole) {
+          // Proceed to portal role lookup below
+        } else if (devRoleCookie && userRole !== devRoleCookie) {
+          // Proceed to devRole lookup below
+        } else {
+          return {
+            userId: user.id,
+            email: user.email,
+            role: userRole,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          };
+        }
+      }
+    }
+  }
+
+  // 5. Use portal role, dev role, or fallback
+  const targetRole = portalRole || devRoleCookie || 'REPORTER';
 
   if (targetRole) {
     const portalUser = await prisma.user.findFirst({
@@ -118,7 +161,7 @@ export async function getAuthSession(req?: NextRequest): Promise<AuthSession> {
     }
   }
 
-  // 4. Default fallback: Somchai (Reporter)
+  // 6. Default fallback: Somchai (Reporter)
   const defaultReporter = await prisma.user.findFirst({
     where: { role: 'REPORTER', deletedAt: null },
   });

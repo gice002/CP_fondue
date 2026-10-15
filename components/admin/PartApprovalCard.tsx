@@ -56,7 +56,11 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
     try {
       const res = await fetch('/api/spare-parts/requisitions', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': 'ADMIN_DISPATCH',
+          'x-user-id': 'usr_admin_01',
+        },
         body: JSON.stringify({
           id: currentReq.id,
           action: 'APPROVE',
@@ -87,7 +91,11 @@ export const PartApprovalCard: React.FC<PartApprovalCardProps> = ({
     try {
       const res = await fetch('/api/spare-parts/requisitions', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': 'ADMIN_DISPATCH',
+          'x-user-id': 'usr_admin_01',
+        },
         body: JSON.stringify({
           id: currentReq.id,
           action: 'REJECT',

@@ -1,70 +1,65 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import { Sidebar } from '@/components/common/Sidebar';
-import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminStatCards } from '@/components/admin/AdminStatCards';
-import { TicketDispatchTable } from '@/components/admin/TicketDispatchTable';
-import { TicketVerificationCard } from '@/components/admin/TicketVerificationCard';
-import { AssignTechnicianDrawer } from '@/components/admin/AssignTechnicianDrawer';
+import { TicketDispatchCards } from '@/components/admin/TicketDispatchCards';
+import { UnifiedDispatchCard } from '@/components/admin/UnifiedDispatchCard';
 import { PartApprovalCard } from '@/components/admin/PartApprovalCard';
 import { ApprovedRequisitionsTable } from '@/components/admin/ApprovedRequisitionsTable';
 import { TicketForm } from '@/components/reporter/TicketForm';
+import { LoadingScreen, DispatchWorkspaceSkeleton } from '@/components/common/LoadingScreen';
+import { PageTransition, AnimatePresence } from '@/components/common/MotionWrapper';
+import { fetcher, defaultSwrConfig } from '@/lib/swr';
 import { Ticket, SparePartRequest } from '@/types';
 
 export default function AdminPage() {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [requisitions, setRequisitions] = useState<SparePartRequest[]>([]);
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [activeSubView, setActiveSubView] = useState('dispatch');
 
-  const fetchAdminData = async () => {
-    try {
-      setIsLoading(true);
-      const [resTickets, resReqs] = await Promise.all([
-        fetch('/api/tickets', { cache: 'no-store' }),
-        fetch('/api/spare-parts/requisitions', { cache: 'no-store' }),
-      ]);
-      const data = await resTickets.json();
-      if (data.success && data.data.length > 0) {
-        setTickets(data.data);
-        const nonCancelled = data.data.filter((t: Ticket) => t.status !== 'CANCELLED');
-        const found = selectedTicket
-          ? data.data.find((t: Ticket) => t.id === selectedTicket.id)
-          : null;
-        if (found && found.status !== 'CANCELLED') {
-          setSelectedTicket(found);
-        } else {
-          setSelectedTicket(nonCancelled.length > 0 ? nonCancelled[0] : data.data[0]);
-        }
-      } else {
-        setTickets([]);
-        setSelectedTicket(null);
-      }
-
-      const reqData = await resReqs.json();
-      if (reqData.success && Array.isArray(reqData.data)) {
-        setRequisitions(reqData.data);
-      } else {
-        setRequisitions([]);
-      }
-    } catch (e) {
-      console.error('Failed to fetch admin data:', e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Synchronize session cookie for ADMIN_DISPATCH
   useEffect(() => {
-    fetchAdminData();
+    document.cookie = 'cp_dev_role=ADMIN_DISPATCH; path=/; max-age=86400; SameSite=Lax';
+    fetch('/api/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: 'ADMIN_DISPATCH' }),
+    }).catch(() => {});
   }, []);
+
+  // Fast Cached SWR queries
+  const {
+    data: ticketsData,
+    isLoading: isTicketsLoading,
+    mutate: mutateTickets,
+  } = useSWR<{ success: boolean; data: Ticket[] }>('/api/tickets', fetcher, defaultSwrConfig);
+
+  const {
+    data: reqsData,
+    mutate: mutateReqs,
+  } = useSWR<{ success: boolean; data: SparePartRequest[] }>(
+    '/api/spare-parts/requisitions',
+    fetcher,
+    defaultSwrConfig
+  );
+
+  const tickets = ticketsData?.data || [];
+  const requisitions = reqsData?.data || [];
+
+  const selectedTicket = selectedTicketId
+    ? tickets.find((t) => t.id === selectedTicketId) || tickets[0]
+    : tickets[0] || null;
+
+  const refreshAll = () => {
+    mutateTickets();
+    mutateReqs();
+  };
 
   const pendingCount = tickets.filter((t) => t.status === 'PENDING_DISPATCH').length;
   const activeCount = tickets.filter((t) => t.status === 'IN_PROGRESS' || t.status === 'ASSIGNED').length;
   const completedCount = tickets.filter((t) => t.status === 'COMPLETED').length;
   const pendingRequisitionCount = requisitions.filter((r) => r.status === 'PENDING').length;
-
-  const [activeSubView, setActiveSubView] = useState('dispatch');
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col lg:flex-row font-sans">
@@ -94,60 +89,71 @@ export default function AdminPage() {
         </header>
 
         <main className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
-          {/* SubView 1: Dispatch Desk */}
-          {activeSubView === 'dispatch' && (
-            <>
-              <AdminStatCards
-                pendingCount={pendingCount}
-                activeCount={activeCount}
-                requisitionCount={pendingRequisitionCount}
-                completedCount={completedCount}
-              />
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-6">
-                {/* Left Column: Tickets Queue Table & Detailed Verification */}
-                <div className="lg:col-span-7 space-y-6">
-                  <TicketDispatchTable
-                    tickets={tickets}
-                    selectedTicketId={selectedTicket?.id || ''}
-                    onSelectTicket={(t) => setSelectedTicket(t)}
-                  />
-
-                  {selectedTicket && (
-                    <TicketVerificationCard
-                      ticket={selectedTicket}
-                      onCancelled={() => fetchAdminData()}
+          <AnimatePresence mode="wait">
+            {/* SubView 1: Dispatch Desk */}
+            {activeSubView === 'dispatch' && (
+              <PageTransition key="dispatch">
+                {isTicketsLoading && tickets.length === 0 ? (
+                  <div className="space-y-6">
+                    <LoadingScreen message="กำลังโหลดคิวงานซ่อมและข้อมูลระบบ CP FONDUE..." />
+                    <DispatchWorkspaceSkeleton />
+                  </div>
+                ) : (
+                  <>
+                    <AdminStatCards
+                      pendingCount={pendingCount}
+                      activeCount={activeCount}
+                      requisitionCount={pendingRequisitionCount}
+                      completedCount={completedCount}
                     />
-                  )}
-                </div>
 
-                {/* Right Column: Dispatch Drawer */}
-                <div className="lg:col-span-5 space-y-6">
-                  {selectedTicket && (
-                    <AssignTechnicianDrawer
-                      ticket={selectedTicket}
-                      onAssigned={() => fetchAdminData()}
-                    />
-                  )}
-                </div>
-              </div>
-            </>
-          )}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-6">
+                      {/* Left Column: Tickets Queue Cards (5 cards per page) */}
+                      <div className="lg:col-span-5 space-y-4">
+                        <TicketDispatchCards
+                          tickets={tickets}
+                          selectedTicketId={selectedTicket?.id || ''}
+                          onSelectTicket={(t) => {
+                            setSelectedTicketId(t.id);
+                          }}
+                        />
+                      </div>
 
-          {/* SubView 2: Inventory & Store Operations */}
-          {activeSubView === 'inventory' && (
-            <div className="max-w-5xl mx-auto space-y-6">
-              <PartApprovalCard onActionComplete={() => fetchAdminData()} />
-              <ApprovedRequisitionsTable requisitions={requisitions} />
-            </div>
-          )}
+                      {/* Right Column: Unified Dispatch Card (Merged Evidence, Details & Technician Assignment) */}
+                      <div className="lg:col-span-7 space-y-4">
+                        {selectedTicket ? (
+                          <UnifiedDispatchCard
+                            ticket={selectedTicket}
+                            onCancelled={() => refreshAll()}
+                            onAssigned={() => refreshAll()}
+                          />
+                        ) : (
+                          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-12 text-center text-slate-400 text-xs">
+                            กรุณาเลือกคำร้องจากการ์ดคิวงานทางซ้ายมือ
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </PageTransition>
+            )}
 
-          {/* SubView 3: Report Ticket (Same as Reporter) */}
-          {activeSubView === 'report' && (
-            <div className="max-w-3xl mx-auto">
-              <TicketForm onSuccess={() => fetchAdminData()} />
-            </div>
-          )}
+            {/* SubView 2: Inventory & Store Operations */}
+            {activeSubView === 'inventory' && (
+              <PageTransition key="inventory" className="max-w-5xl mx-auto space-y-6">
+                <PartApprovalCard onActionComplete={() => refreshAll()} />
+                <ApprovedRequisitionsTable requisitions={requisitions} />
+              </PageTransition>
+            )}
+
+            {/* SubView 3: Report Ticket (Same as Reporter) */}
+            {activeSubView === 'report' && (
+              <PageTransition key="report" className="max-w-3xl mx-auto">
+                <TicketForm onSuccess={() => refreshAll()} />
+              </PageTransition>
+            )}
+          </AnimatePresence>
         </main>
       </div>
     </div>

@@ -99,15 +99,21 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
     });
   };
 
+  const PRIORITY_TAGS: StandardTag[] = ['งานเร่งด่วน', 'งานเร่ง', 'งานจำเป็น', 'งานทั่วไป'];
+  const CONDITION_TAGS: StandardTag[] = ['งานที่ต้องรออุปกรณ์'];
+
   const toggleTag = (tag: StandardTag) => {
-    if (selectedTags.includes(tag)) {
-      if (selectedTags.length === 1) {
-        alert('ต้องเลือกอย่างน้อย 1 Tag');
-        return;
-      }
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
+    if (PRIORITY_TAGS.includes(tag)) {
+      // Mutually exclusive priority level: picking one removes any other priority tag
+      const existingConditionTags = selectedTags.filter((t) => !PRIORITY_TAGS.includes(t));
+      setSelectedTags([tag, ...existingConditionTags]);
     } else {
-      setSelectedTags([...selectedTags, tag]);
+      // Optional condition tag: toggles on / off independently
+      if (selectedTags.includes(tag)) {
+        setSelectedTags(selectedTags.filter((t) => t !== tag));
+      } else {
+        setSelectedTags([...selectedTags, tag]);
+      }
     }
   };
 
@@ -323,41 +329,67 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
             </div>
           </div>
 
-          {/* Tags Selection (Replacing Urgency) */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                <span>กำหนด Tags ลำดับความสำคัญและประเภทงาน</span>
-                <InfoTooltip text="Tags ใช้จัดลำดับความสำคัญในคิวงานของช่าง โดย Tag 'ด่วนที่สุด' และ 'กระทบวงกว้าง' จะถูกดันขึ้นด้านบนสุดของคิวงานช่างโดยอัตโนมัติ" />
-              </label>
-              <span className="text-[10px] text-slate-400">เรียงตามลำดับความสำคัญ</span>
+          {/* Tags Selection (Categorized & Mutually Exclusive) */}
+          <div className="space-y-3 pt-1">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                  <span>ระดับความสำคัญ (เลือกได้ 1 ระดับ):</span>
+                  <InfoTooltip text="ระดับความเร่งด่วนจะถูกจัดลำดับในคิวงานของช่าง โดย 'งานเร่งด่วน' จะถูกดันขึ้นอันดับ 1 ของคิวงานโดยอัตโนมัติ" />
+                </label>
+                <span className="text-[10px] text-slate-400 font-medium">ลำดับความเร่งด่วน</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                {PRIORITY_TAGS.map((tag) => {
+                  const isTagSelected = selectedTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleTag(tag)}
+                      className={`px-2 py-1.5 rounded-xl text-xs font-bold border transition text-center cursor-pointer ${
+                        isTagSelected
+                          ? tag === 'งานเร่งด่วน'
+                            ? 'bg-rose-600 border-rose-600 text-white shadow-xs ring-2 ring-rose-500/20'
+                            : tag === 'งานเร่ง'
+                            ? 'bg-amber-600 border-amber-600 text-white shadow-xs ring-2 ring-amber-500/20'
+                            : tag === 'งานจำเป็น'
+                            ? 'bg-blue-600 border-blue-600 text-white shadow-xs ring-2 ring-blue-500/20'
+                            : 'bg-slate-800 border-slate-800 text-white shadow-xs ring-2 ring-slate-500/20'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {STANDARD_TAGS.map((tag) => {
-                const isTagSelected = selectedTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => toggleTag(tag)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition ${
-                      isTagSelected
-                        ? tag === 'งานเร่งด่วน'
-                          ? 'bg-red-600 border-red-600 text-white shadow-xs'
-                          : tag === 'งานเร่ง'
-                          ? 'bg-amber-600 border-amber-600 text-white shadow-xs'
-                          : tag === 'งานจำเป็น'
-                          ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
-                          : tag === 'งานที่ต้องรออุปกรณ์'
+
+            <div>
+              <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                เงื่อนไขงานเพิ่มเติม (เลือกเสริมได้):
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {CONDITION_TAGS.map((tag) => {
+                  const isTagSelected = selectedTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleTag(tag)}
+                      className={`px-3 py-1 rounded-xl text-xs font-medium border transition cursor-pointer flex items-center space-x-1 ${
+                        isTagSelected
                           ? 'bg-purple-600 border-purple-600 text-white shadow-xs'
-                          : 'bg-slate-800 border-slate-800 text-white shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span>{isTagSelected ? '✓' : '+'}</span>
+                      <span>{tag}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

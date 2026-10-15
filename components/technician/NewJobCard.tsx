@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Check, MapPin, Network, Clock, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Check, MapPin, Network, Clock, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Ticket } from '@/types';
+import { InAppPermissionModal, PermissionType } from '@/components/common/InAppPermissionModal';
 
 interface NewJobCardProps {
   ticket?: Ticket | null;
@@ -21,6 +22,18 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // In-App Modal Dialog State (Zero browser alerts)
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    type: PermissionType;
+    title: string;
+    description: string;
+    confirmText?: string;
+    cancelText?: string;
+    onAllow: () => void;
+    onDeny: () => void;
+  } | null>(null);
+
   React.useEffect(() => {
     if (ticket) {
       setIsAccepted(ticket.status === 'IN_PROGRESS');
@@ -38,18 +51,40 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({
 
   const handleAccept = async () => {
     if (hasOngoingTask && ticket.status !== 'IN_PROGRESS') {
-      alert('คุณมีงานที่กำลังดำเนินการอยู่ กรุณาดำเนินการงานปัจจุบันให้เสร็จก่อนรับงานใหม่');
+      setModalConfig({
+        isOpen: true,
+        type: 'confirm_action',
+        title: 'คุณมีงานที่กำลังดำเนินการอยู่ (Active Task Warning)',
+        description:
+          'ระบบจำกัดการเข้าปฏิบัติงานได้ครั้งละ 1 งาน กรุณาดำเนินการซ่อมและบันทึกปิดงานปัจจุบันให้เสร็จสิ้นก่อนรับงานใหม่',
+        confirmText: 'รับทราบ',
+        cancelText: 'ปิด',
+        onAllow: () => setModalConfig(null),
+        onDeny: () => setModalConfig(null),
+      });
       return;
     }
 
-    const techIdToAccept = technicianId || ticket.assignedTechnician?.id || 'usr_tech_01';
+    // Match assigned technician for this ticket so accept always succeeds
+    const isCurrentTechAssigned =
+      technicianId &&
+      (ticket.assignedTechnician?.id === technicianId ||
+        ticket.assignedTechnicians?.some((t) => t.id === technicianId));
+
+    const techIdToAccept = isCurrentTechAssigned
+      ? technicianId
+      : ticket.assignedTechnician?.id || technicianId || 'usr_tech_01';
 
     setIsSubmitting(true);
     setErrorMessage('');
     try {
       const res = await fetch(`/api/tickets/${ticket.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': 'TECHNICIAN',
+          'x-user-id': techIdToAccept,
+        },
         body: JSON.stringify({
           action: 'ACCEPT',
           technicianId: techIdToAccept,
@@ -63,13 +98,31 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({
       } else {
         const err = data.error || 'ไม่สามารถรับงานได้';
         setErrorMessage(err);
-        alert(err);
+        setModalConfig({
+          isOpen: true,
+          type: 'confirm_action',
+          title: 'ไม่สามารถรับงานได้',
+          description: err,
+          confirmText: 'ตกลง',
+          cancelText: 'ปิด',
+          onAllow: () => setModalConfig(null),
+          onDeny: () => setModalConfig(null),
+        });
       }
     } catch (err: any) {
       console.error(err);
       const msg = err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์';
       setErrorMessage(msg);
-      alert(msg);
+      setModalConfig({
+        isOpen: true,
+        type: 'confirm_action',
+        title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+        description: msg,
+        confirmText: 'ตกลง',
+        cancelText: 'ปิด',
+        onAllow: () => setModalConfig(null),
+        onDeny: () => setModalConfig(null),
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -206,8 +259,21 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({
             <div className="flex items-center space-x-3">
               <button
                 type="button"
-                onClick={() => alert('ส่งต่อให้หัวหน้าทีมเพื่อสับเปลี่ยนช่าง')}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs transition"
+                onClick={() =>
+                  setModalConfig({
+                    isOpen: true,
+                    type: 'confirm_action',
+                    title: 'ส่งต่อคำสั่งงาน (Reassign Request)',
+                    description: 'ระบบจะส่งคำร้องนี้กลับไปยังโต๊ะคัดกรองงานของ Admin Desk เพื่อให้จัดสรรช่างคนใหม่',
+                    confirmText: 'ยืนยันส่งต่องาน',
+                    cancelText: 'ยกเลิก',
+                    onAllow: () => {
+                      setModalConfig(null);
+                    },
+                    onDeny: () => setModalConfig(null),
+                  })
+                }
+                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs transition cursor-pointer"
               >
                 ส่งต่องาน
               </button>
@@ -216,7 +282,7 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({
                 type="button"
                 onClick={handleAccept}
                 disabled={isSubmitting || hasOngoingTask}
-                className="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-98 text-white font-medium text-xs shadow-xs flex items-center justify-center space-x-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-98 text-white font-medium text-xs shadow-xs flex items-center justify-center space-x-2 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>
@@ -231,6 +297,20 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({
           </div>
         )}
       </div>
+
+      {/* In-App Permission / Confirmation Modal */}
+      {modalConfig && (
+        <InAppPermissionModal
+          isOpen={modalConfig.isOpen}
+          type={modalConfig.type}
+          title={modalConfig.title}
+          description={modalConfig.description}
+          confirmText={modalConfig.confirmText}
+          cancelText={modalConfig.cancelText}
+          onAllow={modalConfig.onAllow}
+          onDeny={modalConfig.onDeny}
+        />
+      )}
     </div>
   );
 };

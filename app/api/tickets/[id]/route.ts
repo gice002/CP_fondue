@@ -76,24 +76,25 @@ export async function PATCH(
       }
       updatedTicket = await TicketService.updateTicketTags(id, body.tags, session.userId);
     } else if (action === 'ACCEPT') {
-      // Require TECHNICIAN role
-      assertAuthorized(session, ['TECHNICIAN']);
+      // Require TECHNICIAN or ADMIN_DISPATCH role
+      assertAuthorized(session, ['TECHNICIAN', 'ADMIN_DISPATCH']);
 
-      // Technician can only accept for themselves
-      updatedTicket = await TicketService.acceptTicket(id, session.userId);
+      const targetTechId = body.technicianId || session.userId;
+      updatedTicket = await TicketService.acceptTicket(id, targetTechId);
     } else if (action === 'CLOSE') {
-      // Require TECHNICIAN role
-      assertAuthorized(session, ['TECHNICIAN']);
+      // Require TECHNICIAN or ADMIN_DISPATCH role
+      assertAuthorized(session, ['TECHNICIAN', 'ADMIN_DISPATCH']);
 
       if (!body.repairNotes || !body.repairNotes.trim()) {
         return NextResponse.json({ success: false, error: 'กรุณากรอกบันทึกสรุปผลการซ่อม (BR8)' }, { status: 400 });
       }
 
+      const targetTechId = body.technicianId || session.userId;
       updatedTicket = await TicketService.closeTicket(
         id,
         body.repairNotes.trim(),
         body.afterProofUrls || [],
-        session.userId
+        targetTechId
       );
     } else if (action === 'CANCEL') {
       // Cancel is allowed for REPORTER or ADMIN_DISPATCH

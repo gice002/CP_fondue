@@ -155,7 +155,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {currentRole === 'REPORTER'
                   ? 'ผู้แจ้งเหตุ (Reporter)'
                   : currentRole === 'ADMIN_DISPATCH'
-                  ? 'เจ้าหน้าที่ (Admin)'
+                  ? 'เจ้าหน้าที่ (Staff)'
                   : currentRole === 'TECHNICIAN'
                   ? 'ทีมช่างซ่อม (Technician)'
                   : 'แดชบอร์ดภาพรวม (Dashboard)'}
@@ -198,7 +198,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {currentRole === 'ADMIN_DISPATCH' && onSelectSubView && (
             <div className="space-y-1">
               <span className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
-                เมนูเจ้าหน้าที่ (Admin Views)
+                เมนูเจ้าหน้าที่ (Staff Views)
               </span>
               {adminSubNav.map((sub) => {
                 const Icon = sub.icon;

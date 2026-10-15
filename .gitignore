@@ -40,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# archives & agent tools
+*.zip
+.agents/
+security-audit-skill/
+skills-lock.json

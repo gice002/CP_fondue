@@ -454,7 +454,7 @@ export const AssignTechnicianDrawer: React.FC<AssignTechnicianDrawerProps> = ({
               </button>
             )}
 
-            {/* Cancel ticket button for Admin (if pending or assigned) */}
+            {/* Cancel ticket button for Staff (if pending or assigned) */}
             {(ticket.status === 'PENDING_DISPATCH' || ticket.status === 'ASSIGNED') && (
               <button
                 type="button"

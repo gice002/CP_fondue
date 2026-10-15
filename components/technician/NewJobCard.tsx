@@ -264,7 +264,7 @@ export const NewJobCard: React.FC<NewJobCardProps> = ({
                     isOpen: true,
                     type: 'confirm_action',
                     title: 'ส่งต่อคำสั่งงาน (Reassign Request)',
-                    description: 'ระบบจะส่งคำร้องนี้กลับไปยังโต๊ะคัดกรองงานของ Admin Desk เพื่อให้จัดสรรช่างคนใหม่',
+                    description: 'ระบบจะส่งคำร้องนี้กลับไปยังโต๊ะคัดกรองงานของ Staff Desk เพื่อให้จัดสรรช่างคนใหม่',
                     confirmText: 'ยืนยันส่งต่องาน',
                     cancelText: 'ยกเลิก',
                     onAllow: () => {

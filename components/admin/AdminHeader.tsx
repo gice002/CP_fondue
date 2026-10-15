@@ -16,10 +16,10 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
             <ClipboardCheck className="w-4 h-4" />
           </div>
           <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-            พอร์ทัลเจ้าหน้าที่ (Admin Portal)
+            พอร์ทัลเจ้าหน้าที่ (Staff Portal)
           </h1>
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-            Admin Staff
+            Staff
           </span>
         </div>
         <p className="text-xs text-slate-500">

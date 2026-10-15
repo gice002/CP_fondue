@@ -103,10 +103,10 @@ export async function getAuthSession(req?: NextRequest): Promise<AuthSession> {
     }
   }
 
-  // 2. Check referer url (e.g. /admin, /technician, /executive, /reporter)
+  // 2. Check referer url (e.g. /admin, /staff, /technician, /executive, /reporter)
   const referer = req?.headers.get('referer') || '';
   let portalRole: RoleCode | null = null;
-  if (referer.includes('/admin')) portalRole = 'ADMIN_DISPATCH';
+  if (referer.includes('/admin') || referer.includes('/staff')) portalRole = 'ADMIN_DISPATCH';
   else if (referer.includes('/technician')) portalRole = 'TECHNICIAN';
   else if (referer.includes('/executive')) portalRole = 'EXECUTIVE';
   else if (referer.includes('/reporter')) portalRole = 'REPORTER';

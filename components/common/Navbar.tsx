@@ -36,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     },
     {
       name: 'เจ้าหน้าที่คัดกรอง',
-      badge: 'Admin Desk',
+      badge: 'Staff Desk',
       href: '/admin',
       role: 'ADMIN_DISPATCH',
       icon: ClipboardList,
@@ -85,7 +85,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Minimalist Segmented Navigation Tabs */}
           <nav className="hidden lg:flex items-center space-x-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
             {navItems.map((item) => {
-              const isActive = pathname.startsWith(item.href);
+              const isActive =
+                pathname.startsWith(item.href) ||
+                (item.role === 'ADMIN_DISPATCH' && pathname.startsWith('/staff'));
               const Icon = item.icon;
               return (
                 <Link
@@ -134,7 +136,9 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile nav bar */}
       <div className="lg:hidden flex overflow-x-auto py-2 px-4 space-x-2 border-t border-slate-200/80 bg-white">
         {navItems.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+          const isActive =
+            pathname.startsWith(item.href) ||
+            (item.role === 'ADMIN_DISPATCH' && pathname.startsWith('/staff'));
           return (
             <Link
               key={item.href}

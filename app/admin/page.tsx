@@ -86,7 +86,7 @@ export default function AdminPage() {
           <div>
             <h2 className="text-lg font-black text-slate-900 tracking-tight">ไม่มีสิทธิ์เข้าถึงหน้านี้</h2>
             <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              หน้านี้สำหรับเจ้าหน้าที่ฝ่ายคัดกรองงานช่าง (Admin Desk) เท่านั้น 
+              หน้านี้สำหรับเจ้าหน้าที่ฝ่ายคัดกรองงานช่าง (Staff Desk) เท่านั้น 
               บัญชีปัจจุบันของคุณคือ: <span className="font-bold text-blue-700">{currentUserRole === 'REPORTER' ? 'ผู้แจ้งเหตุ (Reporter)' : currentUserRole}</span>
             </p>
           </div>

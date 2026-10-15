@@ -79,7 +79,7 @@ export default function LoginPage() {
     },
     {
       role: 'ADMIN_DISPATCH' as RoleCode,
-      title: 'เจ้าหน้าที่ (Admin Desk)',
+      title: 'เจ้าหน้าที่ (Staff Desk)',
       badge: 'โต๊ะคัดกรอง & บริหารพัสดุ',
       user: 'จิราพร สว่างเนตร',
       email: 'jiraporn.s@kkumail.com',
@@ -172,7 +172,7 @@ export default function LoginPage() {
     let targetRole: RoleCode = 'REPORTER';
     let targetHref = '/reporter';
 
-    if (inputEmail.includes('admin') || inputEmail.includes('jiraporn')) {
+    if (inputEmail.includes('admin') || inputEmail.includes('staff') || inputEmail.includes('jiraporn')) {
       targetRole = 'ADMIN_DISPATCH';
       targetHref = '/admin';
     } else if (inputEmail.includes('tech') || inputEmail.includes('anucha') || inputEmail.includes('somsak')) {

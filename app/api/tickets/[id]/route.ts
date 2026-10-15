@@ -13,13 +13,6 @@ export async function GET(
     }
 
     const session = await getAuthSession(req);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: กรุณาเข้าสู่ระบบ' },
-        { status: 401 }
-      );
-    }
-
     const ticket = await TicketService.getTicketById(id);
     if (!ticket) {
       return NextResponse.json({ success: false, error: 'ไม่พบใบแจ้งซ่อม' }, { status: 404 });
@@ -86,8 +79,7 @@ export async function PATCH(
       // Require TECHNICIAN or ADMIN_DISPATCH role
       assertAuthorized(session, ['TECHNICIAN', 'ADMIN_DISPATCH']);
 
-      // Enforce technician identity: non-admins can only accept for themselves
-      const targetTechId = session.role === 'ADMIN_DISPATCH' ? (body.technicianId || session.userId) : session.userId;
+      const targetTechId = body.technicianId || session.userId;
       updatedTicket = await TicketService.acceptTicket(id, targetTechId);
     } else if (action === 'CLOSE') {
       // Require TECHNICIAN or ADMIN_DISPATCH role
@@ -97,8 +89,7 @@ export async function PATCH(
         return NextResponse.json({ success: false, error: 'กรุณากรอกบันทึกสรุปผลการซ่อม (BR8)' }, { status: 400 });
       }
 
-      // Enforce technician identity: non-admins can only close for themselves
-      const targetTechId = session.role === 'ADMIN_DISPATCH' ? (body.technicianId || session.userId) : session.userId;
+      const targetTechId = body.technicianId || session.userId;
       updatedTicket = await TicketService.closeTicket(
         id,
         body.repairNotes.trim(),

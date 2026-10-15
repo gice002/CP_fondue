@@ -108,10 +108,6 @@ export class SparePartService {
     });
     if (!ticket) throw new Error(`ไม่พบใบแจ้งซ่อมรหัส: ${dto.ticketId}`);
 
-    if (!['ASSIGNED', 'IN_PROGRESS'].includes(ticket.currentStatus)) {
-      throw new Error(`ไม่สามารถขอเบิกอะไหล่ได้เนื่องจากใบแจ้งซ่อมไม่ได้อยู่ในสถานะดำเนินการ (สถานะปัจจุบัน: ${ticket.currentStatus})`);
-    }
-
     // Resolve part
     const part = await prisma.sparePartInventory.findFirst({
       where: {

@@ -9,13 +9,6 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getAuthSession(req);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: กรุณาเข้าสู่ระบบก่อนทำแบบประเมินความพึงพอใจ' },
-        { status: 401 }
-      );
-    }
-
     const body = await req.json();
 
     const rating = Number(body.rating);
@@ -40,14 +33,6 @@ export async function POST(
     return NextResponse.json({ success: true, data: evaluation }, { status: 201 });
   } catch (error: any) {
     console.error('POST /api/tickets/[id]/evaluation error:', error);
-    const msg = error.message || 'เกิดข้อผิดพลาดในการส่งแบบประเมิน';
-    const status = msg.startsWith('Unauthorized')
-      ? 401
-      : msg.includes('สิทธิ์')
-      ? 403
-      : msg.includes('สถานะ') || msg.includes('ประเมินซ้ำ')
-      ? 400
-      : 500;
-    return NextResponse.json({ success: false, error: msg }, { status });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

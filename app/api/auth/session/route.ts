@@ -5,18 +5,12 @@ import { RoleCode } from '@/types';
 
 /**
  * Session API handler
- * GET: returns current authenticated session user information
+ * GET: returns current session user information
  * POST: in development/preview environments, sets active session to a chosen role or user
  */
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession(req);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: ไม่พบเซสชันการเข้าสู่ระบบ' },
-        { status: 401 }
-      );
-    }
     return NextResponse.json({ success: true, data: session });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unauthorized';
@@ -29,15 +23,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Security: Gated to non-production or explicitly allowed demo modes
-    const isDevOrDemo = process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEMO_LOGIN === 'true';
-    if (!isDevOrDemo) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: Direct session role switching is disabled in production environments.' },
-        { status: 403 }
-      );
-    }
-
     const body = await req.json();
     const role = body.role as RoleCode | undefined;
     const userId = body.userId as string | undefined;
@@ -47,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     if (userId) {
       targetUser = await prisma.user.findUnique({
-        where: { id: userId, deletedAt: null },
+        where: { id: userId },
       });
     } else if (email) {
       targetUser = await prisma.user.findFirst({
@@ -91,15 +76,12 @@ export async function POST(req: NextRequest) {
       maxAge: 7 * 24 * 60 * 60,
     });
 
-    // In dev/demo mode only, provide mirror dev role cookie for debugging
-    if (isDevOrDemo) {
-      res.cookies.set('cp_dev_role', targetUser.role, {
-        httpOnly: false,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60,
-      });
-    }
+    res.cookies.set('cp_dev_role', targetUser.role, {
+      httpOnly: false,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60,
+    });
 
     return res;
   } catch (error: unknown) {

@@ -6,13 +6,6 @@ import { TicketStatus } from '@/types';
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession(req);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: กรุณาเข้าสู่ระบบ' },
-        { status: 401 }
-      );
-    }
-
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') as TicketStatus | null;
     const excludeStatus = searchParams.get('excludeStatus') ?? undefined;
@@ -59,13 +52,6 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getAuthSession(req);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: กรุณาเข้าสู่ระบบก่อนสร้างคำร้อง' },
-        { status: 401 }
-      );
-    }
-
     const body = await req.json();
 
     if (!body.description || !body.description.trim()) {

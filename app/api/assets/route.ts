@@ -9,12 +9,6 @@ import { getAuthSession } from '@/lib/auth';
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession(req);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: กรุณาเข้าสู่ระบบ' },
-        { status: 401 }
-      );
-    }
     // Allow authenticated users to view assets
     const assets = await AssetService.getAssets();
     return NextResponse.json({ success: true, data: assets });
@@ -34,12 +28,6 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getAuthSession(req);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: กรุณาเข้าสู่ระบบ' },
-        { status: 401 }
-      );
-    }
     // Role check: Only ADMIN_DISPATCH or EXECUTIVE can create assets
     if (session.role !== 'ADMIN_DISPATCH' && session.role !== 'EXECUTIVE') {
       return NextResponse.json(

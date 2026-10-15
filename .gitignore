@@ -1,4 +1,6 @@
-# Dependencies
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -8,54 +10,33 @@
 !.yarn/releases
 !.yarn/versions
 
-# Next.js build output
-/.next/
-/out/
-/build/
-
-# Testing & Coverage
+# testing
 /coverage
 
-# Environment variables & secrets
-.env*
-!.env.example
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
 *.pem
-*.key
-*.cert
-*.crt
-secrets.json
-credentials.json
 
-# Archive / compressed bundles
-*.zip
-*.tar.gz
-*.tgz
-*.rar
-*.7z
-
-# Debug logs
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# OS & Editor files
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*~
-.idea/
-.vscode/
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
 
-# Vercel
+# vercel
 .vercel
 
-# TypeScript & Cache
+# typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Security audit outputs & agent working directories
-.agents/
-security-audit-skill/
-skills-lock.json

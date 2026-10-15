@@ -48,6 +48,12 @@ export async function PATCH(
 ) {
   try {
     const session = await getAuthSession(req);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized: กรุณาเข้าสู่ระบบ' },
+        { status: 401 }
+      );
+    }
     // Role check: Only ADMIN_DISPATCH, TECHNICIAN, or EXECUTIVE can update asset status
     if (session.role === 'REPORTER') {
       return NextResponse.json(
@@ -139,6 +145,12 @@ export async function DELETE(
 ) {
   try {
     const session = await getAuthSession(req);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized: กรุณาเข้าสู่ระบบ' },
+        { status: 401 }
+      );
+    }
     // Role check: Only ADMIN_DISPATCH or EXECUTIVE can delete assets
     if (session.role !== 'ADMIN_DISPATCH' && session.role !== 'EXECUTIVE') {
       return NextResponse.json(

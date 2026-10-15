@@ -45,22 +45,13 @@ function validateImageMagicBytes(buffer: Buffer, mimeType: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Require authenticated session before accepting uploads (with dev fallback)
-    let session = await getAuthSession(req);
+    // 1. Require authenticated session before accepting uploads
+    const session = await getAuthSession(req);
     if (!session) {
-      const fallbackUser = await prisma.user.findFirst({ where: { role: 'REPORTER', deletedAt: null } });
-      if (fallbackUser) {
-        session = {
-          userId: fallbackUser.id,
-          email: fallbackUser.email,
-          role: 'REPORTER',
-          firstName: fallbackUser.firstName,
-          lastName: fallbackUser.lastName,
-        };
-      }
-    }
-    if (!session) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized: กรุณาเข้าสู่ระบบก่อนทำการอัปโหลดไฟล์' },
+        { status: 401 }
+      );
     }
 
     const formData = await req.formData();

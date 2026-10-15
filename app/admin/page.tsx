@@ -31,11 +31,10 @@ export default function AdminPage() {
         if (data.success && data.data?.role) {
           setCurrentUserRole(data.data.role);
         } else {
-          const match = document.cookie.match(/cp_dev_role=([^;]+)/);
-          setCurrentUserRole(match ? match[1] : 'ADMIN_DISPATCH');
+          setCurrentUserRole(null);
         }
       } catch {
-        setCurrentUserRole('ADMIN_DISPATCH');
+        setCurrentUserRole(null);
       } finally {
         setIsAuthChecking(false);
       }
@@ -76,7 +75,7 @@ export default function AdminPage() {
   const completedCount = tickets.filter((t) => t.status === 'COMPLETED').length;
   const pendingRequisitionCount = requisitions.filter((r) => r.status === 'PENDING').length;
 
-  if (!isAuthChecking && currentUserRole && currentUserRole !== 'ADMIN_DISPATCH' && currentUserRole !== 'EXECUTIVE') {
+  if (!isAuthChecking && (!currentUserRole || (currentUserRole !== 'ADMIN_DISPATCH' && currentUserRole !== 'EXECUTIVE'))) {
     return (
       <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/90 shadow-lg p-6 sm:p-8 text-center space-y-4">
@@ -87,7 +86,11 @@ export default function AdminPage() {
             <h2 className="text-lg font-black text-slate-900 tracking-tight">ไม่มีสิทธิ์เข้าถึงหน้านี้</h2>
             <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
               หน้านี้สำหรับเจ้าหน้าที่ฝ่ายคัดกรองงานช่าง (Admin Desk) เท่านั้น 
-              บัญชีปัจจุบันของคุณคือ: <span className="font-bold text-blue-700">{currentUserRole === 'REPORTER' ? 'ผู้แจ้งเหตุ (Reporter)' : currentUserRole}</span>
+              {currentUserRole ? (
+                <> บัญชีปัจจุบันของคุณคือ: <span className="font-bold text-blue-700">{currentUserRole === 'REPORTER' ? 'ผู้แจ้งเหตุ (Reporter)' : currentUserRole}</span></>
+              ) : (
+                <> กรุณาเข้าสู่ระบบก่อนใช้งาน</>
+              )}
             </p>
           </div>
           <div className="pt-2 flex flex-col sm:flex-row gap-2">

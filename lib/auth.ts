@@ -20,10 +20,15 @@ interface SessionPayload {
 }
 
 /**
- * Get cryptographic secret for signing cookies
+ * Get cryptographic secret for signing cookies.
+ * Enforces strict 32+ character entropy in production environments (Fail-closed).
  */
 function getSessionSecret(): string {
-  return process.env.SESSION_SECRET || 'cp_fondue_production_session_signing_secret_2026';
+  const secret = process.env.SESSION_SECRET;
+  if (process.env.NODE_ENV === 'production' && (!secret || secret.length < 32)) {
+    throw new Error('FATAL CONFIGURATION ERROR: SESSION_SECRET must be configured with at least 32 characters in production.');
+  }
+  return secret || 'cp_fondue_default_dev_secret_key_32_characters_minimum_entropy_2026!';
 }
 
 /**
@@ -66,128 +71,65 @@ export function verifySessionToken(token: string): SessionPayload | null {
 
 /**
  * Server-side Authentication helper.
- * Retrieves authenticated user session from headers, signed cookie, dev role, or portal context.
+ * Retrieves authenticated user session from signed cryptographic cookie.
+ * Strips untrusted client headers (x-user-id/x-user-role) and referer spoofing.
  */
-export async function getAuthSession(req?: NextRequest): Promise<AuthSession> {
-  // 1. Explicit request headers (from authorized internal actions or desk components)
-  const headerUserId = req?.headers.get('x-user-id');
-  const headerRole = req?.headers.get('x-user-role') as RoleCode | undefined;
-
-  if (headerUserId) {
-    const user = await prisma.user.findUnique({
-      where: { id: headerUserId, deletedAt: null },
-    });
-    if (user) {
-      return {
-        userId: user.id,
-        email: user.email,
-        role: headerRole || (user.role as RoleCode),
-        firstName: user.firstName,
-        lastName: user.lastName,
-      };
-    }
-  }
-
-  if (headerRole) {
-    const user = await prisma.user.findFirst({
-      where: { role: headerRole, deletedAt: null },
-    });
-    if (user) {
-      return {
-        userId: user.id,
-        email: user.email,
-        role: headerRole,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      };
-    }
-  }
-
-  // 2. Check referer url (e.g. /admin, /technician, /executive, /reporter)
-  const referer = req?.headers.get('referer') || '';
-  let portalRole: RoleCode | null = null;
-  if (referer.includes('/admin')) portalRole = 'ADMIN_DISPATCH';
-  else if (referer.includes('/technician')) portalRole = 'TECHNICIAN';
-  else if (referer.includes('/executive')) portalRole = 'EXECUTIVE';
-  else if (referer.includes('/reporter')) portalRole = 'REPORTER';
-
-  // 3. Check explicit dev-role cookie (set by 1-click role switcher)
-  const devRoleCookie = req?.cookies.get('cp_dev_role')?.value as RoleCode | undefined;
-
-  // 4. Verify signed session cookie if present
+export async function getAuthSession(req?: NextRequest): Promise<AuthSession | null> {
+  // 1. Primary: Verify signed session cookie
   const cookieValue = req?.cookies.get(SESSION_COOKIE_NAME)?.value;
   if (cookieValue) {
     const sessionPayload = verifySessionToken(cookieValue);
     if (sessionPayload?.userId) {
       const user = await prisma.user.findUnique({
-        where: { id: sessionPayload.userId },
+        where: { id: sessionPayload.userId, deletedAt: null },
       });
-      if (user && !user.deletedAt) {
-        // If the request is made from a specific workspace (e.g. /admin), but the session cookie
-        // belongs to a different persona (e.g. Reporter), let the workspace role take precedence
-        const userRole = (user.role as RoleCode) || 'REPORTER';
-        if (portalRole && userRole !== portalRole) {
-          // Proceed to portal role lookup below
-        } else if (devRoleCookie && userRole !== devRoleCookie) {
-          // Proceed to devRole lookup below
-        } else {
-          return {
-            userId: user.id,
-            email: user.email,
-            role: userRole,
-            firstName: user.firstName,
-            lastName: user.lastName,
-          };
-        }
+      if (user) {
+        return {
+          userId: user.id,
+          email: user.email,
+          role: (user.role as RoleCode) || 'REPORTER',
+          firstName: user.firstName,
+          lastName: user.lastName,
+        };
       }
     }
   }
 
-  // 5. Use portal role, dev role, or fallback
-  const targetRole = portalRole || devRoleCookie || 'REPORTER';
-
-  if (targetRole) {
-    const portalUser = await prisma.user.findFirst({
-      where: { role: targetRole, deletedAt: null },
-    });
-    if (portalUser) {
-      return {
-        userId: portalUser.id,
-        email: portalUser.email,
-        role: targetRole,
-        firstName: portalUser.firstName,
-        lastName: portalUser.lastName,
-      };
+  // 2. Controlled Development / Demo switcher (strictly non-production or explicit demo mode)
+  const isDevOrDemo = process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEMO_LOGIN === 'true';
+  if (isDevOrDemo) {
+    const devRoleCookie = req?.cookies.get('cp_dev_role')?.value as RoleCode | undefined;
+    if (devRoleCookie) {
+      const portalUser = await prisma.user.findFirst({
+        where: { role: devRoleCookie, deletedAt: null },
+      });
+      if (portalUser) {
+        return {
+          userId: portalUser.id,
+          email: portalUser.email,
+          role: devRoleCookie,
+          firstName: portalUser.firstName,
+          lastName: portalUser.lastName,
+        };
+      }
     }
   }
 
-  // 6. Default fallback: Somchai (Reporter)
-  const defaultReporter = await prisma.user.findFirst({
-    where: { role: 'REPORTER', deletedAt: null },
-  });
-  if (defaultReporter) {
-    return {
-      userId: defaultReporter.id,
-      email: defaultReporter.email,
-      role: 'REPORTER',
-      firstName: defaultReporter.firstName,
-      lastName: defaultReporter.lastName,
-    };
-  }
-
-  return {
-    userId: 'usr_reporter_01',
-    email: 'somchai.k@kkumail.com',
-    role: 'REPORTER',
-    firstName: 'สมชาย',
-    lastName: 'เกียรติวิทยา',
-  };
+  // Unauthenticated requests return null
+  return null;
 }
 
 /**
- * Role-Based Access Control (RBAC) verification helper
+ * Role-Based Access Control (RBAC) verification helper.
+ * Asserts session is present and caller possesses an allowed role.
  */
-export function assertAuthorized(session: AuthSession, allowedRoles: RoleCode[]): void {
+export function assertAuthorized(
+  session: AuthSession | null | undefined,
+  allowedRoles: RoleCode[]
+): asserts session is AuthSession {
+  if (!session) {
+    throw new Error('UNAUTHORIZED: กรุณาเข้าสู่ระบบก่อนดำเนินการ');
+  }
   if (!allowedRoles.includes(session.role)) {
     throw new Error(`FORBIDDEN: คุณไม่มีสิทธิ์ดำเนินการในส่วนนี้ (ต้องการสิทธิ์: ${allowedRoles.join(', ')})`);
   }

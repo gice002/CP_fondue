@@ -850,6 +850,19 @@ export class TicketService {
       throw new Error(`ไม่สามารถปิดงานได้ เนื่องจากสถานะปัจจุบันคือ ${existing.currentStatus} (ต้องเป็น IN_PROGRESS เท่านั้น)`);
     }
 
+    // Authorization: Must be assigned technician or admin
+    const isAssigned =
+      existing.assignedTechnicianId === technicianId ||
+      Boolean(
+        await prisma.ticketTechnicianMap.findFirst({
+          where: { ticketId: existing.id, technicianId },
+        })
+      );
+    const actorUser = await prisma.user.findUnique({ where: { id: technicianId } });
+    if (!isAssigned && actorUser?.role !== 'ADMIN_DISPATCH') {
+      throw new Error('ไม่สามารถปิดงานได้ เนื่องจากท่านไม่ได้เป็นช่างที่ได้รับมอบหมายในงานนี้');
+    }
+
     const updated = await prisma.$transaction(async (tx) => {
       // 1. Add after repair attachments
       if (afterProofUrls.length > 0) {
@@ -1004,6 +1017,16 @@ export class TicketService {
 
     if (existing.evaluation) {
       throw new Error('คำร้องนี้ได้รับการประเมินความพึงพอใจแล้ว ไม่สามารถประเมินซ้ำได้');
+    }
+
+    // BR10: Must be in COMPLETED status to evaluate
+    if (existing.currentStatus !== 'COMPLETED') {
+      throw new Error(`ไม่สามารถประเมินความพึงพอใจได้เนื่องจากสถานะปัจจุบันคือ ${existing.currentStatus} (ต้องอยู่ในสถานะ COMPLETED เท่านั้น)`);
+    }
+
+    // Security & Data Integrity: Evaluator must be the reporter of the ticket
+    if (existing.reporterUserId !== userId) {
+      throw new Error('คุณไม่มีสิทธิ์ประเมินใบแจ้งซ่อมของผู้ใช้อื่น (เฉพาะผู้แจ้งเหตุของใบคำร้องนี้เท่านั้น)');
     }
 
     const evalRecord = await prisma.$transaction(async (tx) => {

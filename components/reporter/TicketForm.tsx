@@ -21,7 +21,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import { InfoTooltip } from '@/components/common/InfoTooltip';
-import { triggerSuccessConfetti } from '@/lib/confetti';
+import { ToastService } from '@/lib/toastService';
 import {
   analyzePhotoMock,
   MockAiScenario,
@@ -104,6 +104,18 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingAiResult, setPendingAiResult] = useState<MockAiScenario | null>(null);
   const [conflicts, setConflicts] = useState<ConflictingField[]>([]);
+
+  // In-App GPS Permission & Detection State
+  const [isLocationGranted, setIsLocationGranted] = useState(false);
+  const [isGpsDetecting, setIsGpsDetecting] = useState(false);
+  const [gpsSuccessRoom, setGpsSuccessRoom] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkLoc = () => setIsLocationGranted(WebPermissionService.isGranted('location'));
+    checkLoc();
+    window.addEventListener('cp_permissions_changed', checkLoc);
+    return () => window.removeEventListener('cp_permissions_changed', checkLoc);
+  }, []);
 
   // -------------------------------------------------------------
   // Load Locations & Equipments
@@ -278,23 +290,32 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
     }
   };
 
-  const handleAutoDetectLocation = () => {
-    if (WebPermissionService.isGranted('location')) {
+  const runGpsDetection = () => {
+    setIsGpsDetecting(true);
+    setTimeout(() => {
+      setIsGpsDetecting(false);
       if (locations.length > 0) {
         const sc09Room = locations.find((l) => l.roomNumber === '304') || locations[0];
         setSelectedLocationId(sc09Room.id);
+        setGpsSuccessRoom(`${sc09Room.roomNumber} (${sc09Room.roomName})`);
+        setTimeout(() => setGpsSuccessRoom(null), 4000);
       }
+    }, 600);
+  };
+
+  const handleAutoDetectLocation = () => {
+    if (WebPermissionService.isGranted('location')) {
+      setIsLocationGranted(true);
+      runGpsDetection();
     } else {
       setPermissionModal({
         isOpen: true,
         type: 'location',
         onAllow: () => {
           WebPermissionService.grant('location');
+          setIsLocationGranted(true);
           setPermissionModal(null);
-          if (locations.length > 0) {
-            const sc09Room = locations.find((l) => l.roomNumber === '304') || locations[0];
-            setSelectedLocationId(sc09Room.id);
-          }
+          runGpsDetection();
         },
       });
     }
@@ -434,7 +455,23 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
       if (data.success) {
         setGeneratedTicketNo(data.data.ticketNumber);
         setSubmitSuccess(true);
-        triggerSuccessConfetti();
+
+        const roomObj = locations.find((l) => l.id === selectedLocationId);
+        const locText = roomObj
+          ? `SC-09 ห้อง ${roomObj.roomNumber} (${roomObj.roomName})`
+          : 'SC-09 อาคารวิทยวิภาส';
+
+        // Trigger bottom-right in-app notification popup (Zero screen-wide confetti)
+        ToastService.show({
+          title: 'ยื่นคำร้องแจ้งซ่อมสำเร็จ!',
+          ticketNumber: data.data.ticketNumber,
+          location: locText,
+          message: 'คำร้องของคุณเข้าสู่คิวโต๊ะคัดกรองงานช่างเรียบร้อยแล้ว',
+          actionLabel: 'ติดตามสถานะงานสด',
+          actionTab: 'tracker',
+          durationMs: 6000,
+        });
+
         if (onSuccess) onSuccess();
       } else {
         alert(data.error || 'Failed to submit ticket');
@@ -839,11 +876,41 @@ export const TicketForm: React.FC<TicketFormProps> = ({ onSuccess, onCancel }) =
                 <button
                   type="button"
                   onClick={handleAutoDetectLocation}
-                  className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition cursor-pointer"
-                  title="ขอสิทธิ์พิกัดตำแหน่งเพื่อระบุห้องอัตโนมัติ"
+                  disabled={isGpsDetecting}
+                  className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition cursor-pointer shadow-2xs ${
+                    gpsSuccessRoom
+                      ? 'text-emerald-800 bg-emerald-100 border border-emerald-300 ring-2 ring-emerald-500/20'
+                      : isLocationGranted
+                      ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200'
+                      : 'text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200'
+                  }`}
+                  title={
+                    isLocationGranted
+                      ? 'ตรวจจับพิกัดห้องอัตโนมัติ (ได้รับสิทธิ์แล้ว)'
+                      : 'ขอสิทธิ์พิกัดตำแหน่งเพื่อระบุห้องอัตโนมัติ'
+                  }
                 >
-                  <MapPin className="w-3 h-3 text-rose-600" />
-                  <span>ตรวจจับห้อง (GPS ขอสิทธิ์)</span>
+                  {isGpsDetecting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                      <span>กำลังตรวจจับพิกัด...</span>
+                    </>
+                  ) : gpsSuccessRoom ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>ระบุพิกัดสำเร็จ: ห้อง {gpsSuccessRoom.slice(0, 3)}</span>
+                    </>
+                  ) : isLocationGranted ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>ตรวจจับห้อง (GPS พร้อมใช้)</span>
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                      <span>ตรวจจับห้อง (GPS ขอสิทธิ์)</span>
+                    </>
+                  )}
                 </button>
                 <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600 ring-1 ring-inset ring-red-600/20">
                   * จำเป็น

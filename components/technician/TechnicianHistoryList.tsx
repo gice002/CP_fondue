@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Star, ThumbsUp, CheckCircle2 } from 'lucide-react';
 import { Ticket } from '@/types';

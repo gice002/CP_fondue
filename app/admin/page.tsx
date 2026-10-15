@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import useSWR from 'swr';
 import { Sidebar } from '@/components/common/Sidebar';
 import { AdminStatCards } from '@/components/admin/AdminStatCards';
@@ -13,19 +14,33 @@ import { LoadingScreen, DispatchWorkspaceSkeleton } from '@/components/common/Lo
 import { PageTransition, AnimatePresence } from '@/components/common/MotionWrapper';
 import { fetcher, defaultSwrConfig } from '@/lib/swr';
 import { Ticket, SparePartRequest } from '@/types';
+import { ShieldAlert } from 'lucide-react';
 
 export default function AdminPage() {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [activeSubView, setActiveSubView] = useState('dispatch');
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
-  // Synchronize session cookie for ADMIN_DISPATCH
+  // Verify session role for ADMIN_DISPATCH
   useEffect(() => {
-    document.cookie = 'cp_dev_role=ADMIN_DISPATCH; path=/; max-age=86400; SameSite=Lax';
-    fetch('/api/auth/session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role: 'ADMIN_DISPATCH' }),
-    }).catch(() => {});
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/session', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.success && data.data?.role) {
+          setCurrentUserRole(data.data.role);
+        } else {
+          const match = document.cookie.match(/cp_dev_role=([^;]+)/);
+          setCurrentUserRole(match ? match[1] : 'ADMIN_DISPATCH');
+        }
+      } catch {
+        setCurrentUserRole('ADMIN_DISPATCH');
+      } finally {
+        setIsAuthChecking(false);
+      }
+    }
+    checkAuth();
   }, []);
 
   // Fast Cached SWR queries
@@ -60,6 +75,44 @@ export default function AdminPage() {
   const activeCount = tickets.filter((t) => t.status === 'IN_PROGRESS' || t.status === 'ASSIGNED').length;
   const completedCount = tickets.filter((t) => t.status === 'COMPLETED').length;
   const pendingRequisitionCount = requisitions.filter((r) => r.status === 'PENDING').length;
+
+  if (!isAuthChecking && currentUserRole && currentUserRole !== 'ADMIN_DISPATCH' && currentUserRole !== 'EXECUTIVE') {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/90 shadow-lg p-6 sm:p-8 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
+            <ShieldAlert className="w-7 h-7" />
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">ไม่มีสิทธิ์เข้าถึงหน้านี้</h2>
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              หน้านี้สำหรับเจ้าหน้าที่ฝ่ายคัดกรองงานช่าง (Admin Desk) เท่านั้น 
+              บัญชีปัจจุบันของคุณคือ: <span className="font-bold text-blue-700">{currentUserRole === 'REPORTER' ? 'ผู้แจ้งเหตุ (Reporter)' : currentUserRole}</span>
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col sm:flex-row gap-2">
+            <Link
+              href="/reporter"
+              className="flex-1 py-2.5 px-4 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition text-center"
+            >
+              กลับสู่หน้าผู้แจ้งเหตุ
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                document.cookie = 'cp_fondue_session=; path=/; max-age=0;';
+                document.cookie = 'cp_dev_role=; path=/; max-age=0;';
+                window.location.href = '/';
+              }}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition text-center cursor-pointer"
+            >
+              เข้าสู่ระบบใหม่
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col lg:flex-row font-sans">

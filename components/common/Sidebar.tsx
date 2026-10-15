@@ -17,6 +17,9 @@ import {
   Package,
   LogOut,
   RotateCcw,
+  PlusCircle,
+  Clock,
+  Sparkles,
 } from 'lucide-react';
 import { RoleCode } from '@/types';
 import { WebPermissionService } from '@/lib/permissionService';
@@ -48,35 +51,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }, 2500);
   };
 
-  const portals = [
-    {
-      role: 'REPORTER' as RoleCode,
-      name: 'ผู้แจ้งเหตุ (Reporter)',
-      href: '/reporter',
-      icon: Laptop,
-      badge: 'แจ้งซ่อม',
-    },
-    {
-      role: 'ADMIN_DISPATCH' as RoleCode,
-      name: 'เจ้าหน้าที่ (Admin Desk)',
-      href: '/admin',
-      icon: ClipboardList,
-      badge: 'คัดกรอง & พัสดุ',
-    },
-    {
-      role: 'TECHNICIAN' as RoleCode,
-      name: 'ทีมช่างซ่อม (Technician)',
-      href: '/technician',
-      icon: Wrench,
-      badge: 'งานช่าง',
-    },
-    {
-      role: 'EXECUTIVE' as RoleCode,
-      name: 'แดชบอร์ดภาพรวม (Dashboard)',
-      href: '/executive',
-      icon: BarChart3,
-      badge: 'สถิติภาพรวม',
-    },
+  // Specific sub-navigation items for REPORTER
+  const reporterSubNav = [
+    { id: 'create', name: 'แจ้งซ่อมใหม่', icon: PlusCircle },
+    { id: 'tracker', name: 'ติดตามสถานะงานสด', icon: Clock },
+    { id: 'history', name: 'ประวัติการแจ้งเหตุ', icon: ClipboardList },
   ];
 
   // Specific sub-navigation items for ADMIN_DISPATCH
@@ -90,6 +69,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const technicianSubNav = [
     { id: 'desk', name: 'โต๊ะปฏิบัติการช่าง', icon: Wrench },
     { id: 'report', name: 'แจ้งซ่อม / แจ้งเหตุ', icon: Laptop },
+  ];
+
+  // Specific sub-navigation items for EXECUTIVE
+  const executiveSubNav = [
+    { id: 'overview', name: 'แดชบอร์ดภาพรวม', icon: BarChart3 },
+    { id: 'leaderboard', name: 'ประสิทธิภาพทีมช่าง', icon: Wrench },
+    { id: 'audit', name: 'บันทึกประวัติ (Audit)', icon: ShieldCheck },
   ];
 
   return (
@@ -177,6 +163,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
 
+          {/* Special Sub-navigation for REPORTER */}
+          {currentRole === 'REPORTER' && onSelectSubView && (
+            <div className="space-y-1">
+              <span className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                เมนูผู้แจ้งเหตุ (Reporter Views)
+              </span>
+              {reporterSubNav.map((sub) => {
+                const Icon = sub.icon;
+                const isSelected = activeSubView === sub.id || (!activeSubView && sub.id === 'create');
+                return (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    onClick={() => {
+                      onSelectSubView(sub.id);
+                      setMobileOpen(false);
+                    }}
+                    className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                      isSelected
+                        ? 'bg-blue-700 text-white shadow-xs'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{sub.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {/* Special Sub-navigation for ADMIN_DISPATCH */}
           {currentRole === 'ADMIN_DISPATCH' && onSelectSubView && (
             <div className="space-y-1">
@@ -194,7 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onSelectSubView(sub.id);
                       setMobileOpen(false);
                     }}
-                    className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                    className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
                       isSelected
                         ? 'bg-blue-700 text-white shadow-xs'
                         : 'text-slate-700 hover:bg-slate-100'
@@ -225,7 +242,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onSelectSubView(sub.id);
                       setMobileOpen(false);
                     }}
-                    className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                    className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
                       isSelected
                         ? 'bg-blue-700 text-white shadow-xs'
                         : 'text-slate-700 hover:bg-slate-100'
@@ -239,58 +256,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           )}
 
-          {/* Section: Switch Workspace (Evaluation & Role Hub) */}
-          <div className="space-y-1 pt-1">
-            <span className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
-              พอร์ทัลตามบทบาท (Portals)
-            </span>
-            {portals.map((item) => {
-              const isActive = pathname.startsWith(item.href);
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => {
-                    setMobileOpen(false);
-                    // Set active dev role cookie for seamless demo switching
-                    document.cookie = `cp_dev_role=${item.role}; path=/; max-age=86400; SameSite=Lax`;
-                    fetch('/api/auth/session', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ role: item.role }),
-                    }).catch(() => {});
-                  }}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition group ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-800 border border-blue-200/80 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2.5">
-                    <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${
-                        isActive
-                          ? 'bg-blue-700 text-white'
-                          : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200'
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                    </div>
-                    <span>{item.name}</span>
-                  </div>
-                  <ChevronRight
-                    className={`w-3.5 h-3.5 transition ${
-                      isActive ? 'text-blue-700' : 'text-slate-300 group-hover:text-slate-500'
+          {/* Special Sub-navigation for EXECUTIVE */}
+          {currentRole === 'EXECUTIVE' && onSelectSubView && (
+            <div className="space-y-1">
+              <span className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                เมนูผู้บริหาร (Executive Views)
+              </span>
+              {executiveSubNav.map((sub) => {
+                const Icon = sub.icon;
+                const isSelected = activeSubView === sub.id || (!activeSubView && sub.id === 'overview');
+                return (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    onClick={() => {
+                      onSelectSubView(sub.id);
+                      setMobileOpen(false);
+                    }}
+                    className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                      isSelected
+                        ? 'bg-blue-700 text-white shadow-xs'
+                        : 'text-slate-700 hover:bg-slate-100'
                     }`}
-                  />
-                </Link>
-              );
-            })}
-          </div>
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{sub.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
-          {/* QA & Testing: Reset In-App Permissions */}
-          <div className="pt-2 border-t border-slate-100">
+          {/* QA & Testing: Reset In-App Permissions & Switch Account */}
+          <div className="pt-2 border-t border-slate-100 space-y-1.5">
             <div className="px-3 pb-1 flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               <span>ทดสอบระบบ (Dev / QA)</span>
             </div>
@@ -324,6 +322,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {resetSuccess ? 'DONE' : 'RESET'}
               </span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                document.cookie = 'cp_fondue_session=; path=/; max-age=0;';
+                document.cookie = 'cp_dev_role=; path=/; max-age=0;';
+                window.location.href = '/';
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50/80 border border-transparent transition cursor-pointer group"
+              title="สลับบัญชีเพื่อทดสอบบทบาทอื่นผ่านหน้า Login"
+            >
+              <div className="flex items-center space-x-2 min-w-0">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform shrink-0" />
+                <span className="truncate">สลับบัญชีทดสอบด่วน</span>
+              </div>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200/60">
+                LOGIN
+              </span>
+            </button>
           </div>
         </div>
 
@@ -340,17 +357,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
 
-            <Link
-              href="/"
+            <button
+              type="button"
               onClick={() => {
                 document.cookie = 'cp_fondue_session=; path=/; max-age=0;';
                 document.cookie = 'cp_dev_role=; path=/; max-age=0;';
+                window.location.href = '/';
               }}
               title="ออกจากระบบ (Sign Out)"
               className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
-            </Link>
+            </button>
           </div>
           <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] text-slate-400 font-medium">
             <span>SC-09 อาคารวิทยวิภาส</span>

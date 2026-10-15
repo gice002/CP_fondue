@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Sidebar } from '@/components/common/Sidebar';
 import { TechnicianHeader, TechnicianInfo } from '@/components/technician/TechnicianHeader';
 import { NewJobCard } from '@/components/technician/NewJobCard';
@@ -8,7 +9,7 @@ import { CheckInRequisitionCard } from '@/components/technician/CheckInRequisiti
 import { CloseJobCard } from '@/components/technician/CloseJobCard';
 import { TechnicianHistoryList } from '@/components/technician/TechnicianHistoryList';
 import { Ticket } from '@/types';
-import { Inbox, CheckCircle2, Clock, Wrench, Bell } from 'lucide-react';
+import { Inbox, CheckCircle2, Clock, Wrench, Bell, ShieldAlert } from 'lucide-react';
 import { TicketForm } from '@/components/reporter/TicketForm';
 import { InfoTooltip } from '@/components/common/InfoTooltip';
 import { PageTransition, AnimatePresence, motion } from '@/components/common/MotionWrapper';
@@ -30,6 +31,29 @@ export default function TechnicianPage() {
     'ฝ่ายงานช่างเครือข่ายและการสื่อสาร CP KKU'
   );
   const [activeSubView, setActiveSubView] = useState<'desk' | 'report'>('desk');
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+
+  // Role authentication check
+  useEffect(() => {
+    async function verifyAuth() {
+      try {
+        const res = await fetch('/api/auth/session', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.success && data.data?.role) {
+          setCurrentUserRole(data.data.role);
+        } else {
+          const match = document.cookie.match(/cp_dev_role=([^;]+)/);
+          setCurrentUserRole(match ? match[1] : 'TECHNICIAN');
+        }
+      } catch {
+        setCurrentUserRole('TECHNICIAN');
+      } finally {
+        setIsAuthChecking(false);
+      }
+    }
+    verifyAuth();
+  }, []);
 
   // In-App Notification Permission State
   const [isNotifGranted, setIsNotifGranted] = useState(false);
@@ -202,6 +226,44 @@ export default function TechnicianPage() {
     }
     return 0; // Keep existing order (tag priority order)
   });
+
+  if (!isAuthChecking && currentUserRole && currentUserRole !== 'TECHNICIAN' && currentUserRole !== 'EXECUTIVE') {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/90 shadow-lg p-6 sm:p-8 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
+            <ShieldAlert className="w-7 h-7" />
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">ไม่มีสิทธิ์เข้าถึงหน้านี้</h2>
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              หน้านี้สำหรับทีมช่างซ่อมเทคนิค (Technician) เท่านั้น 
+              บัญชีปัจจุบันของคุณคือ: <span className="font-bold text-blue-700">{currentUserRole === 'REPORTER' ? 'ผู้แจ้งเหตุ (Reporter)' : currentUserRole}</span>
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col sm:flex-row gap-2">
+            <Link
+              href="/reporter"
+              className="flex-1 py-2.5 px-4 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition text-center"
+            >
+              กลับสู่หน้าผู้แจ้งเหตุ
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                document.cookie = 'cp_fondue_session=; path=/; max-age=0;';
+                document.cookie = 'cp_dev_role=; path=/; max-age=0;';
+                window.location.href = '/';
+              }}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition text-center cursor-pointer"
+            >
+              เข้าสู่ระบบใหม่
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col lg:flex-row font-sans">

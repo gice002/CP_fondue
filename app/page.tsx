@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Layers,
@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 import { RoleCode } from '@/types';
 import { motion } from 'motion/react';
-import { triggerSparklesConfetti } from '@/lib/confetti';
 
 function saveDevRoleCookie(role: string) {
   if (typeof document !== 'undefined') {
@@ -41,7 +40,25 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeLoadingRole, setActiveLoadingRole] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
+  const [showRoleSwitcher, setShowRoleSwitcher] = useState(true);
+
+  // Automatically reset all loading states whenever navigating to/viewing this page
+  useEffect(() => {
+    setActiveLoadingRole(null);
+    setIsSubmitting(false);
+
+    const resetStates = () => {
+      setActiveLoadingRole(null);
+      setIsSubmitting(false);
+    };
+
+    window.addEventListener('pageshow', resetStates);
+    window.addEventListener('focus', resetStates);
+    return () => {
+      window.removeEventListener('pageshow', resetStates);
+      window.removeEventListener('focus', resetStates);
+    };
+  }, []);
 
   // 4 Roles for evaluation and quick switching matching seed data
   const roleCards = [
@@ -126,7 +143,6 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-      triggerSparklesConfetti();
       if (data.success) {
         router.push(targetHref);
       } else {
@@ -136,6 +152,11 @@ export default function LoginPage() {
     } catch (err: unknown) {
       console.warn('Session API failed, routing directly to portal:', err);
       router.push(targetHref);
+    } finally {
+      // Clear loading state after navigation begins so that when returning, it is not stuck
+      setTimeout(() => {
+        setActiveLoadingRole(null);
+      }, 500);
     }
   };
 

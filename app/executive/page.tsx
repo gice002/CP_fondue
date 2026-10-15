@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import useSWR from 'swr';
 import { Sidebar } from '@/components/common/Sidebar';
 import { ExecutiveHeader } from '@/components/executive/ExecutiveHeader';
@@ -14,9 +15,32 @@ import { triggerSuccessConfetti } from '@/lib/confetti';
 import { fetcher, defaultSwrConfig } from '@/lib/swr';
 import { ExecutiveStats, AuditLog } from '@/types';
 import { MOCK_EXECUTIVE_STATS, MOCK_AUDIT_LOGS, MOCK_USERS } from '@/data/mockData';
-import { Download } from 'lucide-react';
+import { Download, ShieldAlert } from 'lucide-react';
 
 export default function ExecutivePage() {
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/session', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.success && data.data?.role) {
+          setCurrentUserRole(data.data.role);
+        } else {
+          const match = document.cookie.match(/cp_dev_role=([^;]+)/);
+          setCurrentUserRole(match ? match[1] : 'EXECUTIVE');
+        }
+      } catch {
+        setCurrentUserRole('EXECUTIVE');
+      } finally {
+        setIsAuthChecking(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
   const { data: analyticsData } = useSWR<{ success: boolean; data: ExecutiveStats }>(
     '/api/analytics',
     fetcher,
@@ -36,6 +60,44 @@ export default function ExecutivePage() {
     triggerSuccessConfetti();
     alert('ส่งออกรายงานสรุปผล EdPEx ประจำเดือนเรียบร้อยแล้ว');
   };
+
+  if (!isAuthChecking && currentUserRole && currentUserRole !== 'EXECUTIVE') {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/90 shadow-lg p-6 sm:p-8 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
+            <ShieldAlert className="w-7 h-7" />
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">ไม่มีสิทธิ์เข้าถึงหน้านี้</h2>
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              หน้านี้สำหรับผู้บริหารระดับสูง (Executive Dashboard) เท่านั้น 
+              บัญชีปัจจุบันของคุณคือ: <span className="font-bold text-blue-700">{currentUserRole === 'REPORTER' ? 'ผู้แจ้งเหตุ (Reporter)' : currentUserRole}</span>
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col sm:flex-row gap-2">
+            <Link
+              href="/reporter"
+              className="flex-1 py-2.5 px-4 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition text-center"
+            >
+              กลับสู่หน้าผู้แจ้งเหตุ
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                document.cookie = 'cp_fondue_session=; path=/; max-age=0;';
+                document.cookie = 'cp_dev_role=; path=/; max-age=0;';
+                window.location.href = '/';
+              }}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition text-center cursor-pointer"
+            >
+              เข้าสู่ระบบใหม่
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col lg:flex-row font-sans">

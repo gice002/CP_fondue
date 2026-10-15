@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { Sidebar } from '@/components/common/Sidebar';
 import { ReporterHeader } from '@/components/reporter/ReporterHeader';
@@ -29,6 +29,33 @@ export default function ReporterPage() {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [activeTab, setActiveTab] = useState<ReporterMobileTab>('create');
+  const [userName, setUserName] = useState('สมชาย เกียรติวิทยา');
+  const [userEmail, setUserEmail] = useState('somchai.k@kkumail.com');
+
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          if (data.data.firstName) {
+            setUserName(`${data.data.firstName} ${data.data.lastName || ''}`.trim());
+          }
+          if (data.data.email) {
+            setUserEmail(data.data.email);
+          }
+        }
+      })
+      .catch(() => {});
+
+    const handleSwitchTab = (e: Event) => {
+      const customEvent = e as CustomEvent<{ tab: ReporterMobileTab }>;
+      if (customEvent.detail?.tab) {
+        setActiveTab(customEvent.detail.tab);
+      }
+    };
+    window.addEventListener('cp_switch_reporter_tab', handleSwitchTab);
+    return () => window.removeEventListener('cp_switch_reporter_tab', handleSwitchTab);
+  }, []);
 
   // SWR: Ultra-fast cached data loading with background revalidation
   const {
@@ -102,8 +129,13 @@ export default function ReporterPage() {
     <div className="min-h-screen bg-[#f8fafc] flex flex-col lg:flex-row font-sans">
       <Sidebar
         currentRole="REPORTER"
-        userName="สมชาย เกียรติวิทยา"
-        userEmail="somchai.k@kkumail.com"
+        userName={userName}
+        userEmail={userEmail}
+        activeSubView={activeTab}
+        onSelectSubView={(sub) => {
+          if (sub === 'create') setFormKey((k) => k + 1);
+          setActiveTab(sub as ReporterMobileTab);
+        }}
       />
 
       <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">

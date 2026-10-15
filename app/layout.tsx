@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
+import { InAppToast } from "@/components/common/InAppToast";
 
 const notoSansThai = Noto_Sans_Thai({
   variable: "--font-noto-sans-thai",
@@ -20,7 +21,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="th"
       className={`${notoSansThai.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <InAppToast />
+      </body>
     </html>
   );
 }
